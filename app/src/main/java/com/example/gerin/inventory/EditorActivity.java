@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -14,9 +15,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -31,10 +34,13 @@ import android.widget.Toast;
 
 import com.example.gerin.inventory.data.ItemContract;
 
+import java.io.File;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 // TODO: 2018-07-09 if user clicks save twice two copies are saved
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -108,16 +114,18 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      * ID for accessing image from gallery
      */
     private static final int GALLERY_REQUEST = 1;
+    private static final int CAMERA_REQUEST = 2;
 
     /**
      * Maximum size for an image file that can be stored in the database
      */
-    private static final int FIVE_MB = 5000000;
+    private static final int MAX_MB = 5000000;
 
     /**
      * URI of selected image
      */
     private Uri selectedImage = null;
+    String mCurrentPhotoPath;
 
     @SuppressLint("ClickableViewAccessibility")
     private final View.OnTouchListener mTouchListener = (view, motionEvent) -> {
@@ -130,7 +138,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
-
 
         // Examine the intent that was used to launch this activity,
         // in order to figure out if we're creating a new item or editing an existing one.
@@ -477,16 +484,28 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     }
 
     public void insertImage(View view){
-        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-        photoPickerIntent.setType("image/*");
-        startActivityForResult(photoPickerIntent, GALLERY_REQUEST);
+        final CharSequence[] items = {"Take Photo", "Choose from Library", "Cancel"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditorActivity.this);
+        builder.setTitle("Add Photo!");
+        builder.setItems(items, (dialog, item) -> {
+            if (items[item].equals("Take Photo")) {
+                dispatchTakePictureIntent();
+            } else if (items[item].equals("Choose from Library")) {
+                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                photoPickerIntent.setType("image/*");
+                startActivityForResult(photoPickerIntent, GALLERY_REQUEST);
+            } else if (items[item].equals("Cancel")) {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK)
-            if (requestCode == GALLERY_REQUEST)
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == GALLERY_REQUEST) {
                 selectedImage = data.getData();
                 Log.e("editor activity", selectedImage.toString());
                 try {
@@ -506,7 +525,55 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 } catch (IOException e) {
                     Log.e("onActivityResult", "Some exception " + e);
                 }
+            } else if (requestCode == CAMERA_REQUEST) {
+                try {
+                    mItemBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                    if (mItemBitmap.getAllocationByteCount() > MAX_MB) {
+                        int currentWidth = mItemBitmap.getWidth();
+                        int currentHeight = mItemBitmap.getHeight();
+                        int newWidth = (int) (currentWidth * 0.5);
+                        int newHeight = (int) (currentHeight * 0.5);
+                        mItemBitmap = Bitmap.createScaledBitmap(mItemBitmap, newWidth, newHeight, true);
+                    }
+                    mItemImageView.setImageBitmap(mItemBitmap);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                Log.e("fileError", ex.getMessage());
+            }
+            if (photoFile != null) {
+                selectedImage = FileProvider.getUriForFile(this,
+                        "com.example.gerin.inventory.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImage);
+                startActivityForResult(takePictureIntent, CAMERA_REQUEST);
+            }
+        }
     }
 
 }
