@@ -7,14 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.ListViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -30,24 +27,19 @@ import android.widget.Toast;
 
 import com.example.gerin.inventory.Search.CustomSuggestionsAdapter;
 import com.example.gerin.inventory.Search.RecyclerTouchListener;
-import com.example.gerin.inventory.Search.SearchAdapter;
 import com.example.gerin.inventory.Search.SearchResult;
 import com.example.gerin.inventory.data.ItemContract;
+import com.example.gerin.inventory.data.ItemCursorAdapter;
 import com.example.gerin.inventory.data.ItemDbHelper;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 import com.mancj.materialsearchbar.adapter.SuggestionsAdapter;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: 2018-07-08 add "tags" fields to the database
 public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    /**
-     * Adapter for the ListView
-     */
-    ItemCursorAdapter mCursorAdapter;
+    private ItemCursorAdapter mCursorAdapter;
 
     /**
      * Identifier for the item data loader
@@ -55,74 +47,20 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     private static final int ITEM_LOADER = 0;
 
     /**
-     * Sort order parameter for cursor loader and loader manager
+     * Variables for the search bar
      */
-    private String DEFAULT_SORT_ORDER = null;
-
-    /**
-     * Options for Sorting dialog
-     */
-    private final String[] options = new String[]{"Alphabetical - Ascending", "Alphabetical - Descending", "Oldest first", "Newest first"};
-
-    /**
-     * Alphabetical - Ascending order
-     */
-    private static final int ASCENDING = 0;
-
-    /**
-     * Alphabetical - Descending order
-     */
-    private static final int DESCENDING = 1;
-
-    /**
-     * Oldest first order
-     */
-    private static final int OLDEST_FIRST = 2;
-
-    /**
-     * Newest first order
-     */
-    private static final int NEWEST_FIRST = 3;
-
-    /**
-     * Current Sort Choice
-     */
-    private static int sort_choice = 2;
-
-
-    RecyclerView recyclerView;
-    RecyclerView.LayoutManager layoutManager;
-    SearchAdapter adapter;
-
     MaterialSearchBar materialSearchBar;
     CustomSuggestionsAdapter customSuggestionsAdapter;
-
-
-    // Contains all suggestions
-    List<SearchResult> searchResultList = new ArrayList<>();
-
-
-    // Instance of the database
     ItemDbHelper database;
-
-    // Flag to determine when to stop loading suggestions
-    public int flag1 = 0;
+    List<SearchResult> searchResultList = new ArrayList<>();
+    public static int flag1 = 0;
 
     @Override
     protected void onStart() {
         super.onStart();
-
-        Log.e("catalog", "onStart");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        Log.e("catalog", "onResume");
         flag1 = 0;
-        loadSearchResultList();
-        customSuggestionsAdapter.setSuggestions(searchResultList);
+        Log.e("catalog", "onStart");
+
     }
 
     @Override
@@ -278,7 +216,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         });
 
         // On click method for suggestions
-        RecyclerView searchrv = findViewById(R.id.mt_recycler);
+        RecyclerView searchrv = findViewById(getResources().getIdentifier("mt_recycler", "id", getPackageName()));
         searchrv.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), searchrv, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
@@ -386,15 +324,15 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     }
 
     private List<SearchResult> loadNewSearchResultList() {
-        MySuggestions.newSuggestions = new ArrayList<>();
-        MySuggestions.newSuggestions_id = new ArrayList<Integer>(10);
+        List<SearchResult> newSuggestions = new ArrayList<>();
+        List<Integer> newSuggestions_id = new ArrayList<Integer>(10);
         loadSearchResultList();
         int i = 0;
         for (SearchResult searchResult : searchResultList) {
             if (searchResult.getName().toLowerCase().contains(materialSearchBar.getText().toLowerCase())) {
-                MySuggestions.newSuggestions.add(searchResult);
-                MySuggestions.newSuggestions_id.add(searchResult.getId());
-                MySuggestions.moreresults[i] = searchResult.getId();
+                newSuggestions.add(searchResult);
+                newSuggestions_id.add(searchResult.getId());
+//                MySuggestions.moreresults[i] = searchResult.getId();
                 i++;
 
 //                MySuggestions.newSuggestions_id.add(1);
@@ -402,7 +340,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             }
         }
 
-        return MySuggestions.newSuggestions;
+        return newSuggestions;
 
     }
 
@@ -414,126 +352,35 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         getMenuInflater().inflate(R.menu.menu_catalog, menu);
 
         return true;
-
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
-        switch (item.getItemId()) {
-            // Respond to a click on the "Delete all entries" menu option
-            case R.id.action_delete_all_entries:
-                // delete entries
-                showDeleteAllConfirmationDialog();
-                return true;
-            case R.id.action_sort_all_entries:
-                // sort entries
-                showSortConfirmationDialog();
-                return true;
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_delete_all_entries) {
+            return true;
+        } else if (itemId == R.id.action_sort_by) {
+            showSortByDialog();
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void showDeleteAllConfirmationDialog() {
-        // Create an AlertDialog.Builder and set the message, and click listeners
-        // for the postivie and negative buttons on the dialog.
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.delete_all_dialog_msg);
-        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Delete" button
-                deleteAllItems();
-            }
-        });
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Cancel" button, so dismiss the dialog and continue editing
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-            }
-        });
-
-        // Create and show the AlertDialog
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
-    private void deleteAllItems() {
-        int rowsDeleted = getContentResolver().delete(ItemContract.ItemEntry.CONTENT_URI, null, null);
-        if (rowsDeleted >= 0) {
-            Toast.makeText(this, "All items deleted", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "An error occurred: Delete failed", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    // TODO: 2018-07-08 put sortAllItems in setPositiveButton 
-    private void showSortConfirmationDialog() {
-
-        // Create an AlertDialog.Builder and set the message, and click listeners
-        // for the postivie and negative buttons on the dialog.
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.RadioDialogTheme);
-        builder.setTitle(R.string.sort_dialog_msg);
-        builder.setSingleChoiceItems(options, sort_choice, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                sortAllItems(which);
-            }
-        });
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-            }
-        });
-
-        // Create and show the AlertDialog
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
-    private void sortAllItems(int choice) {
-
-        // Sort order
-        switch (choice) {
-            case ASCENDING:
-                DEFAULT_SORT_ORDER = ItemContract.ItemEntry.COLUMN_ITEM_NAME + " COLLATE NOCASE ASC";
-                sort_choice = 0;
-                break;
-            case DESCENDING:
-                DEFAULT_SORT_ORDER = ItemContract.ItemEntry.COLUMN_ITEM_NAME + " COLLATE NOCASE DESC";
-                sort_choice = 1;
-                break;
-            case OLDEST_FIRST:
-                DEFAULT_SORT_ORDER = null;
-                sort_choice = 2;
-                break;
-            case NEWEST_FIRST:
-                DEFAULT_SORT_ORDER = ItemContract.ItemEntry._ID + " DESC";
-                sort_choice = 3;
-                break;
-
-        }
-
-        // Restart the LoaderManager so OnCreate can be called again with new parameters for the cursor
-        getLoaderManager().restartLoader(0, null, this);
-
-    }
-
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         // Define a projection that specifies the columns from the table we care about.
         String[] projection = {
                 ItemContract.ItemEntry._ID,
                 ItemContract.ItemEntry.COLUMN_ITEM_NAME,
                 ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY,
-                ItemContract.ItemEntry.COLUMN_ITEM_PRICE};
+                ItemContract.ItemEntry.COLUMN_ITEM_PRICE,
+                ItemContract.ItemEntry.COLUMN_ITEM_IMAGE
+        };
 
-        Log.e("onCreateLoader", "DEFAULT_SORT_ORDER = " + DEFAULT_SORT_ORDER);
-
+        String sortOrder = null;
+        if (bundle != null) {
+            sortOrder = bundle.getString("sortOrder");
+        }
 
         // This loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader(this,   // Parent activity context
@@ -541,9 +388,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 projection,             // Columns to include in the resulting Cursor
                 null,                   // No selection clause
                 null,                   // No selection arguments
-                DEFAULT_SORT_ORDER);                  // Default sort order
-
-
+                sortOrder);             // Default sort order
     }
 
     @Override
@@ -556,5 +401,25 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         mCursorAdapter.swapCursor(null);
     }
 
+    private void showSortByDialog() {
+        final String[] sortOptions = {"Default", "Name (A-Z)", "Price (Low-High)"};
+        final String[] sortOrderOptions = {null, ItemContract.ItemEntry.COLUMN_ITEM_NAME + " ASC", ItemContract.ItemEntry.COLUMN_ITEM_PRICE + " ASC"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.RadioDialogTheme);
+        builder.setTitle(R.string.sort_dialog_msg);
+
+        int checkedItem = 0;
+        builder.setSingleChoiceItems(sortOptions, checkedItem, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Bundle bundle = new Bundle();
+                bundle.putString("sortOrder", sortOrderOptions[which]);
+                getLoaderManager().restartLoader(ITEM_LOADER, bundle, CatalogActivity.this);
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
 }
