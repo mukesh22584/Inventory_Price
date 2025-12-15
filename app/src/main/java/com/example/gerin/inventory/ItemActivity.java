@@ -134,18 +134,17 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
-        switch (item.getItemId()) {
-            // Respond to a click on the "Delete all entries" menu option
-            case R.id.action_delete_current_entry:
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_delete_current_entry) {
                 // delete item from database
-                showDeleteConfirmationDialog();
-                return true;
-            case R.id.action_edit_current_entry:
-                Intent intent = new Intent(ItemActivity.this, EditorActivity.class);
-                intent.setData(mCurrentItemUri);
-                startActivity(intent);
-                return true;
-            case android.R.id.home:
+            showDeleteConfirmationDialog();
+            return true;
+        } else if (itemId == R.id.action_edit_current_entry) {
+            Intent intent = new Intent(ItemActivity.this, EditorActivity.class);
+            intent.setData(mCurrentItemUri);
+            startActivity(intent);
+            return true;
+        } else if (itemId == android.R.id.home) {
                 // Navigate up to parent activity
                 // Show a dialog later on asking if user really wants to leave
 //                NavUtils.navigateUpFromSameTask(ItemActivity.this);

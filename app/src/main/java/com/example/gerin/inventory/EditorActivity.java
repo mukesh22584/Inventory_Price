@@ -1,26 +1,24 @@
 package com.example.gerin.inventory;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
-import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -29,7 +27,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.gerin.inventory.data.ItemContract;
@@ -38,8 +35,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
-
-import javax.xml.datatype.Duration;
 
 // TODO: 2018-07-09 if user clicks save twice two copies are saved
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -124,14 +119,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      */
     private Uri selectedImage = null;
 
-    private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            mItemHasChanged = true;
-            return false;
-        }
+    @SuppressLint("ClickableViewAccessibility")
+    private final View.OnTouchListener mTouchListener = (view, motionEvent) -> {
+        mItemHasChanged = true;
+        return false;
     };
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,15 +152,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
 
 
-        mNameEditText = (EditText) findViewById(R.id.edit_item_name);
-        mQuantityEditText = (EditText) findViewById(R.id.edit_item_quantity);
-        mPriceEditText = (EditText) findViewById(R.id.edit_item_price);
-        mDescriptionEditText = (EditText) findViewById(R.id.edit_item_description);
-        mItemImageView = (ImageView) findViewById(R.id.edit_item_image);
-        mTag1EditText = (EditText) findViewById(R.id.edit_item_tag1);
-        mTag2EditText = (EditText) findViewById(R.id.edit_item_tag2);
-        mTag3EditText = (EditText) findViewById(R.id.edit_item_tag3);
-        fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
+        mNameEditText = findViewById(R.id.edit_item_name);
+        mQuantityEditText = findViewById(R.id.edit_item_quantity);
+        mPriceEditText = findViewById(R.id.edit_item_price);
+        mDescriptionEditText = findViewById(R.id.edit_item_description);
+        mItemImageView = findViewById(R.id.edit_item_image);
+        mTag1EditText = findViewById(R.id.edit_item_tag1);
+        mTag2EditText = findViewById(R.id.edit_item_tag2);
+        mTag3EditText = findViewById(R.id.edit_item_tag3);
+        fab = findViewById(R.id.floatingActionButton);
 
         mNameEditText.setOnTouchListener(mTouchListener);
         mQuantityEditText.setOnTouchListener(mTouchListener);
@@ -177,18 +171,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mTag3EditText.setOnTouchListener(mTouchListener);
         fab.setOnTouchListener(mTouchListener);
 
-        mItemBitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
+        mItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
 
-        mItemImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Dialog d = new Dialog(EditorActivity.this);
-                d.setContentView(R.layout.custom_dialog);
-                ImageView image_full = (ImageView) d.findViewById(R.id.image_full);
-                if(mItemBitmap != null)
-                    image_full.setImageBitmap(mItemBitmap);
-                d.show();
-            }
+        mItemImageView.setOnClickListener(v -> {
+            Dialog d = new Dialog(EditorActivity.this);
+            d.setContentView(R.layout.custom_dialog);
+            ImageView image_full = d.findViewById(R.id.image_full);
+            if (mItemBitmap != null)
+                image_full.setImageBitmap(mItemBitmap);
+            d.show();
         });
 
     }
@@ -204,7 +195,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String tag2String = mTag2EditText.getText().toString().trim();
         String tag3String = mTag3EditText.getText().toString().trim();
         String imageUri;
-        if(selectedImage == null)
+        if (selectedImage == null)
             imageUri = "null";
         else
             imageUri = selectedImage.toString();     // may cause error since default is null
@@ -234,7 +225,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mItemBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] photo = baos.toByteArray();
 
-        Log.e("save method","converted to byte array");
+        Log.e("save method", "converted to byte array");
 
         // Create a ContentValues object where column names are the keys,
         // and pet attributes from the editor are the values.
@@ -317,28 +308,32 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        if (mCurrentItemUri == null) {
+            MenuItem menuItem = menu.findItem(R.id.action_delete_entry);
+            menuItem.setVisible(false);
+        }
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
-        switch (item.getItemId()) {
-            // Respond to a click on the "Delete entry" menu option
-            case R.id.action_save:
-                //save item to database
-                saveItem();
-                //finish activity
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_save) {
+            saveItem();
+            finish();
+            return true;
+        } else if (itemId == R.id.action_delete_entry) {
+            showDeleteConfirmationDialog();
+            return true;
+        } else if (itemId == android.R.id.home) {
+            if (mItemHasChanged)
+                showUnsavedChangesDialog();
+            else
                 finish();
-                return true;
-            case R.id.action_delete_entry:
-                //delete item from database
-                showDeleteConfirmationDialog();
-                //go back to catalog activity
-                return true;
-            case android.R.id.home:
-                // Navigate up to parent activity
-                if(mItemHasChanged)
-                    showUnsavedChangesDialog();
-                else
-                    finish();
-                return true;
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -368,6 +363,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 null);                  // Default sort order
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         // Bail early if the cursor is null or there is less than 1 row in the cursor
@@ -407,7 +403,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
             // Update the views on the screen with the values from the database
             mNameEditText.setText(name);
-            mQuantityEditText.setText(Integer.toString(quantity));
+            mQuantityEditText.setText(String.format("%d", quantity));
             DecimalFormat formatter = new DecimalFormat("#0.00");
             mPriceEditText.setText(formatter.format(price));
             mDescriptionEditText.setText(description);
@@ -416,7 +412,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             mTag3EditText.setText(tag3);
             mItemImageView.setImageBitmap(theImage);
             mItemBitmap = theImage;
-            if(imageURI == "null")
+            if (imageURI.equals("null"))
                 selectedImage = null;
             else
                 selectedImage = Uri.parse(imageURI);
@@ -427,7 +423,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         // If the loader is invalidated, clear out all the data from the input fields.
-        Bitmap tempItemBitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
+        Bitmap tempItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
 
         mNameEditText.setText("");
         mQuantityEditText.setText("");
@@ -445,18 +441,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // for the postivie and negative buttons on the dialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.delete_dialog_msg);
-        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Delete" button
-                deleteItem();
-            }
+        builder.setPositiveButton(R.string.delete, (dialog, id) -> {
+            deleteItem();
         });
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Cancel" button, so dismiss the dialog and continue editing
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
+        builder.setNegativeButton(R.string.cancel, (dialog, id) -> {
+            if (dialog != null) {
+                dialog.dismiss();
             }
         });
 
@@ -470,19 +460,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // for the postivie and negative buttons on the dialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.return_dialog_msg);
-        builder.setPositiveButton(R.string.discard, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
+            public void onClick(DialogInterface dialog, int id) -> {
                 // User clicked the "Discard" button
                 finish();
-            }
         });
-        builder.setNegativeButton(R.string.edit, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
+        builder.setNegativeButton(R.string.edit, (dialog, id) -> {
                 // User clicked the "Cancel" button, so dismiss the dialog and continue editing
                 if (dialog != null) {
                     dialog.dismiss();
                 }
-            }
         });
 
         // Create and show the AlertDialog
@@ -499,31 +485,27 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == Activity.RESULT_OK)
-            switch (requestCode){
-                case GALLERY_REQUEST:
-                    selectedImage = data.getData();
-                    Log.e("editor activity", selectedImage.toString());
-                    try {
-                        mItemBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
-                        int i = mItemBitmap.getAllocationByteCount();
-                        // if less than 5MB set the image
-                        if(i < FIVE_MB) {
-                            mItemImageView.setImageBitmap(mItemBitmap);
-                            Log.e("Editor Activity", "successfully converted image");
-                        }
-                        // otherwise keep the default image
-                        else{
-                            mItemBitmap = ((BitmapDrawable)getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
-                            selectedImage = null;
-                            Log.e("Editor Activity", "image too large");
-                            Toast.makeText(this,"Image too large", Toast.LENGTH_SHORT).show();
-                        }
-                        Log.e("Editor Activity", String.valueOf(i));
-                    } catch (IOException e) {
-                        Log.e("onActivityResult", "Some exception " + e);
+        if (resultCode == Activity.RESULT_OK)
+            if (requestCode == GALLERY_REQUEST)
+                selectedImage = data.getData();
+                Log.e("editor activity", selectedImage.toString());
+                try {
+                    mItemBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
+                    int i = mItemBitmap.getAllocationByteCount();
+                    if (i < MAX_MB) {
+                        mItemImageView.setImageBitmap(mItemBitmap);
+                        Log.e("Editor Activity", "successfully converted image");
                     }
-                    break;
+                    else {
+                        mItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
+                        selectedImage = null;
+                        Log.e("Editor Activity", "image too large");
+                        Toast.makeText(this, "Image too large", Toast.LENGTH_SHORT).show();
+                    }
+                    Log.e("Editor Activity", String.valueOf(i));
+                } catch (IOException e) {
+                    Log.e("onActivityResult", "Some exception " + e);
+                }
             }
     }
 
