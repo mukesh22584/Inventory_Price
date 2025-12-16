@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".CatalogActivity"
-    android:background="@color/white_smoke">
+    android:background="?attr/colorSurface">
 
 
     <!-- This layout contains all the views -->
