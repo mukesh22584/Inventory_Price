@@ -1,53 +1,52 @@
 package com.example.gerin.inventory.Search;
 
-public class SearchResult {
+import android.os.Parcel;
+import android.os.Parcelable;
 
-    // TODO: 2018-07-13 remove initialization later 
-    public int _id = 17;
-    public String name;
-    public Double quantity, price;
+import com.mancj.materialsearchbar.adapter.SuggestionsAdapter;
 
-    public SearchResult(int id, String name, Double quanity, Double price){
-        this._id = id;
+public class SearchResult implements Parcelable {
+    private int id;
+    private String name;
+
+    public SearchResult(int id, String name) {
+        this.id = id;
         this.name = name;
-        this.quantity = quanity;
-        this.price = price;
     }
 
-    public SearchResult(){
-
+    public int getId() {
+        return id;
     }
 
-    public int getId(){
-        return _id;
-    }
-
-    public void setId(int id){
-        this._id = id;
-    }
-
-    public String getName(){
+    public String getName() {
         return name;
     }
 
-    public void setName(String name){
-        this.name = name;
+    protected SearchResult(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
     }
 
-    public Double getQuantity(){
-        return quantity;
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
     }
 
-    public void setQuantity(Double quantity){
-        this.quantity = quantity;
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
-    public Double getPrice(){
-        return price;
-    }
+    public static final Creator<SearchResult> CREATOR = new Creator<SearchResult>() {
+        @Override
+        public SearchResult createFromParcel(Parcel in) {
+            return new SearchResult(in);
+        }
 
-    public void setPrice(Double price){
-        this.price = price;
-    }
-
+        @Override
+        public SearchResult[] newArray(int size) {
+            return new SearchResult[size];
+        }
+    };
 }

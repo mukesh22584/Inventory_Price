@@ -16,4 +16,10 @@
         android:iconTint="@color/white"
         android:title="Sort items"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_theme_switcher"
+        android:title="Switch Theme"
+        app:showAsAction="never" />
+
 </menu>

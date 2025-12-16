@@ -1,28 +1,20 @@
 package com.example.gerin.inventory.Search;
 
-
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.gerin.inventory.R;
 import com.mancj.materialsearchbar.adapter.SuggestionsAdapter;
 
-class SuggestionHolder extends RecyclerView.ViewHolder{
+import java.util.ArrayList;
+import java.util.List;
 
-    public TextView name;
-
-    public SuggestionHolder(View itemView) {
-        super(itemView);
-
-        name = (TextView) itemView.findViewById(R.id.search_text);
-    }
-}
-
-public class CustomSuggestionsAdapter extends SuggestionsAdapter<SearchResult, SuggestionHolder>{
+public class CustomSuggestionsAdapter extends SuggestionsAdapter<SearchResult, CustomSuggestionsAdapter.SuggestionHolder> {
 
     public CustomSuggestionsAdapter(LayoutInflater inflater) {
         super(inflater);
@@ -43,5 +35,14 @@ public class CustomSuggestionsAdapter extends SuggestionsAdapter<SearchResult, S
     public SuggestionHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = getLayoutInflater().inflate(R.layout.search_item, parent, false);
         return new SuggestionHolder(view);
+    }
+
+    public static class SuggestionHolder extends RecyclerView.ViewHolder{
+        private final TextView name;
+
+        public SuggestionHolder(View itemView) {
+            super(itemView);
+            name = (TextView) itemView.findViewById(R.id.search_text);
+        }
     }
 }

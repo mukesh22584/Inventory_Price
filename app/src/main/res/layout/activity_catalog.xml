@@ -15,6 +15,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            app:titleTextColor="?attr/colorOnPrimary">
+
+            <com.mancj.materialsearchbar.MaterialSearchBar
+                android:id="@+id/search_bar1"
+                style="@style/SearchBarTheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:mt_speechMode="false"
+                app:mt_hint="Type to search"
+                app:mt_placeholder="Search"
+                app:mt_roundedSearchBarEnabled="true"
+                />
+        </androidx.appcompat.widget.Toolbar>
+
         <!--android:layout_below="@+id/search_bar1"-->
         <!-- Listview shows all available items -->
         <ListView
@@ -23,7 +42,7 @@
             android:layout_height="wrap_content"
             android:divider="@null"
             android:dividerHeight="0dp"
-            android:layout_below="@+id/search_bar1"
+            android:layout_below="@+id/toolbar"
             ></ListView>
 
         <!-- Empty view for the list -->
@@ -65,7 +84,7 @@
         </RelativeLayout>
 
         <!-- FAB -->
-        <android.support.design.widget.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/catalog_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -79,38 +98,6 @@
             app:layout_anchorGravity="bottom|right|end"
             app:srcCompat="@android:drawable/ic_input_add" />
 
-        <!--&lt;!&ndash; Search layout &ndash;&gt;-->
-        <!--<android.support.v7.widget.CardView-->
-            <!--android:id="@+id/search_layout"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_margin="15dp"-->
-            <!--android:layout_alignParentTop="true">-->
-
-
-
-        <!--</android.support.v7.widget.CardView>-->
-        <!-- Search bar -->
-        <com.mancj.materialsearchbar.MaterialSearchBar
-            android:id="@+id/search_bar1"
-            style="@style/SearchBarTheme"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:mt_speechMode="false"
-            app:mt_hint="Type to search"
-            app:mt_placeholder="Search"
-            android:layout_alignParentTop="true"
-            android:layout_margin="15dp"
-            android:padding="3dp"
-
-            app:mt_roundedSearchBarEnabled="true"
-            />
-
-
-
     </RelativeLayout>
-
-
-
 
 </RelativeLayout>

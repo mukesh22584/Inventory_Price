@@ -1,21 +1,21 @@
 package com.example.gerin.inventory;
 
-import android.app.LoaderManager;
-import android.content.CursorLoader;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Loader;
+import androidx.loader.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.core.app.NavUtils;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -99,7 +99,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
 
         getSupportActionBar().setTitle("");
 
-        getLoaderManager().initLoader(EXISTING_ITEM_LOADER, null, this);
+        LoaderManager.getInstance(this).initLoader(EXISTING_ITEM_LOADER, null, this);
 
     }
 
@@ -145,11 +145,10 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             startActivity(intent);
             return true;
         } else if (itemId == android.R.id.home) {
-                // Navigate up to parent activity
-                // Show a dialog later on asking if user really wants to leave
-//                NavUtils.navigateUpFromSameTask(ItemActivity.this);
-                finish();
-                return true;
+            // Navigate up to parent activity
+            // Show a dialog later on asking if user really wants to leave
+            finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

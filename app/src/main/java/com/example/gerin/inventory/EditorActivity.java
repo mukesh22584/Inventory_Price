@@ -3,12 +3,12 @@ package com.example.gerin.inventory;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.LoaderManager;
+import androidx.loader.app.LoaderManager;
 import android.content.ContentValues;
-import android.content.CursorLoader;
+import androidx.loader.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Loader;
+import androidx.loader.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,11 +17,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.NavUtils;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.core.app.NavUtils;
+import androidx.core.content.FileProvider;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -155,7 +155,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
             // Initialize a loader to read the item data from the database
             // and display the current values in the editor
-            getLoaderManager().initLoader(EXISTING_ITEM_LOADER, null, this);
+            LoaderManager.getInstance(this).initLoader(EXISTING_ITEM_LOADER, null, this);
         }
 
 
@@ -303,7 +303,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                         Toast.LENGTH_SHORT).show();
             }
         }
-        NavUtils.navigateUpFromSameTask(EditorActivity.this);
+        finish();
     }
 
     @Override

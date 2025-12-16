@@ -21,7 +21,15 @@
             android:scaleType="centerCrop"
             android:src="@drawable/image_prompt" />
 
-        <android.support.design.widget.FloatingActionButton
+        <View
+            android:id="@+id/blur_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.5"
+            android:background="@android:color/black"
+            android:visibility="gone" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/floatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -34,7 +42,7 @@
             app:srcCompat="@drawable/camera_icon" />
     </RelativeLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.6">
@@ -69,30 +77,30 @@
                         android:paddingStart="4dp">
 
                         <!-- Name field -->
-                        <android.support.design.widget.TextInputLayout
+                        <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
-                            <android.support.design.widget.TextInputEditText
+                            <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/edit_item_name"
                                 style="@style/EditorFieldStyle"
                                 android:hint="@string/hint_item_name"
                                 android:inputType="textCapWords" />
 
-                        </android.support.design.widget.TextInputLayout>
+                        </com.google.android.material.textfield.TextInputLayout>
 
                         <!-- Quantity field -->
-                        <android.support.design.widget.TextInputLayout
+                        <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
-                            <android.support.design.widget.TextInputEditText
+                            <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/edit_item_quantity"
                                 style="@style/EditorFieldStyle"
                                 android:hint="@string/hint_item_quantity"
                                 android:inputType="numberSigned" />
 
-                        </android.support.design.widget.TextInputLayout>
+                        </com.google.android.material.textfield.TextInputLayout>
 
                         <!-- Price field -->
                         <LinearLayout
@@ -105,17 +113,17 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/dollarSign" />
 
-                            <android.support.design.widget.TextInputLayout
+                            <com.google.android.material.textfield.TextInputLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content">
 
-                                <android.support.design.widget.TextInputEditText
+                                <com.google.android.material.textfield.TextInputEditText
                                     android:id="@+id/edit_item_price"
                                     style="@style/EditorFieldStyle"
                                     android:hint="@string/hint_item_price"
                                     android:inputType="numberDecimal" />
 
-                            </android.support.design.widget.TextInputLayout>
+                            </com.google.android.material.textfield.TextInputLayout>
 
                         </LinearLayout>
 
@@ -144,17 +152,17 @@
                         android:paddingStart="4dp">
 
                         <!-- Description field -->
-                        <android.support.design.widget.TextInputLayout
+                        <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
-                            <android.support.design.widget.TextInputEditText
+                            <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/edit_item_description"
                                 style="@style/EditorFieldStyle"
                                 android:hint="@string/hint_item_description"
                                 android:inputType="textCapWords" />
 
-                        </android.support.design.widget.TextInputLayout>
+                        </com.google.android.material.textfield.TextInputLayout>
 
                     </LinearLayout>
 
@@ -181,43 +189,43 @@
                         android:paddingStart="4dp">
 
                         <!-- Tag 1 -->
-                        <android.support.design.widget.TextInputLayout
+                        <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
-                            <android.support.design.widget.TextInputEditText
+                            <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/edit_item_tag1"
                                 style="@style/EditorFieldStyle"
                                 android:hint="@string/hint_item_tag1"
                                 android:inputType="textCapWords" />
 
-                        </android.support.design.widget.TextInputLayout>
+                        </com.google.android.material.textfield.TextInputLayout>
 
                         <!-- Tag 2 -->
-                        <android.support.design.widget.TextInputLayout
+                        <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
-                            <android.support.design.widget.TextInputEditText
+                            <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/edit_item_tag2"
                                 style="@style/EditorFieldStyle"
                                 android:hint="@string/hint_item_tag2"
                                 android:inputType="textCapWords" />
 
-                        </android.support.design.widget.TextInputLayout>
+                        </com.google.android.material.textfield.TextInputLayout>
 
                         <!-- Tag 3 -->
-                        <android.support.design.widget.TextInputLayout
+                        <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
-                            <android.support.design.widget.TextInputEditText
+                            <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/edit_item_tag3"
                                 style="@style/EditorFieldStyle"
                                 android:hint="@string/hint_item_tag3"
                                 android:inputType="textCapWords" />
 
-                        </android.support.design.widget.TextInputLayout>
+                        </com.google.android.material.textfield.TextInputLayout>
 
                     </LinearLayout>
 
@@ -227,6 +235,6 @@
 
         </LinearLayout>
 
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>

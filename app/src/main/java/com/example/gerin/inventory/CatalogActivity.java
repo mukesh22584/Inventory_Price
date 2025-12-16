@@ -1,18 +1,21 @@
 package com.example.gerin.inventory;
 
-import android.app.LoaderManager;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.loader.app.LoaderManager;
 import android.content.ContentUris;
-import android.content.CursorLoader;
+import androidx.loader.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Loader;
+import androidx.loader.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -26,13 +29,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.gerin.inventory.Search.CustomSuggestionsAdapter;
-import com.example.gerin.inventory.Search.RecyclerTouchListener;
 import com.example.gerin.inventory.Search.SearchResult;
 import com.example.gerin.inventory.data.ItemContract;
 import com.example.gerin.inventory.data.ItemCursorAdapter;
 import com.example.gerin.inventory.data.ItemDbHelper;
 import com.mancj.materialsearchbar.MaterialSearchBar;
-import com.mancj.materialsearchbar.adapter.SuggestionsAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,19 +59,22 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     @Override
     protected void onStart() {
         super.onStart();
-        flag1 = 0;
-        Log.e("catalog", "onStart");
+        if (materialSearchBar.isSuggestionsVisible()) {
+            loadSearchResultList();
+            materialSearchBar.setLastSuggestions(searchResultList);
+        }
+
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if (materialSearchBar.isSuggestionsVisible()) {
+            materialSearchBar.closeSearch();
+        }
 
-        flag1 = 1;
-        Log.e("catalog", "onPause");
-        materialSearchBar.clearSuggestions();
-        materialSearchBar.disableSearch();
+
     }
 
     @Override
@@ -78,22 +82,17 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         // Create a new instance of the database for access to the searchbar
         database = new ItemDbHelper(this);
 
         // Create the search bar
         materialSearchBar = (MaterialSearchBar) findViewById(R.id.search_bar1);
         materialSearchBar.setCardViewElevation(0);
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        customSuggestionsAdapter = new CustomSuggestionsAdapter(inflater);
-
-        if (flag1 == 0) {
-            Log.e("catalog", "tried to set adapter");
-            loadSearchResultList();
-            customSuggestionsAdapter.setSuggestions(searchResultList);
-            materialSearchBar.setCustomSuggestionAdapter(customSuggestionsAdapter);
-//          ^---- this line causes problems when starting a new intent
-        }
+        loadSearchResultList();
+        materialSearchBar.setLastSuggestions(searchResultList);
 
         // Add flags to determine when to stop loading search results
         materialSearchBar.addTextChangeListener(new TextWatcher() {
@@ -104,162 +103,43 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (flag1 == 0) {
-                    List<SearchResult> newSuggestions = loadNewSearchResultList();
-                    customSuggestionsAdapter.setSuggestions(newSuggestions);
-                }
+                List<SearchResult> newSuggestions = loadNewSearchResultList();
+                materialSearchBar.setLastSuggestions(newSuggestions);
+
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-//                if (flag1 == 0) {
-//                    if (!materialSearchBar.isSuggestionsVisible()) {
-//                        if (s.toString() != null && !s.toString().isEmpty()) {
-//                            materialSearchBar.enableSearch();
-//                        }
-//                    }
-//                }
+
             }
         });
-        // Useless
+
         materialSearchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {
             @Override
             public void onSearchStateChanged(boolean enabled) {
-//                if (!enabled)
-//                    adapter = new SearchAdapter(getBaseContext(), database.getResult());
-////                    recyclerView.setAdapter(null);i
-//                if(enabled) {
-//                    materialSearchBar.enableSearch();
-//                    materialSearchBar.setCustomSuggestionAdapter(customSuggestionsAdapter);
-//                }
-//                else {
-//                    materialSearchBar.clearSuggestions();
-//                    materialSearchBar.disableSearch();
-//                }
-//                if (flag1 == 0) {
-//                    if (enabled)
-//                        materialSearchBar.showSuggestionsList();
-//                }
 
             }
 
             @Override
             public void onSearchConfirmed(CharSequence text) {
-
-                List<SearchResult> testResult1 = loadNewSearchResultList();
-                if(testResult1.isEmpty()) {
-                    Toast.makeText(getBaseContext(), "No Results Found",
-                            Toast.LENGTH_LONG).show();
-                    return;
-                }
-                SearchResult testResult2 = testResult1.get(0);
-                String testResult4 = testResult2.getName();
-                int testResult3 = testResult2.getId();
-
-                if(text.toString().toLowerCase().equals(testResult4.toLowerCase())){
-//                    Toast.makeText(getBaseContext(), "Search Success!",
-//                            Toast.LENGTH_LONG).show();
+                List<SearchResult> newSuggestions = loadNewSearchResultList();
+                if (newSuggestions.size() > 0) {
+                    SearchResult result = newSuggestions.get(0);
+                    int testResult3 = result.getId();
 
                     Intent intent = new Intent(CatalogActivity.this, ItemActivity.class);
-
                     Uri currentPetUri = ContentUris.withAppendedId(ItemContract.ItemEntry.CONTENT_URI, testResult3);
-                    // Set the URI on the data field of the intent
                     intent.setData(currentPetUri);
 
-                    flag1 = 1;
-                    materialSearchBar.clearSuggestions();
-                    // probably dont need this line
-                    materialSearchBar.disableSearch();
-
                     startActivity(intent);
-
                 }
-                else{
-                    Toast.makeText(getBaseContext(), "No Results Found",
-                            Toast.LENGTH_LONG).show();
-                }
-
             }
 
             @Override
             public void onButtonClicked(int buttonCode) {
 
-//                recyclerView.setAdapter(null);
-
-                switch (buttonCode) {
-                    case MaterialSearchBar.BUTTON_NAVIGATION:
-                        Log.e("catalog", "button clicked");
-                        materialSearchBar.clearSuggestions();
-                        materialSearchBar.disableSearch();
-                        break;
-                    case MaterialSearchBar.BUTTON_SPEECH:
-                        break;
-                    default:
-                        break;
-
-                }
             }
         });
-        // Doesn't work for custom adapters
-        materialSearchBar.setSuggstionsClickListener(new SuggestionsAdapter.OnItemViewClickListener() {
-
-            @Override
-            public void OnItemClickListener(int position, View v) {
-                Log.e("catalog", "on item click");
-                Log.e("on item click", String.valueOf(position));
-            }
-
-            @Override
-            public void OnItemDeleteListener(int position, View v) {
-                Log.e("catalog", "on item delete");
-            }
-        });
-
-        // On click method for suggestions
-        RecyclerView searchrv = findViewById(getResources().getIdentifier("mt_recycler", "id", getPackageName()));
-        searchrv.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), searchrv, new RecyclerTouchListener.ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-
-                //id works with original search list but not new???
-//                int _id = searchResultList.get(position)._id;
-// TODO: 2018-07-13 clean up code here since we dont need _id anymore now that we have the searchResult object
-                // need testResult1 to work for some reason???
-                List<SearchResult> testResult1 = loadNewSearchResultList();
-                SearchResult testResult2 = testResult1.get(position);
-                int testResult3 = testResult2.getId();
-
-//                Log.e("catalog", "position = " + String.valueOf(position));
-//                Log.e("catalog", "_id = " + String.valueOf(_id));
-//                Log.e("catalog", "testResult3 = " + String.valueOf(testResult3));
-
-
-                Intent intent = new Intent(CatalogActivity.this, ItemActivity.class);
-
-                // Form the content URI that represents the specific pet that was clicked on,
-                // by appending the "id" (passed as input to this method) onto the
-                // {@link PetEntry#CONTENT_URI}.
-                // For example, the URI would be "content://com.example.android.pets/pets/2"
-                // if the pet with ID 2 was clicked on.
-                Uri currentPetUri = ContentUris.withAppendedId(ItemContract.ItemEntry.CONTENT_URI, testResult3);
-                // Set the URI on the data field of the intent
-                intent.setData(currentPetUri);
-
-                Log.e("catalog", "list item click");
-                flag1 = 1;
-                materialSearchBar.clearSuggestions();
-                // probably dont need this line
-                materialSearchBar.disableSearch();
-
-                startActivity(intent);
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-                TextView tv = (TextView) view.findViewById(R.id.search_text);
-                materialSearchBar.setText(String.valueOf(tv.getText()));
-            }
-        }));
 
         // Find the ListView which will be populated with the pet data
         ListView itemListView = (ListView) findViewById(R.id.catalog_list);
@@ -291,32 +171,16 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 // Create new intent to go to {@link EditorActivity}
                 Intent intent = new Intent(CatalogActivity.this, ItemActivity.class);
 
-                // Form the content URI that represents the specific pet that was clicked on,
-                // by appending the "id" (passed as input to this method) onto the
-                // {@link PetEntry#CONTENT_URI}.
-                // For example, the URI would be "content://com.example.android.pets/pets/2"
-                // if the pet with ID 2 was clicked on.
                 Uri currentPetUri = ContentUris.withAppendedId(ItemContract.ItemEntry.CONTENT_URI, id);
-                // Set the URI on the data field of the intent
                 intent.setData(currentPetUri);
-
-                Log.e("catalog", "list item click");
-                flag1 = 1;
-                materialSearchBar.clearSuggestions();
-                materialSearchBar.disableSearch();
 
                 startActivity(intent);
             }
         });
 
         // Kick off the loader
-        getLoaderManager().initLoader(ITEM_LOADER, null, this);
+        LoaderManager.getInstance(this).initLoader(ITEM_LOADER, null, this);
 
-    }
-
-    private void startSearch(String s) {
-
-//        adapter = new SearchAdapter(this, database.getResultNames(s));
     }
 
     private void loadSearchResultList() {
@@ -325,18 +189,10 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
     private List<SearchResult> loadNewSearchResultList() {
         List<SearchResult> newSuggestions = new ArrayList<>();
-        List<Integer> newSuggestions_id = new ArrayList<Integer>(10);
         loadSearchResultList();
-        int i = 0;
         for (SearchResult searchResult : searchResultList) {
             if (searchResult.getName().toLowerCase().contains(materialSearchBar.getText().toLowerCase())) {
                 newSuggestions.add(searchResult);
-                newSuggestions_id.add(searchResult.getId());
-//                MySuggestions.moreresults[i] = searchResult.getId();
-                i++;
-
-//                MySuggestions.newSuggestions_id.add(1);
-                Log.d("_id", String.valueOf(searchResult.getId()));
             }
         }
 
@@ -362,6 +218,15 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             return true;
         } else if (itemId == R.id.action_sort_by) {
             showSortByDialog();
+        } else if (itemId == R.id.action_theme_switcher) {
+            int currentNightMode = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            if (currentNightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            }
+            recreate();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -413,13 +278,19 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             public void onClick(DialogInterface dialog, int which) {
                 Bundle bundle = new Bundle();
                 bundle.putString("sortOrder", sortOrderOptions[which]);
-                getLoaderManager().restartLoader(ITEM_LOADER, bundle, CatalogActivity.this);
+                LoaderManager.getInstance(CatalogActivity.this).restartLoader(ITEM_LOADER, bundle, CatalogActivity.this);
                 dialog.dismiss();
             }
         });
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        database.close();
     }
 
 }
