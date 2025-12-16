@@ -78,6 +78,7 @@
 
                         <!-- Name field -->
                         <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
@@ -91,6 +92,7 @@
 
                         <!-- Quantity field -->
                         <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
@@ -103,29 +105,19 @@
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <!-- Price field -->
-                        <LinearLayout
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
+                            app:prefixText="$">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/dollarSign" />
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/edit_item_price"
+                                style="@style/EditorFieldStyle"
+                                android:hint="@string/hint_item_price"
+                                android:inputType="numberDecimal" />
 
-                            <com.google.android.material.textfield.TextInputLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-
-                                <com.google.android.material.textfield.TextInputEditText
-                                    android:id="@+id/edit_item_price"
-                                    style="@style/EditorFieldStyle"
-                                    android:hint="@string/hint_item_price"
-                                    android:inputType="numberDecimal" />
-
-                            </com.google.android.material.textfield.TextInputLayout>
-
-                        </LinearLayout>
+                        </com.google.android.material.textfield.TextInputLayout>
 
                     </LinearLayout>
 
@@ -153,6 +145,7 @@
 
                         <!-- Description field -->
                         <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
@@ -190,6 +183,7 @@
 
                         <!-- Tag 1 -->
                         <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
@@ -203,6 +197,7 @@
 
                         <!-- Tag 2 -->
                         <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
@@ -216,6 +211,7 @@
 
                         <!-- Tag 3 -->
                         <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
