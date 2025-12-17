@@ -82,7 +82,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      * Unit of the item. The possible values are:
      * Pcs., Kgs., Ltr., Mtr.
      */
-    private String mUnit;
+    private String mUnit = "Pcs.";
 
     /**
      * EditText field to enter the item's price
@@ -94,7 +94,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     /**
      * Currency of the item.
      */
-    private String mCurrency;
+    private String mCurrency = "₹";
 
     /**
      * EditText field for tag 1
@@ -170,6 +170,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mPriceTextInputLayout = findViewById(R.id.price_input_layout);
+        mQuantityTextInputLayout = findViewById(R.id.quantity_input_layout);
+
         // Examine the intent that was used to launch this activity,
         // in order to figure out if we're creating a new item or editing an existing one.
         Intent intent = getIntent();
@@ -180,6 +183,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if (mCurrentItemUri == null) {
             // This is a new pet, so change the app bar to say "Add a Pet"
             setTitle(getString(R.string.editor_activity_title_new_item));
+            mPriceTextInputLayout.setSuffixText(mCurrency);
+            mQuantityTextInputLayout.setSuffixText(mUnit);
         } else {
             // Otherwise this is an existing pet, so change app bar to say "Edit Pet"
             setTitle(getString(R.string.editor_activity_title_edit_item));
@@ -192,9 +197,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         mNameEditText = findViewById(R.id.edit_item_name);
         mQuantityEditText = findViewById(R.id.edit_item_quantity);
-        mQuantityTextInputLayout = findViewById(R.id.quantity_input_layout);
         mPriceEditText = findViewById(R.id.edit_item_price);
-        mPriceTextInputLayout = findViewById(R.id.price_input_layout);
         mDescriptionEditText = findViewById(R.id.edit_item_description);
         mItemImageView = findViewById(R.id.edit_item_image);
         mTag1EditText = findViewById(R.id.edit_item_tag1);
@@ -467,6 +470,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             byte[] photo = data.getBlob(imageColumnIndex);
             String imageURI = data.getString(uriColumnIndex);
 
+            mCurrency = currency;
+            mUnit = unit;
+
             ByteArrayInputStream imageStream = new ByteArrayInputStream(photo);
             Bitmap theImage = BitmapFactory.decodeStream(imageStream);
 
@@ -501,14 +507,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         mNameEditText.setText("");
         mQuantityEditText.setText("");
-        mQuantityTextInputLayout.setSuffixText("");
+        mQuantityTextInputLayout.setSuffixText("Pcs.");
         mPriceEditText.setText("");
-        mPriceTextInputLayout.setSuffixText("");
+        mPriceTextInputLayout.setSuffixText("₹");
         mDescriptionEditText.setText("");
         mTag1EditText.setText("");
         mTag2EditText.setText("");
         mTag3EditText.setText("");
         mItemImageView.setImageBitmap(tempItemBitmap);
+        mCurrency = "₹";
+        mUnit = "Pcs.";
         selectedImage = null;
     }
 
