@@ -11,6 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class ItemProvider extends ContentProvider{
 
 
@@ -63,6 +66,11 @@ public class ItemProvider extends ContentProvider{
         switch (match) {
             case ITEMS:
 
+            if (projection != null) {
+                    ArrayList<String> projectionWithoutImage = new ArrayList<>(Arrays.asList(projection));
+                    projectionWithoutImage.remove(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE);
+                    projection = projectionWithoutImage.toArray(new String[0]);
+                }
                 //cursor containing all rows of the table
                 cursor = database.query(ItemContract.ItemEntry.TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);

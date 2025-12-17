@@ -140,9 +140,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
 
     /**
-     * Maximum size for an image file that can be stored in the database
+     * Maximum dimension for an image file that can be stored in the database
      */
-    private static final int MAX_MB = 5000000;
+    private static final int MAX_IMAGE_DIMENSION = 5120;
 
     /**
      * URI of selected image
@@ -282,7 +282,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         //        }
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        mItemBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        mItemBitmap = resizeBitmap(mItemBitmap, MAX_IMAGE_DIMENSION);
+        mItemBitmap.compress(Bitmap.CompressFormat.JPEG, 90, baos);
         byte[] photo = baos.toByteArray();
 
         // Create a ContentValues object where column names are the keys,
@@ -581,11 +582,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 Log.e("editor activity", selectedImage.toString());
                 try {
                     mItemBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
-                    int i = mItemBitmap.getAllocationByteCount();
-                    // if less than 5MB set the image
-                    if (i < MAX_MB) {
+                        mItemBitmap = resizeBitmap(mItemBitmap, MAX_IMAGE_DIMENSION);
                         mItemImageView.setImageBitmap(mItemBitmap);
                         Log.e("Editor Activity", "successfully converted image");
+                    } catch (IOException e) {
+                        Log.e("onActivityResult", "Some exception " + e);
                     }
                     else {
                         mItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
@@ -602,17 +603,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 if (data != null && data.getExtras() != null) {
                     Bundle extras = data.getExtras();
                     mItemBitmap = (Bitmap) extras.get("data");
+                    mItemBitmap = resizeBitmap(mItemBitmap, MAX_IMAGE_DIMENSION);
                     mItemImageView.setImageBitmap(mItemBitmap);
                 } else {
                     try {
                         mItemBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                        if (mItemBitmap.getAllocationByteCount() > MAX_MB) {
-                            int currentWidth = mItemBitmap.getWidth();
-                            int currentHeight = mItemBitmap.getHeight();
-                            int newWidth = (int) (currentWidth * 0.5);
-                            int newHeight = (int) (currentHeight * 0.5);
-                            mItemBitmap = Bitmap.createScaledBitmap(mItemBitmap, newWidth, newHeight, true);
-                        }
+                        mItemBitmap = resizeBitmap(mItemBitmap, MAX_IMAGE_DIMENSION);
                         mItemImageView.setImageBitmap(mItemBitmap);
                         Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
                         mediaScanIntent.setData(selectedImage);
@@ -703,5 +699,23 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(Intent.createChooser(shareIntent, "Share image using"));
     }
+
+    private Bitmap resizeBitmap(Bitmap image, int maxDimension) {
+    int width = image.getWidth();
+    int height = image.getHeight();
+
+    if (width > maxDimension || height > maxDimension) {
+        float bitmapRatio = (float) width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxDimension;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxDimension;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+    return image;
+}
 
 }
