@@ -245,6 +245,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         // User clicked on a menu option in the app bar overflow menu
         int itemId = item.getItemId();
         if (itemId == R.id.action_delete_all_entries) {
+            showDeleteAllConfirmationDialog();
             return true;
         } else if (itemId == R.id.action_sort_by) {
             showSortByDialog();
@@ -320,6 +321,28 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    private void showDeleteAllConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_all_dialog_msg);
+        builder.setPositiveButton(R.string.delete, (dialog, id) -> deleteAllItems());
+        builder.setNegativeButton(R.string.cancel, (dialog, id) -> {
+            if (dialog != null) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void deleteAllItems() {
+        int rowsDeleted = getContentResolver().delete(ItemContract.ItemEntry.CONTENT_URI, null, null);
+        if (rowsDeleted > 0) {
+            Toast.makeText(this, R.string.editor_delete_all_items_successful, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, R.string.editor_delete_all_items_failed, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
