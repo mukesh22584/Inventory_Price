@@ -35,6 +35,8 @@
     <string name="discard">Discard changes</string>
     <string name="edit">Keep editing</string>
     <string name="sort_dialog_msg">Sort By</string>
+    <string name="action_backup">Backup</string>
+    <string name="action_restore">Restore</string>
     <string-array name="unit_options">
         <item>Pcs.</item>
         <item>Kgs.</item>

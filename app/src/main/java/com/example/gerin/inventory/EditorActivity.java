@@ -7,7 +7,6 @@ import android.app.Dialog;
 import androidx.loader.app.LoaderManager;
 import android.content.ContentValues;
 import androidx.loader.content.CursorLoader;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import androidx.loader.content.Loader;
@@ -22,7 +21,6 @@ import android.provider.MediaStore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.appcompat.app.AlertDialog;
@@ -32,15 +30,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.gerin.inventory.data.ItemContract;
@@ -289,8 +282,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         mItemBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] photo = baos.toByteArray();
-
-        Log.e("save method", "converted to byte array");
 
         // Create a ContentValues object where column names are the keys,
         // and pet attributes from the editor are the values.
@@ -670,14 +661,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case CAMERA_PERMISSION_REQUEST: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    launchCamera();
-                } else {
-                    Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show();
-                }
-                return;
+        if (requestCode == CAMERA_PERMISSION_REQUEST) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                launchCamera();
+            } else {
+                Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show();
             }
         }
     }
