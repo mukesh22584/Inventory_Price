@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
@@ -35,8 +36,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -73,10 +76,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      */
     private EditText mQuantityEditText;
 
-    /**
-     * Spinner for quantity unit
-     */
-    private Spinner mUnitSpinner;
+    private TextInputLayout mQuantityTextInputLayout;
 
     /**
      * Unit of the item. The possible values are:
@@ -89,10 +89,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      */
     private EditText mPriceEditText;
 
-    /**
-     * Spinner for currency
-     */
-    private Spinner mCurrencySpinner;
+    private TextInputLayout mPriceTextInputLayout;
 
     /**
      * Currency of the item.
@@ -195,9 +192,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         mNameEditText = findViewById(R.id.edit_item_name);
         mQuantityEditText = findViewById(R.id.edit_item_quantity);
-        mUnitSpinner = findViewById(R.id.spinner_unit);
+        mQuantityTextInputLayout = findViewById(R.id.quantity_input_layout);
         mPriceEditText = findViewById(R.id.edit_item_price);
-        mCurrencySpinner = findViewById(R.id.spinner_currency);
+        mPriceTextInputLayout = findViewById(R.id.price_input_layout);
         mDescriptionEditText = findViewById(R.id.edit_item_description);
         mItemImageView = findViewById(R.id.edit_item_image);
         mTag1EditText = findViewById(R.id.edit_item_tag1);
@@ -207,9 +204,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         mNameEditText.setOnTouchListener(mTouchListener);
         mQuantityEditText.setOnTouchListener(mTouchListener);
-        mUnitSpinner.setOnTouchListener(mTouchListener);
         mPriceEditText.setOnTouchListener(mTouchListener);
-        mCurrencySpinner.setOnTouchListener(mTouchListener);
         mDescriptionEditText.setOnTouchListener(mTouchListener);
         mTag1EditText.setOnTouchListener(mTouchListener);
         mTag2EditText.setOnTouchListener(mTouchListener);
@@ -227,51 +222,28 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             d.show();
         });
 
-        setupSpinner();
-
-    }
-
-    private void setupSpinner() {
-        // Create adapter for spinner. The list options are from the String array it will use
-        // the spinner will use the default layout
-        ArrayAdapter<CharSequence> unitSpinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.unit_options, android.R.layout.simple_spinner_item);
-        ArrayAdapter<CharSequence> currencySpinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.currency_options, android.R.layout.simple_spinner_item);
-
-        // Specify dropdown layout style - simple list view with 1 item per line
-        unitSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        currencySpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-
-        // Apply the adapter to the spinner
-        mUnitSpinner.setAdapter(unitSpinnerAdapter);
-        mCurrencySpinner.setAdapter(currencySpinnerAdapter);
-
-        // Set the integer mSelected to the constant values
-        mUnitSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mUnit = (String) parent.getItemAtPosition(position);
-            }
-
-            // Because AdapterView is an abstract class, onNothingSelected must be defined
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                mUnit = "Pcs."; // Default to Pcs.
-            }
+        mQuantityTextInputLayout.setEndIconOnClickListener(v -> {
+            PopupMenu popupMenu = new PopupMenu(EditorActivity.this, v);
+            popupMenu.getMenuInflater().inflate(R.menu.unit_menu, popupMenu.getMenu());
+            popupMenu.setOnMenuItemClickListener(item -> {
+                mUnit = item.getTitle().toString();
+                mQuantityTextInputLayout.setSuffixText(mUnit);
+                return true;
+            });
+            popupMenu.show();
         });
 
-        mCurrencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mCurrency = (String) parent.getItemAtPosition(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                mCurrency = "₹";
-            }
+        mPriceTextInputLayout.setEndIconOnClickListener(v -> {
+            PopupMenu popupMenu = new PopupMenu(EditorActivity.this, v);
+            popupMenu.getMenuInflater().inflate(R.menu.currency_menu, popupMenu.getMenu());
+            popupMenu.setOnMenuItemClickListener(item -> {
+                mCurrency = item.getTitle().toString();
+                mPriceTextInputLayout.setSuffixText(mCurrency);
+                return true;
+            });
+            popupMenu.show();
         });
+
     }
 
     private void saveItem() {
@@ -503,17 +475,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             mNameEditText.setText(name);
             mQuantityEditText.setText(String.format("%d", quantity));
 
-            ArrayAdapter<CharSequence> unitAdapter = (ArrayAdapter<CharSequence>) mUnitSpinner.getAdapter();
-            if (unit != null) {
-                int spinnerPosition = unitAdapter.getPosition(unit);
-                mUnitSpinner.setSelection(spinnerPosition);
-            }
-
-            ArrayAdapter<CharSequence> currencyAdapter = (ArrayAdapter<CharSequence>) mCurrencySpinner.getAdapter();
-            if (currency != null) {
-                int spinnerPosition = currencyAdapter.getPosition(currency);
-                mCurrencySpinner.setSelection(spinnerPosition);
-            }
+            mQuantityTextInputLayout.setSuffixText(unit);
+            mPriceTextInputLayout.setSuffixText(currency);
 
             DecimalFormat formatter = new DecimalFormat("#0.00");
             mPriceEditText.setText(formatter.format(price));
@@ -538,9 +501,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         mNameEditText.setText("");
         mQuantityEditText.setText("");
-        mUnitSpinner.setSelection(0);
+        mQuantityTextInputLayout.setSuffixText("");
         mPriceEditText.setText("");
-        mCurrencySpinner.setSelection(0);
+        mPriceTextInputLayout.setSuffixText("");
         mDescriptionEditText.setText("");
         mTag1EditText.setText("");
         mTag2EditText.setText("");
