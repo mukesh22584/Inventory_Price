@@ -11,7 +11,7 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        card_view:cardCornerRadius="4dp"
+        card_view:cardCornerRadius="16dp"
         app:cardUseCompatPadding="true"
         android:foreground="@drawable/ripple_effect">
 
@@ -64,7 +64,7 @@
                         android:fontFamily="sans-serif"
                         android:textAppearance="?android:textAppearanceSmall"
                         android:textSize="11sp"
-                        android:textColor="#AEB6BD"
+                        android:textColor="?android:attr/textColorSecondary"
                         />
 
                     <TextView
@@ -74,7 +74,7 @@
                         android:fontFamily="sans-serif"
                         android:textAppearance="?android:textAppearanceSmall"
                         android:textSize="11sp"
-                        android:textColor="#AEB6BD"
+                        android:textColor="?android:attr/textColorSecondary"
                         />
 
                 </LinearLayout>
@@ -103,7 +103,7 @@
                         android:fontFamily="sans-serif"
                         android:textAppearance="?android:textAppearanceSmall"
                         android:textSize="11sp"
-                        android:textColor="#AEB6BD"/>
+                        android:textColor="?android:attr/textColorSecondary"/>
 
                     <TextView
                         android:id="@+id/price"
@@ -112,7 +112,7 @@
                         android:fontFamily="sans-serif"
                         android:textAppearance="?android:textAppearanceSmall"
                         android:textSize="11sp"
-                        android:textColor="#AEB6BD" />
+                        android:textColor="?android:attr/textColorSecondary" />
 
                 </LinearLayout>
 
