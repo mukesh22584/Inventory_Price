@@ -9,6 +9,7 @@ import android.content.ContentValues;
 import androidx.loader.content.CursorLoader;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import androidx.loader.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -45,6 +46,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 // TODO: 2018-07-09 if user clicks save twice two copies are saved
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -597,21 +599,27 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 }
                 }
             } else if (requestCode == CAMERA_REQUEST) {
-                try {
-                    mItemBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                    if (mItemBitmap.getAllocationByteCount() > MAX_MB) {
-                        int currentWidth = mItemBitmap.getWidth();
-                        int currentHeight = mItemBitmap.getHeight();
-                        int newWidth = (int) (currentWidth * 0.5);
-                        int newHeight = (int) (currentHeight * 0.5);
-                        mItemBitmap = Bitmap.createScaledBitmap(mItemBitmap, newWidth, newHeight, true);
-                    }
+                if (data != null && data.getExtras() != null) {
+                    Bundle extras = data.getExtras();
+                    mItemBitmap = (Bitmap) extras.get("data");
                     mItemImageView.setImageBitmap(mItemBitmap);
-                    Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                    mediaScanIntent.setData(selectedImage);
-                    this.sendBroadcast(mediaScanIntent);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } else {
+                    try {
+                        mItemBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                        if (mItemBitmap.getAllocationByteCount() > MAX_MB) {
+                            int currentWidth = mItemBitmap.getWidth();
+                            int currentHeight = mItemBitmap.getHeight();
+                            int newWidth = (int) (currentWidth * 0.5);
+                            int newHeight = (int) (currentHeight * 0.5);
+                            mItemBitmap = Bitmap.createScaledBitmap(mItemBitmap, newWidth, newHeight, true);
+                        }
+                        mItemImageView.setImageBitmap(mItemBitmap);
+                        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                        mediaScanIntent.setData(selectedImage);
+                        this.sendBroadcast(mediaScanIntent);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -633,21 +641,38 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private void launchCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                Log.e("fileError", ex.getMessage());
-            }
-            if (photoFile != null) {
-                selectedImage = FileProvider.getUriForFile(this,
-                        "com.example.gerin.inventory.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImage);
-                startActivityForResult(takePictureIntent, CAMERA_REQUEST);
-            }
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) == null) {
+            Toast.makeText(this, "No camera app found", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        File photoFile = null;
+        try {
+            photoFile = createImageFile();
+        } catch (IOException ex) {
+            Log.e("fileError", ex.getMessage());
+            Toast.makeText(this, "Error creating image file", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        selectedImage = FileProvider.getUriForFile(this,
+                "com.example.gerin.inventory.fileprovider",
+                photoFile);
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImage);
+
+        takePictureIntent.setPackage("org.lineageos.aperture");
+        if (takePictureIntent.resolveActivity(getPackageManager()) == null) {
+            takePictureIntent.setPackage(null);
+        }
+
+        List<ResolveInfo> resInfoList = getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
+        for (ResolveInfo resolveInfo : resInfoList) {
+            String packageName = resolveInfo.activityInfo.packageName;
+            grantUriPermission(packageName, selectedImage, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+
+        startActivityForResult(takePictureIntent, CAMERA_REQUEST);
     }
 
     private void dispatchTakePictureIntent() {
