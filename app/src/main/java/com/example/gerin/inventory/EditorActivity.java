@@ -1,5 +1,6 @@
 package com.example.gerin.inventory;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
@@ -8,6 +9,7 @@ import android.content.ContentValues;
 import androidx.loader.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import androidx.loader.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -18,7 +20,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -140,6 +144,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      */
     private static final int GALLERY_REQUEST = 1;
     private static final int CAMERA_REQUEST = 2;
+    private static final int CAMERA_PERMISSION_REQUEST = 3;
+
 
     /**
      * Maximum size for an image file that can be stored in the database
@@ -606,11 +612,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == GALLERY_REQUEST) {
+                if (data != null) {
                 selectedImage = data.getData();
                 Log.e("editor activity", selectedImage.toString());
                 try {
                     mItemBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
                     int i = mItemBitmap.getAllocationByteCount();
+                    // if less than 5MB set the image
                     if (i < MAX_MB) {
                         mItemImageView.setImageBitmap(mItemBitmap);
                         Log.e("Editor Activity", "successfully converted image");
@@ -625,6 +633,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 } catch (IOException e) {
                     Log.e("onActivityResult", "Some exception " + e);
                 }
+                }
             } else if (requestCode == CAMERA_REQUEST) {
                 try {
                     mItemBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
@@ -636,6 +645,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                         mItemBitmap = Bitmap.createScaledBitmap(mItemBitmap, newWidth, newHeight, true);
                     }
                     mItemImageView.setImageBitmap(mItemBitmap);
+                    Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    mediaScanIntent.setData(selectedImage);
+                    this.sendBroadcast(mediaScanIntent);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -657,7 +669,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         return image;
     }
 
-    private void dispatchTakePictureIntent() {
+    private void launchCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
@@ -672,6 +684,29 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImage);
                 startActivityForResult(takePictureIntent, CAMERA_REQUEST);
+            }
+        }
+    }
+
+    private void dispatchTakePictureIntent() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST);
+        } else {
+            launchCamera();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case CAMERA_PERMISSION_REQUEST: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    launchCamera();
+                } else {
+                    Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show();
+                }
+                return;
             }
         }
     }
