@@ -1,5 +1,6 @@
 package com.example.gerin.inventory;
 
+import androidx.core.content.FileProvider;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import android.content.DialogInterface;
@@ -11,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.core.app.NavUtils;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,29 +26,16 @@ import android.widget.Toast;
 import com.example.gerin.inventory.data.ItemContract;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 
 public class ItemActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    /**
-     * Content URI for the existing item
-     */
     private Uri mCurrentItemUri;
-
-    /**
-     * Identifier for the item data loader
-     */
     private static final int EXISTING_ITEM_LOADER = 0;
-
-    /**
-     * Custom toolbar
-     */
     private Toolbar toolbar;
-
-    /**
-     * References to TextViews
-     */
-
     TextView quantityView;
     TextView priceView;
     TextView descriptionView;
@@ -56,6 +43,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
     TextView tag2View;
     TextView tag3View;
     ImageView imageView;
+    private Bitmap mItemBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +53,6 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         Intent intent = getIntent();
         mCurrentItemUri = intent.getData();
 
-        // find references to TextViews
         quantityView = (TextView) findViewById(R.id.item_quantity_field);
         priceView = (TextView) findViewById(R.id.item_price_field);
         descriptionView = (TextView) findViewById(R.id.item_description_field);
@@ -77,7 +64,6 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.item_fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ItemActivity.this, EditorActivity.class);
@@ -86,57 +72,47 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
-        /**
-         * Create custom toolbar for the collapsing toolbar menu
-         *
-         */
-        // get ID of custom toolbar and set as the desired toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // this line shows back button
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         getSupportActionBar().setTitle("");
 
         LoaderManager.getInstance(this).initLoader(EXISTING_ITEM_LOADER, null, this);
 
+        imageView.setOnClickListener(v -> {
+            Intent intent_im = new Intent();
+            intent_im.setAction(Intent.ACTION_VIEW);
+            Uri imageUri = getImageUri(mItemBitmap);
+            intent_im.setDataAndType(imageUri, "image/*");
+            intent_im.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(intent_im);
+        });
     }
 
-    // TODO: 2018-07-08 need a dialog here
     private void deleteItem() {
         int rowsDeleted = getContentResolver().delete(mCurrentItemUri, null, null);
 
-        // Show a toast message depending on whether or not the delete was successful.
         if (rowsDeleted == 0) {
-            // If no rows were deleted, then there was an error with the delete.
             Toast.makeText(this, getString(R.string.editor_delete_item_failed),
                     Toast.LENGTH_SHORT).show();
         } else {
-            // Otherwise, the delete was successful and we can display a toast.
             Toast.makeText(this, getString(R.string.editor_delete_item_successful),
                     Toast.LENGTH_SHORT).show();
         }
-
         finish();
-
     }
 
-    /* Methods to create menu */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu options from the res/menu/menu_catalog.xml file.
-        // This adds menu items to the app bar.
         getMenuInflater().inflate(R.menu.menu_item, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // User clicked on a menu option in the app bar overflow menu
         int itemId = item.getItemId();
         if (itemId == R.id.action_delete_current_entry) {
-                // delete item from database
             showDeleteConfirmationDialog();
             return true;
         } else if (itemId == R.id.action_edit_current_entry) {
@@ -145,9 +121,10 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             startActivity(intent);
             return true;
         } else if (itemId == android.R.id.home) {
-            // Navigate up to parent activity
-            // Show a dialog later on asking if user really wants to leave
             finish();
+            return true;
+        } else if (itemId == R.id.action_share) {
+            shareImage();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -155,8 +132,6 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        // Since the editor shows all item attributes, define a projection that contains
-        // all columns from the inventory table
         String[] projection = {
                 ItemContract.ItemEntry._ID,
                 ItemContract.ItemEntry.COLUMN_ITEM_NAME,
@@ -170,24 +145,16 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
                 ItemContract.ItemEntry.COLUMN_ITEM_TAG3,
                 ItemContract.ItemEntry.COLUMN_ITEM_IMAGE};
 
-        // This loader will execute the ContentProvider's query method on a background thread
-        return new CursorLoader(this,   // Parent activity context
-                mCurrentItemUri,         // Query the content URI for the current item
-                projection,             // Columns to include in the resulting Cursor
-                null,                   // No selection clause
-                null,                   // No selection arguments
-                null);                  // Default sort order
+        return new CursorLoader(this, mCurrentItemUri, projection, null, null, null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        // Bail early if the cursor is null or there is less than 1 row in the cursor
         if (data == null || data.getCount() < 1) {
             return;
         }
 
         if (data.moveToFirst()) {
-            // Find the columns of pet attributes that we're interested in
             int nameColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_NAME);
             int quantityColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY);
             int unitColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_UNIT);
@@ -199,7 +166,6 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             int tag3ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG3);
             int imageColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE);
 
-            // Extract out the value from the Cursor for the given column index
             String name = data.getString(nameColumnIndex);
             int quantity = data.getInt(quantityColumnIndex);
             String unit = data.getString(unitColumnIndex);
@@ -212,24 +178,19 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             byte[] photo = data.getBlob(imageColumnIndex);
 
             ByteArrayInputStream imageStream = new ByteArrayInputStream(photo);
-            Bitmap theImage = BitmapFactory.decodeStream(imageStream);
+            mItemBitmap = BitmapFactory.decodeStream(imageStream);
 
-            // set the title of the toolbar
             getSupportActionBar().setTitle(name);
-
-            // Update the views on the screen with the values from the database
             quantityView.setText(String.format("%d %s", quantity, unit));
             DecimalFormat formatter = new DecimalFormat("#0.00");
             priceView.setText(currency + formatter.format(price));
             descriptionView.setText(description);
-            imageView.setImageBitmap(theImage);
+            imageView.setImageBitmap(mItemBitmap);
 
-            // Initially no tags
             tag1View.setVisibility(View.GONE);
             tag2View.setVisibility(View.GONE);
             tag3View.setVisibility(View.GONE);
 
-            // Determine which tags to fill
             if (!tag1.isEmpty()) {
                 tag1View.setText(tag1);
                 tag1View.setVisibility(View.VISIBLE);
@@ -266,22 +227,13 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
                 tag1View.setVisibility(View.VISIBLE);
                 return;
             }
-
-
-
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
-        // set the title of the toolbar
         getSupportActionBar().setTitle("");
-
-        // default bitmap
         Bitmap tempItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
-
-        // Update the views on the screen with the values from the database
         quantityView.setText("");
         priceView.setText("");
         descriptionView.setText("");
@@ -289,32 +241,43 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         tag2View.setText("");
         tag3View.setText("");
         imageView.setImageBitmap(tempItemBitmap);
-
     }
 
     private void showDeleteConfirmationDialog() {
-        // Create an AlertDialog.Builder and set the message, and click listeners
-        // for the postivie and negative buttons on the dialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.delete_dialog_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Delete" button
                 deleteItem();
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Cancel" button, so dismiss the dialog and continue editing
                 if (dialog != null) {
                     dialog.dismiss();
                 }
             }
         });
-
-        // Create and show the AlertDialog
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 
+    private void shareImage() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("image/*");
+        Uri imageUri = getImageUri(mItemBitmap);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(shareIntent, "Share image using"));
+    }
+
+    private Uri getImageUri(Bitmap bitmap) {
+        File imageFile = new File(getCacheDir(), "shared_image.png");
+        try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return FileProvider.getUriForFile(this, "com.example.gerin.inventory.fileprovider", imageFile);
+    }
 }
