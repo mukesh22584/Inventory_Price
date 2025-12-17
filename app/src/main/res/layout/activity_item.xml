@@ -43,7 +43,7 @@
                 android:layout_height="?attr/actionBarSize"
                 android:background="@android:color/transparent"
                 app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+                app:popupTheme="@style/PopupMenuTextStyle" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
@@ -116,7 +116,7 @@
 
                 <TextView
                     style="@style/ItemCategoryStyle"
-                    android:text="Price: " />
+                    android.text="Price: " />
 
                 <!-- Dummy view takes up maximum space to right align everything-->
                 <View

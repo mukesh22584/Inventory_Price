@@ -31,7 +31,7 @@
                 android:layout_weight="55"
                 android:fontFamily="sans-serif-medium"
                 android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="#2B3D4D" />
+                android:textColor="?android:attr/textColorPrimary" />
 
             <!-- second child contains the product info -->
             <LinearLayout

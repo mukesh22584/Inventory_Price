@@ -1,0 +1,10 @@
+<resources>
+
+    <style name="SearchBarTheme" parent="MaterialSearchBarDark">
+        <item name="mt_dividerColor">@color/dodger_blue</item>
+        <item name="mt_searchIconTint">@color/dodger_blue</item>
+        <item name="mt_placeholderColor">@color/dodger_blue</item>
+        <item name="mt_textCursorTint">@color/dodger_blue</item>
+    </style>
+
+</resources>
