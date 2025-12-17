@@ -143,24 +143,37 @@
 
                         </LinearLayout>
 
-                        <!-- Price field -->
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:boxCornerRadiusBottomEnd="16dp"
-                            app:boxCornerRadiusBottomStart="16dp"
-                            app:boxCornerRadiusTopEnd="16dp"
-                            app:boxCornerRadiusTopStart="16dp"
-                            app:prefixText="$">
+                            android:orientation="horizontal">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/edit_item_price"
-                                style="@style/EditorFieldStyle"
-                                android:hint="@string/hint_item_price"
-                                android:inputType="numberDecimal" />
+                            <Spinner
+                                android:id="@+id/spinner_currency"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:entries="@array/currency_options" />
 
-                        </com.google.android.material.textfield.TextInputLayout>
+                            <!-- Price field -->
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:boxCornerRadiusBottomEnd="16dp"
+                                app:boxCornerRadiusBottomStart="16dp"
+                                app:boxCornerRadiusTopEnd="16dp"
+                                app:boxCornerRadiusTopStart="16dp">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/edit_item_price"
+                                    style="@style/EditorFieldStyle"
+                                    android:hint="@string/hint_item_price"
+                                    android:inputType="numberDecimal" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -252,7 +265,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:boxCornerRadiusBottomEnd="16dp"
-                            app:boxCornerRadiusBottomStart="16dp"
+                            app.boxCornerRadiusBottomStart="16dp"
                             app:boxCornerRadiusTopEnd="16dp"
                             app:boxCornerRadiusTopStart="16dp">
 

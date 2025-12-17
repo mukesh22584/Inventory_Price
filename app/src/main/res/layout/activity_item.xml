@@ -125,10 +125,6 @@
                     android:layout_weight="1"></View>
 
                 <TextView
-                    style="@style/ItemFieldStyle"
-                    android:text="@string/dollarSign"/>
-
-                <TextView
                     android:id="@+id/item_price_field"
                     style="@style/ItemFieldStyle" />
 

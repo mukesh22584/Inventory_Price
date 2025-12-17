@@ -12,12 +12,11 @@
     <string name="hint_item_price">Price</string>
     <string name="category_description">Description</string>
     <string name="hint_item_description">Describe the product</string>
-    <string name="dollarSign">$</string>
     <string name="hint_item_tag1">Tag 1</string>
     <string name="hint_item_tag2">Tag 2</string>
     <string name="hint_item_tag3">Tag 3</string>
     <string name="category_tag">Tags</string>
-    <string name="cardview_price_label">Price: $</string>
+    <string name="cardview_price_label">Price: </string>
     <string name="cardview_quantity_label">In stock:&#160;</string>
     <string name="editor_insert_item_successful">Item saved successfully</string>
     <string name="editor_insert_item_failed">An error occurred: Item could not be saved</string>
@@ -41,5 +40,12 @@
         <item>Kgs.</item>
         <item>Ltr.</item>
         <item>Mtr.</item>
+    </string-array>
+    <string-array name="currency_options">
+        <item>₹</item>
+        <item>$</item>
+        <item>€</item>
+        <item>£</item>
+        <item>₽</item>
     </string-array>
 </resources>

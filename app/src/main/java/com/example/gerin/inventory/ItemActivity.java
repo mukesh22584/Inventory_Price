@@ -163,6 +163,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
                 ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY,
                 ItemContract.ItemEntry.COLUMN_ITEM_UNIT,
                 ItemContract.ItemEntry.COLUMN_ITEM_PRICE,
+                ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY,
                 ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION,
                 ItemContract.ItemEntry.COLUMN_ITEM_TAG1,
                 ItemContract.ItemEntry.COLUMN_ITEM_TAG2,
@@ -191,6 +192,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             int quantityColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY);
             int unitColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_UNIT);
             int priceColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_PRICE);
+            int currencyColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY);
             int descriptionColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION);
             int tag1ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG1);
             int tag2ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG2);
@@ -202,6 +204,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             int quantity = data.getInt(quantityColumnIndex);
             String unit = data.getString(unitColumnIndex);
             double price = data.getDouble(priceColumnIndex);
+            String currency = data.getString(currencyColumnIndex);
             String description = data.getString(descriptionColumnIndex);
             String tag1 = data.getString(tag1ColumnIndex);
             String tag2 = data.getString(tag2ColumnIndex);
@@ -217,7 +220,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             // Update the views on the screen with the values from the database
             quantityView.setText(String.format("%d %s", quantity, unit));
             DecimalFormat formatter = new DecimalFormat("#0.00");
-            priceView.setText(formatter.format(price));
+            priceView.setText(currency + formatter.format(price));
             descriptionView.setText(description);
             imageView.setImageBitmap(theImage);
 

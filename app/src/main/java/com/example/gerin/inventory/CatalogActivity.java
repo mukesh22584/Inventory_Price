@@ -226,6 +226,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY,
                 ItemContract.ItemEntry.COLUMN_ITEM_PRICE,
                 ItemContract.ItemEntry.COLUMN_ITEM_UNIT,
+                ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY,
                 ItemContract.ItemEntry.COLUMN_ITEM_IMAGE
         };
 

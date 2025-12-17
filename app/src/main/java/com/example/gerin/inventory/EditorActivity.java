@@ -86,6 +86,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText mPriceEditText;
 
     /**
+     * Spinner for currency
+     */
+    private Spinner mCurrencySpinner;
+
+    /**
+     * Currency of the item.
+     */
+    private String mCurrency;
+
+    /**
      * EditText field for tag 1
      */
     private EditText mTag1EditText;
@@ -181,6 +191,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mQuantityEditText = findViewById(R.id.edit_item_quantity);
         mUnitSpinner = findViewById(R.id.spinner_unit);
         mPriceEditText = findViewById(R.id.edit_item_price);
+        mCurrencySpinner = findViewById(R.id.spinner_currency);
         mDescriptionEditText = findViewById(R.id.edit_item_description);
         mItemImageView = findViewById(R.id.edit_item_image);
         mTag1EditText = findViewById(R.id.edit_item_tag1);
@@ -192,6 +203,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mQuantityEditText.setOnTouchListener(mTouchListener);
         mUnitSpinner.setOnTouchListener(mTouchListener);
         mPriceEditText.setOnTouchListener(mTouchListener);
+        mCurrencySpinner.setOnTouchListener(mTouchListener);
         mDescriptionEditText.setOnTouchListener(mTouchListener);
         mTag1EditText.setOnTouchListener(mTouchListener);
         mTag2EditText.setOnTouchListener(mTouchListener);
@@ -218,12 +230,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // the spinner will use the default layout
         ArrayAdapter<CharSequence> unitSpinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.unit_options, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> currencySpinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.currency_options, android.R.layout.simple_spinner_item);
 
         // Specify dropdown layout style - simple list view with 1 item per line
         unitSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        currencySpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
 
         // Apply the adapter to the spinner
         mUnitSpinner.setAdapter(unitSpinnerAdapter);
+        mCurrencySpinner.setAdapter(currencySpinnerAdapter);
 
         // Set the integer mSelected to the constant values
         mUnitSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -236,6 +252,18 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 mUnit = "Pcs."; // Default to Pcs.
+            }
+        });
+
+        mCurrencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mCurrency = (String) parent.getItemAtPosition(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                mCurrency = "₹";
             }
         });
     }
@@ -290,6 +318,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY, quantityInteger);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_UNIT, mUnit);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_PRICE, priceDouble);
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY, mCurrency);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION, descriptionString);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG1, tag1String);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG2, tag2String);
@@ -405,6 +434,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY,
                 ItemContract.ItemEntry.COLUMN_ITEM_UNIT,
                 ItemContract.ItemEntry.COLUMN_ITEM_PRICE,
+                ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY,
                 ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION,
                 ItemContract.ItemEntry.COLUMN_ITEM_TAG1,
                 ItemContract.ItemEntry.COLUMN_ITEM_TAG2,
@@ -437,6 +467,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             int quantityColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY);
             int unitColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_UNIT);
             int priceColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_PRICE);
+            int currencyColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY);
             int descriptionColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION);
             int tag1ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG1);
             int tag2ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG2);
@@ -450,6 +481,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             int quantity = data.getInt(quantityColumnIndex);
             String unit = data.getString(unitColumnIndex);
             double price = data.getDouble(priceColumnIndex);
+            String currency = data.getString(currencyColumnIndex);
             String description = data.getString(descriptionColumnIndex);
             String tag1 = data.getString(tag1ColumnIndex);
             String tag2 = data.getString(tag2ColumnIndex);
@@ -464,11 +496,19 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Update the views on the screen with the values from the database
             mNameEditText.setText(name);
             mQuantityEditText.setText(String.format("%d", quantity));
-            ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) mUnitSpinner.getAdapter();
+
+            ArrayAdapter<CharSequence> unitAdapter = (ArrayAdapter<CharSequence>) mUnitSpinner.getAdapter();
             if (unit != null) {
-                int spinnerPosition = adapter.getPosition(unit);
+                int spinnerPosition = unitAdapter.getPosition(unit);
                 mUnitSpinner.setSelection(spinnerPosition);
             }
+
+            ArrayAdapter<CharSequence> currencyAdapter = (ArrayAdapter<CharSequence>) mCurrencySpinner.getAdapter();
+            if (currency != null) {
+                int spinnerPosition = currencyAdapter.getPosition(currency);
+                mCurrencySpinner.setSelection(spinnerPosition);
+            }
+
             DecimalFormat formatter = new DecimalFormat("#0.00");
             mPriceEditText.setText(formatter.format(price));
             mDescriptionEditText.setText(description);
@@ -494,6 +534,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mQuantityEditText.setText("");
         mUnitSpinner.setSelection(0);
         mPriceEditText.setText("");
+        mCurrencySpinner.setSelection(0);
         mDescriptionEditText.setText("");
         mTag1EditText.setText("");
         mTag2EditText.setText("");

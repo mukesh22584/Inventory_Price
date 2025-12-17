@@ -93,6 +93,13 @@ public class ItemContract {
         public final static String COLUMN_ITEM_PRICE = "price";
 
         /**
+         * Currency of the item.
+         *
+         * Type: TEXT (String)
+         */
+        public final static String COLUMN_ITEM_CURRENCY = "currency";
+
+        /**
          * Description of the product
          *
          * Type: TEXT (String)

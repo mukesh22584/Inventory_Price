@@ -34,15 +34,23 @@ public class ItemCursorAdapter extends CursorAdapter {
         int quantityColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY);
         int unitColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_UNIT);
         int priceColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_PRICE);
+        int currencyColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY);
 
         String itemName = cursor.getString(nameColumnIndex);
         int itemQuantity = cursor.getInt(quantityColumnIndex);
         String itemUnit = cursor.getString(unitColumnIndex);
         double itemPrice = cursor.getDouble(priceColumnIndex);
+        String itemCurrency = cursor.getString(currencyColumnIndex);
 
         // Update the TextViews with the attributes for the current item
         nameTextView.setText(itemName);
         quantityTextView.setText(String.format("%d %s", itemQuantity, itemUnit));
-        priceTextView.setText(String.format("$%.2f", itemPrice));
+
+        if (itemCurrency == null || itemCurrency.isEmpty()) {
+            itemCurrency = "₹";
+        }
+
+        DecimalFormat formatter = new DecimalFormat("#0.00");
+        priceTextView.setText(itemCurrency + formatter.format(itemPrice));
     }
 }
