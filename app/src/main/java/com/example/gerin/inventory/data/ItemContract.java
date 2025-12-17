@@ -79,6 +79,13 @@ public class ItemContract {
         public final static String COLUMN_ITEM_QUANTITY = "quantity";
 
         /**
+         * Unit for the quantity of the item.
+         *
+         * Type: TEXT (String)
+         */
+        public final static String COLUMN_ITEM_UNIT = "unit";
+
+        /**
          * Price of the item.
          *
          * Type: TEXT (Float)

@@ -36,4 +36,10 @@
     <string name="discard">Discard changes</string>
     <string name="edit">Keep editing</string>
     <string name="sort_dialog_msg">Sort By</string>
+    <string-array name="unit_options">
+        <item>Pcs.</item>
+        <item>Kgs.</item>
+        <item>Ltr.</item>
+        <item>Mtr.</item>
+    </string-array>
 </resources>

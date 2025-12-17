@@ -29,8 +29,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.gerin.inventory.data.ItemContract;
@@ -65,6 +68,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      * EditText field to enter the item's quantity
      */
     private EditText mQuantityEditText;
+
+    /**
+     * Spinner for quantity unit
+     */
+    private Spinner mUnitSpinner;
+
+    /**
+     * Unit of the item. The possible values are:
+     * Pcs., Kgs., Ltr., Mtr.
+     */
+    private String mUnit;
 
     /**
      * EditText field to enter the item's price
@@ -165,6 +179,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         mNameEditText = findViewById(R.id.edit_item_name);
         mQuantityEditText = findViewById(R.id.edit_item_quantity);
+        mUnitSpinner = findViewById(R.id.spinner_unit);
         mPriceEditText = findViewById(R.id.edit_item_price);
         mDescriptionEditText = findViewById(R.id.edit_item_description);
         mItemImageView = findViewById(R.id.edit_item_image);
@@ -175,6 +190,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         mNameEditText.setOnTouchListener(mTouchListener);
         mQuantityEditText.setOnTouchListener(mTouchListener);
+        mUnitSpinner.setOnTouchListener(mTouchListener);
         mPriceEditText.setOnTouchListener(mTouchListener);
         mDescriptionEditText.setOnTouchListener(mTouchListener);
         mTag1EditText.setOnTouchListener(mTouchListener);
@@ -193,6 +209,35 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             d.show();
         });
 
+        setupSpinner();
+
+    }
+
+    private void setupSpinner() {
+        // Create adapter for spinner. The list options are from the String array it will use
+        // the spinner will use the default layout
+        ArrayAdapter<CharSequence> unitSpinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.unit_options, android.R.layout.simple_spinner_item);
+
+        // Specify dropdown layout style - simple list view with 1 item per line
+        unitSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+
+        // Apply the adapter to the spinner
+        mUnitSpinner.setAdapter(unitSpinnerAdapter);
+
+        // Set the integer mSelected to the constant values
+        mUnitSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mUnit = (String) parent.getItemAtPosition(position);
+            }
+
+            // Because AdapterView is an abstract class, onNothingSelected must be defined
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                mUnit = "Pcs."; // Default to Pcs.
+            }
+        });
     }
 
     private void saveItem() {
@@ -243,6 +288,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         ContentValues values = new ContentValues();
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_NAME, nameString);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY, quantityInteger);
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_UNIT, mUnit);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_PRICE, priceDouble);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION, descriptionString);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG1, tag1String);
@@ -357,6 +403,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 ItemContract.ItemEntry._ID,
                 ItemContract.ItemEntry.COLUMN_ITEM_NAME,
                 ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY,
+                ItemContract.ItemEntry.COLUMN_ITEM_UNIT,
                 ItemContract.ItemEntry.COLUMN_ITEM_PRICE,
                 ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION,
                 ItemContract.ItemEntry.COLUMN_ITEM_TAG1,
@@ -388,6 +435,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Find the columns of pet attributes that we're interested in
             int nameColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_NAME);
             int quantityColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY);
+            int unitColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_UNIT);
             int priceColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_PRICE);
             int descriptionColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION);
             int tag1ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG1);
@@ -400,6 +448,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Extract out the value from the Cursor for the given column index
             String name = data.getString(nameColumnIndex);
             int quantity = data.getInt(quantityColumnIndex);
+            String unit = data.getString(unitColumnIndex);
             double price = data.getDouble(priceColumnIndex);
             String description = data.getString(descriptionColumnIndex);
             String tag1 = data.getString(tag1ColumnIndex);
@@ -415,6 +464,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Update the views on the screen with the values from the database
             mNameEditText.setText(name);
             mQuantityEditText.setText(String.format("%d", quantity));
+            ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) mUnitSpinner.getAdapter();
+            if (unit != null) {
+                int spinnerPosition = adapter.getPosition(unit);
+                mUnitSpinner.setSelection(spinnerPosition);
+            }
             DecimalFormat formatter = new DecimalFormat("#0.00");
             mPriceEditText.setText(formatter.format(price));
             mDescriptionEditText.setText(description);
@@ -438,6 +492,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         mNameEditText.setText("");
         mQuantityEditText.setText("");
+        mUnitSpinner.setSelection(0);
         mPriceEditText.setText("");
         mDescriptionEditText.setText("");
         mTag1EditText.setText("");

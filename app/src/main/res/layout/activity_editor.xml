@@ -110,23 +110,38 @@
 
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <!-- Quantity field -->
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            app:boxCornerRadiusBottomEnd="16dp"
-                            app:boxCornerRadiusBottomStart="16dp"
-                            app:boxCornerRadiusTopEnd="16dp"
-                            app:boxCornerRadiusTopStart="16dp">
+                            android:orientation="horizontal">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/edit_item_quantity"
-                                style="@style/EditorFieldStyle"
-                                android:hint="@string/hint_item_quantity"
-                                android:inputType="numberSigned" />
+                            <!-- Quantity field -->
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                app:boxCornerRadiusBottomEnd="16dp"
+                                app:boxCornerRadiusBottomStart="16dp"
+                                app:boxCornerRadiusTopEnd="16dp"
+                                app:boxCornerRadiusTopStart="16dp">
 
-                        </com.google.android.material.textfield.TextInputLayout>
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/edit_item_quantity"
+                                    style="@style/EditorFieldStyle"
+                                    android:hint="@string/hint_item_quantity"
+                                    android:inputType="numberSigned" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <Spinner
+                                android:id="@+id/spinner_unit"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:entries="@array/unit_options" />
+
+                        </LinearLayout>
 
                         <!-- Price field -->
                         <com.google.android.material.textfield.TextInputLayout
