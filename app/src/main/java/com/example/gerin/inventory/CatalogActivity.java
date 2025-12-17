@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.loader.app.LoaderManager;
 import android.content.ContentUris;
 import androidx.loader.content.CursorLoader;
-import android.content.DialogInterface;
 import android.content.Intent;
 import androidx.loader.content.Loader;
 import android.database.Cursor;
@@ -13,20 +12,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.gerin.inventory.Search.CustomSuggestionsAdapter;
 import com.example.gerin.inventory.Search.SearchResult;
@@ -54,17 +47,15 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     CustomSuggestionsAdapter customSuggestionsAdapter;
     ItemDbHelper database;
     List<SearchResult> searchResultList = new ArrayList<>();
-    public static int flag1 = 0;
 
     @Override
     protected void onStart() {
         super.onStart();
         if (materialSearchBar.isSuggestionsVisible()) {
             loadSearchResultList();
-            materialSearchBar.setLastSuggestions(searchResultList);
+            customSuggestionsAdapter.setSuggestions(searchResultList);
+            customSuggestionsAdapter.notifyDataSetChanged();
         }
-
-
     }
 
     @Override
@@ -73,8 +64,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         if (materialSearchBar.isSuggestionsVisible()) {
             materialSearchBar.closeSearch();
         }
-
-
     }
 
     @Override
@@ -89,10 +78,13 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         database = new ItemDbHelper(this);
 
         // Create the search bar
-        materialSearchBar = (MaterialSearchBar) findViewById(R.id.search_bar1);
+        materialSearchBar = findViewById(R.id.search_bar1);
         materialSearchBar.setCardViewElevation(0);
         loadSearchResultList();
-        materialSearchBar.setLastSuggestions(searchResultList);
+
+        customSuggestionsAdapter = new CustomSuggestionsAdapter(LayoutInflater.from(this));
+        customSuggestionsAdapter.setSuggestions(searchResultList);
+        materialSearchBar.setCustomSuggestionAdapter(customSuggestionsAdapter);
 
         // Add flags to determine when to stop loading search results
         materialSearchBar.addTextChangeListener(new TextWatcher() {
@@ -104,8 +96,8 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 List<SearchResult> newSuggestions = loadNewSearchResultList();
-                materialSearchBar.setLastSuggestions(newSuggestions);
-
+                customSuggestionsAdapter.setSuggestions(newSuggestions);
+                customSuggestionsAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -123,7 +115,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             @Override
             public void onSearchConfirmed(CharSequence text) {
                 List<SearchResult> newSuggestions = loadNewSearchResultList();
-                if (newSuggestions.size() > 0) {
+                if (!newSuggestions.isEmpty()) {
                     SearchResult result = newSuggestions.get(0);
                     int testResult3 = result.getId();
 
@@ -142,7 +134,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         });
 
         // Find the ListView which will be populated with the pet data
-        ListView itemListView = (ListView) findViewById(R.id.catalog_list);
+        ListView itemListView = findViewById(R.id.catalog_list);
 
         // Find and set empty view on the ListView, so that it only shows when the list has 0 items.
         View emptyView = findViewById(R.id.empty_view);
@@ -155,19 +147,14 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
 
         // Setup FAB to open EditorActivity
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.catalog_fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
-                startActivity(intent);
-            }
+        FloatingActionButton fab = findViewById(R.id.catalog_fab);
+        fab.setOnClickListener(view -> {
+            Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+            startActivity(intent);
         });
 
         // Setup the item click listener
-        itemListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        itemListView.setOnItemClickListener((adapterView, view, position, id) -> {
                 // Create new intent to go to {@link EditorActivity}
                 Intent intent = new Intent(CatalogActivity.this, ItemActivity.class);
 
@@ -175,16 +162,15 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 intent.setData(currentPetUri);
 
                 startActivity(intent);
-            }
         });
 
         // Kick off the loader
-        LoaderManager.getInstance(this).initLoader(ITEM_LOADER, null, this);
+        getSupportLoaderManager().initLoader(ITEM_LOADER, null, this);
 
     }
 
     private void loadSearchResultList() {
-        searchResultList = database.getResult();
+        searchResultList = database.getResults();
     }
 
     private List<SearchResult> loadNewSearchResultList() {
@@ -273,14 +259,11 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         builder.setTitle(R.string.sort_dialog_msg);
 
         int checkedItem = 0;
-        builder.setSingleChoiceItems(sortOptions, checkedItem, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Bundle bundle = new Bundle();
-                bundle.putString("sortOrder", sortOrderOptions[which]);
-                LoaderManager.getInstance(CatalogActivity.this).restartLoader(ITEM_LOADER, bundle, CatalogActivity.this);
-                dialog.dismiss();
-            }
+        builder.setSingleChoiceItems(sortOptions, checkedItem, (dialog, which) -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("sortOrder", sortOrderOptions[which]);
+            getSupportLoaderManager().restartLoader(ITEM_LOADER, bundle, CatalogActivity.this);
+            dialog.dismiss();
         });
 
         AlertDialog dialog = builder.create();

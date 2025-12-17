@@ -56,7 +56,7 @@ public class ItemDbHelper extends SQLiteOpenHelper{
     /**
      * get a list of search results for the search bar
      */
-    public List<SearchResult> getResult(){
+    public List<SearchResult> getResults(){
 
         SQLiteDatabase db = getReadableDatabase();
         String[] projection = {
