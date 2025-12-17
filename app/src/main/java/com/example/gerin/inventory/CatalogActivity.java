@@ -324,7 +324,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     }
 
     private void showDeleteAllConfirmationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.RoundedDialog);
         builder.setMessage(R.string.delete_all_dialog_msg);
         builder.setPositiveButton(R.string.delete, (dialog, id) -> deleteAllItems());
         builder.setNegativeButton(R.string.cancel, (dialog, id) -> {
