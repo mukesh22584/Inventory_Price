@@ -142,7 +142,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         // Setup an Adapter to create a list item for each row of pet data in the Cursor.
         // There is no pet data yet (until the loader finishes) so pass in null for the Cursor.
-        mCursorAdapter = new ItemCursorAdapter(this, null, 0);
+        mCursorAdapter = new ItemCursorAdapter(this, null);
         itemListView.setAdapter(mCursorAdapter);
 
 
@@ -225,6 +225,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 ItemContract.ItemEntry.COLUMN_ITEM_NAME,
                 ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY,
                 ItemContract.ItemEntry.COLUMN_ITEM_PRICE,
+                ItemContract.ItemEntry.COLUMN_ITEM_UNIT,
                 ItemContract.ItemEntry.COLUMN_ITEM_IMAGE
         };
 

@@ -2,11 +2,10 @@ package com.example.gerin.inventory.data;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.widget.CursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import com.example.gerin.inventory.R;
@@ -15,8 +14,8 @@ import java.text.DecimalFormat;
 
 public class ItemCursorAdapter extends CursorAdapter {
 
-    public ItemCursorAdapter(Context context, Cursor c, int flags) {
-        super(context, c, flags);
+    public ItemCursorAdapter(Context context, Cursor c) {
+        super(context, c, 0 /* flags */);
     }
 
     @Override
@@ -26,21 +25,24 @@ public class ItemCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        TextView nameTextView = (TextView) view.findViewById(R.id.name);
-        TextView quantityTextView = (TextView) view.findViewById(R.id.quantity);
-        TextView priceTextView = (TextView) view.findViewById(R.id.price);
+        // Find individual views that we want to modify in the list item layout
+        TextView nameTextView = view.findViewById(R.id.name);
+        TextView quantityTextView = view.findViewById(R.id.quantity);
+        TextView priceTextView = view.findViewById(R.id.price);
 
         int nameColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_NAME);
         int quantityColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY);
+        int unitColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_UNIT);
         int priceColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_PRICE);
 
         String itemName = cursor.getString(nameColumnIndex);
-        String itemQuantity = String.valueOf(cursor.getInt(quantityColumnIndex));
-        DecimalFormat formatter = new DecimalFormat("#0.00");
-        String itemPrice = formatter.format(cursor.getDouble(priceColumnIndex));
+        int itemQuantity = cursor.getInt(quantityColumnIndex);
+        String itemUnit = cursor.getString(unitColumnIndex);
+        double itemPrice = cursor.getDouble(priceColumnIndex);
 
+        // Update the TextViews with the attributes for the current item
         nameTextView.setText(itemName);
-        quantityTextView.setText(itemQuantity);
-        priceTextView.setText(itemPrice);
+        quantityTextView.setText(String.format("%d %s", itemQuantity, itemUnit));
+        priceTextView.setText(String.format("$%.2f", itemPrice));
     }
 }

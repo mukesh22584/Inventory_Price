@@ -3,8 +3,6 @@ package com.example.gerin.inventory.Search;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.mancj.materialsearchbar.adapter.SuggestionsAdapter;
-
 public class SearchResult implements Parcelable {
     private int id;
     private String name;

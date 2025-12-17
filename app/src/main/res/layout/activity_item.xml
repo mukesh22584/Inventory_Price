@@ -83,7 +83,7 @@
 
                 <TextView
                     style="@style/ItemCategoryStyle"
-                    android:text="In stock: " />
+                    android:text="Quantity: " />
 
                 <!-- Dummy view takes up maximum space to right align everything-->
                 <View
