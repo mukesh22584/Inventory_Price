@@ -72,7 +72,7 @@
                 android:paddingTop="8dp"
                 android:text="@string/empty_view_subtitle_text"
                 android:textAppearance="?android:textAppearanceSmall"
-                android:textColor="#A2AAB0" />
+                android:textColor="?android:attr/textColorSecondary" />
             
             <ImageView
                 android:id="@+id/empty_shelf"
@@ -94,6 +94,7 @@
             android:layout_alignParentRight="true"
             android:layout_margin="@dimen/fab_margin"
             android:clickable="true"
+            app:backgroundTint="@color/dodger_blue"
             app:tint="@color/white"
             app:layout_anchor="@id/app_bar_layout"
             app:layout_anchorGravity="bottom|right|end"
