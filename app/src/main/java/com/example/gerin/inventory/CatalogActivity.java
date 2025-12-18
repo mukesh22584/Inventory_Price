@@ -123,7 +123,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         // Create the search bar
         materialSearchBar = findViewById(R.id.search_bar1);
-        materialSearchBar.setCardViewElevation(0);
         loadSearchResultList();
 
         customSuggestionsAdapter = new CustomSuggestionsAdapter(LayoutInflater.from(this));
