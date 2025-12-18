@@ -47,6 +47,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import androidx.activity.EdgeToEdge;
 
 // TODO: 2018-07-09 if user clicks save twice two copies are saved
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -160,6 +161,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_editor);
 
         Toolbar toolbar = findViewById(R.id.toolbar);

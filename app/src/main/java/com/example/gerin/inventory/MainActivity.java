@@ -8,7 +8,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.core.view.WindowCompat;
+import androidx.activity.EdgeToEdge;
 
 /* This file is used to create a splash screen */
 public class MainActivity extends AppCompatActivity {
@@ -17,8 +17,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
         getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
