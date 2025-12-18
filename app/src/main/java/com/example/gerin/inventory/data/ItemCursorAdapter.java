@@ -9,48 +9,60 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import com.example.gerin.inventory.R;
+import com.example.gerin.inventory.data.ItemContract.ItemEntry;
 
-import java.text.DecimalFormat;
+import java.util.Locale;
 
 public class ItemCursorAdapter extends CursorAdapter {
 
     public ItemCursorAdapter(Context context, Cursor c) {
-        super(context, c, 0 /* flags */);
+        super(context, c, 0);
+    }
+
+    private static class ViewHolder {
+        final TextView nameView;
+        final TextView quantityView;
+        final TextView priceView;
+
+        int nameIdx, qtyIdx, unitIdx, priceIdx, currIdx;
+
+        ViewHolder(View view, Cursor cursor) {
+            nameView = view.findViewById(R.id.name);
+            quantityView = view.findViewById(R.id.quantity);
+            priceView = view.findViewById(R.id.price);
+
+            nameIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_NAME);
+            qtyIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_QUANTITY);
+            unitIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_UNIT);
+            priceIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_PRICE);
+            currIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_CURRENCY);
+        }
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return LayoutInflater.from(context).inflate(R.layout.list_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.list_item, parent, false);
+        ViewHolder holder = new ViewHolder(view, cursor);
+        view.setTag(holder);
+        return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        // Find individual views that we want to modify in the list item layout
-        TextView nameTextView = view.findViewById(R.id.name);
-        TextView quantityTextView = view.findViewById(R.id.quantity);
-        TextView priceTextView = view.findViewById(R.id.price);
+        ViewHolder holder = (ViewHolder) view.getTag();
 
-        int nameColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_NAME);
-        int quantityColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY);
-        int unitColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_UNIT);
-        int priceColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_PRICE);
-        int currencyColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY);
+        String name = cursor.getString(holder.nameIdx);
+        int quantity = cursor.getInt(holder.qtyIdx);
+        String unit = cursor.getString(holder.unitIdx);
+        double price = cursor.getDouble(holder.priceIdx);
+        String currency = cursor.getString(holder.currIdx);
 
-        String itemName = cursor.getString(nameColumnIndex);
-        int itemQuantity = cursor.getInt(quantityColumnIndex);
-        String itemUnit = cursor.getString(unitColumnIndex);
-        double itemPrice = cursor.getDouble(priceColumnIndex);
-        String itemCurrency = cursor.getString(currencyColumnIndex);
+        if (unit == null) unit = "";
+        if (currency == null || currency.isEmpty()) currency = "₹";
 
-        // Update the TextViews with the attributes for the current item
-        nameTextView.setText(itemName);
-        quantityTextView.setText(String.format("%d %s", itemQuantity, itemUnit));
-
-        if (itemCurrency == null || itemCurrency.isEmpty()) {
-            itemCurrency = "₹";
-        }
-
-        DecimalFormat formatter = new DecimalFormat("#0.00");
-        priceTextView.setText(itemCurrency + formatter.format(itemPrice));
+        holder.nameView.setText(name);
+        
+        holder.quantityView.setText(String.format(Locale.getDefault(), "%d %s", quantity, unit).trim());
+        holder.priceView.setText(String.format(Locale.getDefault(), "%s %.2f", currency, price));
     }
 }

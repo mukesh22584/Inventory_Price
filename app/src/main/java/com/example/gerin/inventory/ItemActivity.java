@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ItemActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -180,55 +181,44 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             String tag3 = data.getString(tag3ColumnIndex);
             byte[] photo = data.getBlob(imageColumnIndex);
 
-            ByteArrayInputStream imageStream = new ByteArrayInputStream(photo);
-            mItemBitmap = BitmapFactory.decodeStream(imageStream);
+            if (photo != null && photo.length > 0) {
+                ByteArrayInputStream imageStream = new ByteArrayInputStream(photo);
+                mItemBitmap = BitmapFactory.decodeStream(imageStream);
+                imageView.setImageBitmap(mItemBitmap);
+            }
 
             getSupportActionBar().setTitle(name);
-            quantityView.setText(String.format("%d %s", quantity, unit));
+            quantityView.setText(String.format("%d %s", quantity, (unit == null ? "" : unit)));
             DecimalFormat formatter = new DecimalFormat("#0.00");
-            priceView.setText(currency + formatter.format(price));
+            priceView.setText((currency == null ? "" : currency) + formatter.format(price));
             descriptionView.setText(description);
-            imageView.setImageBitmap(mItemBitmap);
 
             tag1View.setVisibility(View.GONE);
             tag2View.setVisibility(View.GONE);
             tag3View.setVisibility(View.GONE);
 
-            if (!tag1.isEmpty()) {
-                tag1View.setText(tag1);
-                tag1View.setVisibility(View.VISIBLE);
+            ArrayList<String> tags = new ArrayList<>();
+            if (tag1 != null && !tag1.isEmpty()) {
+                tags.add(tag1);
+            }
+            if (tag2 != null && !tag2.isEmpty()) {
+                tags.add(tag2);
+            }
+            if (tag3 != null && !tag3.isEmpty()) {
+                tags.add(tag3);
+            }
 
-                if (!tag2.isEmpty()) {
-                    tag2View.setText(tag2);
-                    tag2View.setVisibility(View.VISIBLE);
-
-                    if (!tag3.isEmpty()) {
-                        tag3View.setText(tag3);
-                        tag3View.setVisibility(View.VISIBLE);
-                        return;
-                    }
-                    else
-                        return;
-                } else if (!tag3.isEmpty()) {
-                    tag2View.setText(tag3);
-                    tag2View.setVisibility(View.VISIBLE);
-                    return;
-                }
-            } else if (!tag2.isEmpty()) {
-                tag1View.setText(tag2);
+            if (tags.size() > 0) {
+                tag1View.setText(tags.get(0));
                 tag1View.setVisibility(View.VISIBLE);
-
-                if(!tag3.isEmpty()){
-                    tag2View.setText(tag3);
-                    tag2View.setVisibility(View.VISIBLE);
-                    return;
-                }
-                else
-                    return;
-            } else if (!tag3.isEmpty()) {
-                tag1View.setText(tag3);
-                tag1View.setVisibility(View.VISIBLE);
-                return;
+            }
+            if (tags.size() > 1) {
+                tag2View.setText(tags.get(1));
+                tag2View.setVisibility(View.VISIBLE);
+            }
+            if (tags.size() > 2) {
+                tag3View.setText(tags.get(2));
+                tag3View.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -283,7 +273,9 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
     private Uri getImageUri(Bitmap bitmap) {
         File imageFile = new File(getCacheDir(), "shared_image.png");
         try (FileOutputStream fos = new FileOutputStream(imageFile)) {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            if (bitmap != null) {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

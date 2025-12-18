@@ -21,6 +21,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -40,7 +42,6 @@ import android.widget.Toast;
 import com.example.gerin.inventory.data.ItemContract;
 
 import java.io.File;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -49,107 +50,27 @@ import java.util.Date;
 import java.util.List;
 import androidx.activity.EdgeToEdge;
 
-// TODO: 2018-07-09 if user clicks save twice two copies are saved
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    /**
-     * Identifier for the item data loader
-     */
     private static final int EXISTING_ITEM_LOADER = 0;
-
-    /**
-     * Content URI for the existing item (null if it's a new item)
-     */
     private Uri mCurrentItemUri;
-
-    /**
-     * EditText field to enter the item's name
-     */
-    private EditText mNameEditText;
-
-    /**
-     * EditText field to enter the item's quantity
-     */
-    private EditText mQuantityEditText;
-
-    private TextInputLayout mQuantityTextInputLayout;
-
-    /**
-     * Unit of the item. The possible values are:
-     * Pcs., Kgs., Ltr., Mtr.
-     */
-    private String mUnit = "Pcs.";
-
-    /**
-     * EditText field to enter the item's price
-     */
-    private EditText mPriceEditText;
-
-    private TextInputLayout mPriceTextInputLayout;
-
-    /**
-     * Currency of the item.
-     */
-    private String mCurrency = "₹";
-
-    /**
-     * EditText field for tag 1
-     */
-    private EditText mTag1EditText;
-
-    /**
-     * EditText field for tag 2
-     */
-    private EditText mTag2EditText;
-
-    /**
-     * EditText field for tag 3
-     */
-    private EditText mTag3EditText;
-
-    /**
-     * EditText field to enter the item's description
-     */
-    private EditText mDescriptionEditText;
-
-    /**
-     * ImageView to show product image
-     */
+    private EditText mNameEditText, mQuantityEditText, mPriceEditText, mDescriptionEditText;
+    private EditText mTag1EditText, mTag2EditText, mTag3EditText;
+    private TextInputLayout mQuantityTextInputLayout, mPriceTextInputLayout;
     private ImageView mItemImageView;
-
-    /**
-     * Bitmap of item's image
-     */
     public Bitmap mItemBitmap;
 
-    /**
-     * Camera FAB
-     */
-    public FloatingActionButton fab;
-
-    /**
-     * Boolean flag that keeps track of whether the item has been edited (true) or not (false)
-     */
+    // Default values initialized here
+    private String mUnit = "Pcs.";
+    private String mCurrency = "₹";
     private boolean mItemHasChanged = false;
 
-    /**
-     * ID for accessing image from gallery
-     */
     private static final int GALLERY_REQUEST = 1;
     private static final int CAMERA_REQUEST = 2;
     private static final int CAMERA_PERMISSION_REQUEST = 3;
 
-
-    /**
-     * Maximum dimension for an image file that can be stored in the database
-     */
-    private static final int MAX_IMAGE_DIMENSION = 5120;
-
-    /**
-     * URI of selected image
-     */
+    private static final int MAX_IMAGE_DIMENSION = 800;
     private Uri selectedImage = null;
-    String mCurrentPhotoPath;
 
     @SuppressLint("ClickableViewAccessibility")
     private final View.OnTouchListener mTouchListener = (view, motionEvent) -> {
@@ -157,7 +78,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         return false;
     };
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -170,27 +90,14 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mPriceTextInputLayout = findViewById(R.id.price_input_layout);
         mQuantityTextInputLayout = findViewById(R.id.quantity_input_layout);
 
-        // Examine the intent that was used to launch this activity,
-        // in order to figure out if we're creating a new item or editing an existing one.
-        Intent intent = getIntent();
-        mCurrentItemUri = intent.getData();
+        mCurrentItemUri = getIntent().getData();
 
-        // If the intent DOES NOT contain a content URI, then we know that we are
-        // creating a new item.
         if (mCurrentItemUri == null) {
-            // This is a new pet, so change the app bar to say "Add a Pet"
             setTitle(getString(R.string.editor_activity_title_new_item));
-            mPriceTextInputLayout.setSuffixText(mCurrency);
-            mQuantityTextInputLayout.setSuffixText(mUnit);
         } else {
-            // Otherwise this is an existing pet, so change app bar to say "Edit Pet"
             setTitle(getString(R.string.editor_activity_title_edit_item));
-
-            // Initialize a loader to read the item data from the database
-            // and display the current values in the editor
             LoaderManager.getInstance(this).initLoader(EXISTING_ITEM_LOADER, null, this);
         }
-
 
         mNameEditText = findViewById(R.id.edit_item_name);
         mQuantityEditText = findViewById(R.id.edit_item_quantity);
@@ -200,7 +107,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mTag1EditText = findViewById(R.id.edit_item_tag1);
         mTag2EditText = findViewById(R.id.edit_item_tag2);
         mTag3EditText = findViewById(R.id.edit_item_tag3);
-        fab = findViewById(R.id.floatingActionButton);
 
         mNameEditText.setOnTouchListener(mTouchListener);
         mQuantityEditText.setOnTouchListener(mTouchListener);
@@ -209,7 +115,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mTag1EditText.setOnTouchListener(mTouchListener);
         mTag2EditText.setOnTouchListener(mTouchListener);
         mTag3EditText.setOnTouchListener(mTouchListener);
-        fab.setOnTouchListener(mTouchListener);
 
         mItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
 
@@ -217,194 +122,42 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             Dialog d = new Dialog(EditorActivity.this);
             d.setContentView(R.layout.custom_dialog);
             ImageView image_full = d.findViewById(R.id.image_full);
-            if (mItemBitmap != null)
-                image_full.setImageBitmap(mItemBitmap);
+            if (mItemBitmap != null) image_full.setImageBitmap(mItemBitmap);
             d.show();
         });
 
+        setupPopupMenus();
+    }
+
+    private void setupPopupMenus() {
         mQuantityTextInputLayout.setEndIconOnClickListener(v -> {
-            PopupMenu popupMenu = new PopupMenu(EditorActivity.this, v);
-            popupMenu.getMenuInflater().inflate(R.menu.unit_menu, popupMenu.getMenu());
-            popupMenu.setOnMenuItemClickListener(item -> {
+            PopupMenu popup = new PopupMenu(this, v);
+            popup.getMenuInflater().inflate(R.menu.unit_menu, popup.getMenu());
+            popup.setOnMenuItemClickListener(item -> {
                 mUnit = item.getTitle().toString();
                 mQuantityTextInputLayout.setSuffixText(mUnit);
+                mItemHasChanged = true;
                 return true;
             });
-            popupMenu.show();
+            popup.show();
         });
 
         mPriceTextInputLayout.setEndIconOnClickListener(v -> {
-            PopupMenu popupMenu = new PopupMenu(EditorActivity.this, v);
-            popupMenu.getMenuInflater().inflate(R.menu.currency_menu, popupMenu.getMenu());
-            popupMenu.setOnMenuItemClickListener(item -> {
+            PopupMenu popup = new PopupMenu(this, v);
+            popup.getMenuInflater().inflate(R.menu.currency_menu, popup.getMenu());
+            popup.setOnMenuItemClickListener(item -> {
                 mCurrency = item.getTitle().toString();
                 mPriceTextInputLayout.setSuffixText(mCurrency);
+                mItemHasChanged = true;
                 return true;
             });
-            popupMenu.show();
+            popup.show();
         });
-
     }
 
-    private void saveItem() {
-        // Read from input fields
-        // Use trim to eliminate leading or trailing white space
-        String nameString = mNameEditText.getText().toString().trim();
-        String quantityString = mQuantityEditText.getText().toString().trim();
-        String priceString = mPriceEditText.getText().toString().trim();
-        String descriptionString = mDescriptionEditText.getText().toString().trim();
-        String tag1String = mTag1EditText.getText().toString().trim();
-        String tag2String = mTag2EditText.getText().toString().trim();
-        String tag3String = mTag3EditText.getText().toString().trim();
-        String imageUri;
-        if (selectedImage == null)
-            imageUri = "null";
-        else
-            imageUri = selectedImage.toString();     // may cause error since default is null
-
-        int quantityInteger = 0;
-        if (!TextUtils.isEmpty(quantityString)) {
-            quantityInteger = Integer.parseInt(quantityString);
-        }
-
-        double priceDouble = 0;
-        if (!TextUtils.isEmpty(priceString)) {
-            priceDouble = Double.parseDouble(priceString);
-        }
-
-        // TODO: 2018-07-08 check for blank inputs in edit mode
-        //        // Check if this is supposed to be a new pet
-        //        // and check if all the fields in the editor are blank
-        //        if (mCurrentItemUri == null &&
-        //                TextUtils.isEmpty(nameString) && TextUtils.isEmpty(breedString) &&
-        //                TextUtils.isEmpty(weightString) && mGender == PetEntry.GENDER_UNKNOWN) {
-        //            // Since no fields were modified, we can return early without creating a new pet.
-        //            // No need to create ContentValues and no need to do any ContentProvider operations.
-        //            return;
-        //        }
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        mItemBitmap = resizeBitmap(mItemBitmap, MAX_IMAGE_DIMENSION);
-        mItemBitmap.compress(Bitmap.CompressFormat.JPEG, 90, baos);
-        byte[] photo = baos.toByteArray();
-
-        // Create a ContentValues object where column names are the keys,
-        // and pet attributes from the editor are the values.
-        ContentValues values = new ContentValues();
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_NAME, nameString);
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY, quantityInteger);
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_UNIT, mUnit);
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_PRICE, priceDouble);
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY, mCurrency);
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION, descriptionString);
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG1, tag1String);
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG2, tag2String);
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG3, tag3String);
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE, photo);
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_URI, imageUri);
-
-        // if URI is null, then we are adding a new item
-        if (mCurrentItemUri == null) {
-            // This is a NEW item, so insert a new item into the provider,
-            // returning the content URI for the new item.
-            Uri newUri = getContentResolver().insert(ItemContract.ItemEntry.CONTENT_URI, values);
-
-            // Show a toast message depending on whether or not the insertion was successful.
-            if (newUri == null) {
-                // If the new content URI is null, then there was an error with insertion.
-                Toast.makeText(this, getString(R.string.editor_insert_item_failed),
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                // Otherwise, the insertion was successful and we can display a toast.
-                Toast.makeText(this, getString(R.string.editor_insert_item_successful),
-                        Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            // Otherwise this is an EXISTING item, so update the item with content URI: mCurrentItemUri
-            // and pass in the new ContentValues. Pass in null for the selection and selection args
-            // because mCurrentPetUri will already identify the correct row in the database that
-            // we want to modify.
-            int rowsAffected = getContentResolver().update(mCurrentItemUri, values, null, null);
-
-            // Show a toast message depending on whether or not the update was successful.
-            if (rowsAffected == 0) {
-                // If no rows were affected, then there was an error with the update.
-                Toast.makeText(this, getString(R.string.editor_update_item_failed),
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                // Otherwise, the update was successful and we can display a toast.
-                Toast.makeText(this, getString(R.string.editor_update_item_successful),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-
-    }
-
-    private void deleteItem() {
-        // Only perform the delete if this is an existing item.
-        if (mCurrentItemUri != null) {
-            // Call the ContentResolver to delete the item at the given content URI.
-            // Pass in null for the selection and selection args because the mCurrentItemUri
-            // content URI already identifies the item that we want.
-            int rowsDeleted = getContentResolver().delete(mCurrentItemUri, null, null);
-
-            // Show a toast message depending on whether or not the delete was successful.
-            if (rowsDeleted == 0) {
-                // If no rows were deleted, then there was an error with the delete.
-                Toast.makeText(this, getString(R.string.editor_delete_item_failed),
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                // Otherwise, the delete was successful and we can display a toast.
-                Toast.makeText(this, getString(R.string.editor_delete_item_successful),
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-        finish();
-    }
-
+    @NonNull
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu options from the res/menu/menu_editor.xml file.
-        // This adds menu items to the app bar.
-        getMenuInflater().inflate(R.menu.menu_editor, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        if (mCurrentItemUri == null) {
-            MenuItem menuItem = menu.findItem(R.id.action_delete_entry);
-            menuItem.setVisible(false);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // User clicked on a menu option in the app bar overflow menu
-        int itemId = item.getItemId();
-        if (itemId == R.id.action_save) {
-            saveItem();
-            finish();
-            return true;
-        } else if (itemId == R.id.action_delete_entry) {
-            showDeleteConfirmationDialog();
-            return true;
-        } else if (itemId == android.R.id.home) {
-            if (mItemHasChanged)
-                showUnsavedChangesDialog();
-            else
-                finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        // Since the editor shows all item attributes, define a projection that contains
-        // all columns from the inventory table
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         String[] projection = {
                 ItemContract.ItemEntry._ID,
                 ItemContract.ItemEntry.COLUMN_ITEM_NAME,
@@ -419,305 +172,194 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 ItemContract.ItemEntry.COLUMN_ITEM_IMAGE,
                 ItemContract.ItemEntry.COLUMN_ITEM_URI};
 
-        // This loader will execute the ContentProvider's query method on a background thread
-        return new CursorLoader(this,   // Parent activity context
-                mCurrentItemUri,         // Query the content URI for the current item
-                projection,             // Columns to include in the resulting Cursor
-                null,                   // No selection clause
-                null,                   // No selection arguments
-                null);                  // Default sort order
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        if (data == null || !data.moveToFirst()) return;
+
+        mNameEditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_NAME)));
+        mQuantityEditText.setText(String.valueOf(data.getInt(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY))));
+        mPriceEditText.setText(String.valueOf(data.getDouble(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_PRICE))));
+        mDescriptionEditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION)));
+        mTag1EditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_TAG1)));
+        mTag2EditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_TAG2)));
+        mTag3EditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_TAG3)));
+
+        String unitFromDb = data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_UNIT));
+        if (!TextUtils.isEmpty(unitFromDb)) {
+            mUnit = unitFromDb;
+        }
+        
+        String currencyFromDb = data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY));
+        if (!TextUtils.isEmpty(currencyFromDb)) {
+            mCurrency = currencyFromDb;
+        }
+        
+        mQuantityTextInputLayout.setSuffixText(mUnit);
+        mPriceTextInputLayout.setSuffixText(mCurrency);
+
+        byte[] photo = data.getBlob(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE));
+        if (photo != null && photo.length > 0) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(photo, 0, photo.length);
+            mItemImageView.setImageBitmap(bitmap);
+        }
     }
 
-    @SuppressLint("DefaultLocale")
+    private void saveItem() {
+        if (mItemBitmap == null) {
+            mItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Bitmap finalBitmap = resizeBitmap(mItemBitmap, MAX_IMAGE_DIMENSION);
+        finalBitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+        byte[] photoBlob = baos.toByteArray();
+
+        ContentValues values = new ContentValues();
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_NAME, mNameEditText.getText().toString().trim());
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY, getIntFromEditText(mQuantityEditText));
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_PRICE, getDoubleFromEditText(mPriceEditText));
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION, mDescriptionEditText.getText().toString().trim());
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG1, mTag1EditText.getText().toString().trim());
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG2, mTag2EditText.getText().toString().trim());
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG3, mTag3EditText.getText().toString().trim());
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE, photoBlob);
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_URI, (selectedImage != null) ? selectedImage.toString() : "null");
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_UNIT, mUnit);
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY, mCurrency);
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION, mDescriptionEditText.getText().toString().trim());
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG1, mTag1EditText.getText().toString().trim());
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG2, mTag2EditText.getText().toString().trim());
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG3, mTag3EditText.getText().toString().trim());
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE, photoBlob);
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_URI, (selectedImage == null) ? "null" : selectedImage.toString());
+
+        if (mCurrentItemUri == null) {
+            getContentResolver().insert(ItemContract.ItemEntry.CONTENT_URI, values);
+        } else {
+            getContentResolver().update(mCurrentItemUri, values, null, null);
+        }
+    }
+
+    private int getIntFromEditText(EditText et) {
+        String s = et.getText().toString().trim();
+        return TextUtils.isEmpty(s) ? 0 : Integer.parseInt(s);
+    }
+
+    private double getDoubleFromEditText(EditText et) {
+        String s = et.getText().toString().trim();
+        return TextUtils.isEmpty(s) ? 0.0 : Double.parseDouble(s);
+    }
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        // Bail early if the cursor is null or there is less than 1 row in the cursor
-        if (data == null || data.getCount() < 1) {
-            return;
+        if (data == null || !data.moveToFirst()) return;
+
+mNameEditText.setText(data.getString(data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_NAME)));
+        mQuantityEditText.setText(String.valueOf(data.getInt(data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY))));
+        mDescriptionEditText.setText(data.getString(data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION)));
+        
+        mUnit = data.getString(data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_UNIT));
+        mCurrency = data.getString(data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY));
+        mQuantityTextInputLayout.setSuffixText(mUnit);
+        mPriceTextInputLayout.setSuffixText(mCurrency);
+
+        byte[] photo = data.getBlob(data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE));
+        if (photo != null && photo.length > 0) {
+            mItemBitmap = BitmapFactory.decodeByteArray(photo, 0, photo.length);
+            mItemImageView.setImageBitmap(mItemBitmap);
         }
 
-        // Proceed with moving to the first row of the cursor and reading data from it
-        // (This should be the only row in the cursor)
-        if (data.moveToFirst()) {
-            // Find the columns of pet attributes that we're interested in
-            int nameColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_NAME);
-            int quantityColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY);
-            int unitColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_UNIT);
-            int priceColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_PRICE);
-            int currencyColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY);
-            int descriptionColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION);
-            int tag1ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG1);
-            int tag2ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG2);
-            int tag3ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG3);
-            int imageColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE);
-            int uriColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_URI);
-
-
-            // Extract out the value from the Cursor for the given column index
-            String name = data.getString(nameColumnIndex);
-            int quantity = data.getInt(quantityColumnIndex);
-            String unit = data.getString(unitColumnIndex);
-            double price = data.getDouble(priceColumnIndex);
-            String currency = data.getString(currencyColumnIndex);
-            String description = data.getString(descriptionColumnIndex);
-            String tag1 = data.getString(tag1ColumnIndex);
-            String tag2 = data.getString(tag2ColumnIndex);
-            String tag3 = data.getString(tag3ColumnIndex);
-            byte[] photo = data.getBlob(imageColumnIndex);
-            String imageURI = data.getString(uriColumnIndex);
-
-            mCurrency = currency;
-            mUnit = unit;
-
-            ByteArrayInputStream imageStream = new ByteArrayInputStream(photo);
-            Bitmap theImage = BitmapFactory.decodeStream(imageStream);
-
-
-            // Update the views on the screen with the values from the database
-            mNameEditText.setText(name);
-            mQuantityEditText.setText(String.format("%d", quantity));
-
-            mQuantityTextInputLayout.setSuffixText(unit);
-            mPriceTextInputLayout.setSuffixText(currency);
-
-            DecimalFormat formatter = new DecimalFormat("#0.00");
-            mPriceEditText.setText(formatter.format(price));
-            mDescriptionEditText.setText(description);
-            mTag1EditText.setText(tag1);
-            mTag2EditText.setText(tag2);
-            mTag3EditText.setText(tag3);
-            mItemImageView.setImageBitmap(theImage);
-            mItemBitmap = theImage;
-            if (imageURI.equals("null"))
-                selectedImage = null;
-            else
-                selectedImage = Uri.parse(imageURI);
-
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        // If the loader is invalidated, clear out all the data from the input fields.
-        Bitmap tempItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
-
-        mNameEditText.setText("");
-        mQuantityEditText.setText("");
-        mQuantityTextInputLayout.setSuffixText("Pcs.");
-        mPriceEditText.setText("");
-        mPriceTextInputLayout.setSuffixText("₹");
-        mDescriptionEditText.setText("");
-        mTag1EditText.setText("");
-        mTag2EditText.setText("");
-        mTag3EditText.setText("");
-        mItemImageView.setImageBitmap(tempItemBitmap);
-        mCurrency = "₹";
-        mUnit = "Pcs.";
-        selectedImage = null;
-    }
-
-    private void showDeleteConfirmationDialog() {
-        // Create an AlertDialog.Builder and set the message, and click listeners
-        // for the postivie and negative buttons on the dialog.
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.delete_dialog_msg);
-        builder.setPositiveButton(R.string.delete, (dialog, id) -> {
-            deleteItem();
-        });
-        builder.setNegativeButton(R.string.cancel, (dialog, id) -> {
-            if (dialog != null) {
-                dialog.dismiss();
-            }
-        });
-
-        // Create and show the AlertDialog
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
-    private void showUnsavedChangesDialog() {
-        // Create an AlertDialog.Builder and set the message, and click listeners
-        // for the postivie and negative buttons on the dialog.
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.return_dialog_msg);
-            public void onClick(DialogInterface dialog, int id) -> {
-                // User clicked the "Discard" button
-                finish();
-        });
-        builder.setNegativeButton(R.string.edit, (dialog, id) -> {
-                // User clicked the "Cancel" button, so dismiss the dialog and continue editing
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-        });
-
-        // Create and show the AlertDialog
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
-    public void insertImage(View view){
-        final CharSequence[] items = {"Take Photo", "Choose from Library", "Cancel"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(EditorActivity.this);
-        builder.setTitle("Add Photo!");
-        builder.setItems(items, (dialog, item) -> {
-            if (items[item].equals("Take Photo")) {
-                dispatchTakePictureIntent();
-            } else if (items[item].equals("Choose from Library")) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, GALLERY_REQUEST);
-            } else if (items[item].equals("Cancel")) {
-                dialog.dismiss();
-            }
-        });
-        builder.show();
+        String uriStr = data.getString(data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_URI));
+        selectedImage = (uriStr == null || uriStr.equals("null")) ? null : Uri.parse(uriStr);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == GALLERY_REQUEST) {
-                if (data != null) {
+            mItemHasChanged = true;
+            if (requestCode == GALLERY_REQUEST && data != null) {
                 selectedImage = data.getData();
-                Log.e("editor activity", selectedImage.toString());
-                try {
+            }
+            try {
+                if (selectedImage != null) {
                     mItemBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
-                        mItemBitmap = resizeBitmap(mItemBitmap, MAX_IMAGE_DIMENSION);
-                        mItemImageView.setImageBitmap(mItemBitmap);
-                        Log.e("Editor Activity", "successfully converted image");
-                    } catch (IOException e) {
-                        Log.e("onActivityResult", "Some exception " + e);
-                    }
-                    else {
-                        mItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
-                        selectedImage = null;
-                        Log.e("Editor Activity", "image too large");
-                        Toast.makeText(this, "Image too large", Toast.LENGTH_SHORT).show();
-                    }
-                    Log.e("Editor Activity", String.valueOf(i));
-                } catch (IOException e) {
-                    Log.e("onActivityResult", "Some exception " + e);
-                }
-                }
-            } else if (requestCode == CAMERA_REQUEST) {
-                if (data != null && data.getExtras() != null) {
-                    Bundle extras = data.getExtras();
-                    mItemBitmap = (Bitmap) extras.get("data");
                     mItemBitmap = resizeBitmap(mItemBitmap, MAX_IMAGE_DIMENSION);
                     mItemImageView.setImageBitmap(mItemBitmap);
-                } else {
-                    try {
-                        mItemBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                        mItemBitmap = resizeBitmap(mItemBitmap, MAX_IMAGE_DIMENSION);
-                        mItemImageView.setImageBitmap(mItemBitmap);
-                        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                        mediaScanIntent.setData(selectedImage);
-                        this.sendBroadcast(mediaScanIntent);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
+            } catch (IOException e) {
+                Log.e("EditorActivity", "Error setting image: " + e.getMessage());
             }
         }
     }
 
-    private File createImageFile() throws IOException {
-        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
     private void launchCamera() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        if (takePictureIntent.resolveActivity(getPackageManager()) == null) {
-            Toast.makeText(this, "No camera app found", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File photoFile = null;
         try {
-            photoFile = createImageFile();
-        } catch (IOException ex) {
-            Log.e("fileError", ex.getMessage());
-            Toast.makeText(this, "Error creating image file", Toast.LENGTH_SHORT).show();
-            return;
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            photoFile = File.createTempFile("IMG_" + timeStamp, ".jpg", getExternalFilesDir(Environment.DIRECTORY_PICTURES));
+        } catch (IOException ignored) {}
+
+        if (photoFile != null) {
+            selectedImage = FileProvider.getUriForFile(this, "com.example.gerin.inventory.fileprovider", photoFile);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImage);
+            
+            List<ResolveInfo> resInfoList = getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+            for (ResolveInfo resolveInfo : resInfoList) {
+                grantUriPermission(resolveInfo.activityInfo.packageName, selectedImage, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
+            startActivityForResult(intent, CAMERA_REQUEST);
         }
+    }
 
-        selectedImage = FileProvider.getUriForFile(this,
-                "com.example.gerin.inventory.fileprovider",
-                photoFile);
-        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImage);
-
-        takePictureIntent.setPackage("org.lineageos.aperture");
-        if (takePictureIntent.resolveActivity(getPackageManager()) == null) {
-            takePictureIntent.setPackage(null);
+    private Bitmap resizeBitmap(Bitmap image, int maxDimension) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        if (width <= maxDimension && height <= maxDimension) return image;
+        float ratio = (float) width / (float) height;
+        if (ratio > 1) {
+            width = maxDimension;
+            height = (int) (width / ratio);
+        } else {
+            height = maxDimension;
+            width = (int) (height * ratio);
         }
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
 
-        List<ResolveInfo> resInfoList = getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
-        for (ResolveInfo resolveInfo : resInfoList) {
-            String packageName = resolveInfo.activityInfo.packageName;
-            grantUriPermission(packageName, selectedImage, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_editor, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_save) {
+            saveItem();
+            finish();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
+    }
 
-        startActivityForResult(takePictureIntent, CAMERA_REQUEST);
+    public void insertImage(View view) {
+        final CharSequence[] items = {"Take Photo", "Choose from Library", "Cancel"};
+        new AlertDialog.Builder(this).setTitle("Add Photo!").setItems(items, (dialog, i) -> {
+            if (i == 0) dispatchTakePictureIntent();
+            else if (i == 1) {
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, GALLERY_REQUEST);
+            }
+        }).show();
     }
 
     private void dispatchTakePictureIntent() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST);
-        } else {
-            launchCamera();
-        }
+        } else launchCamera();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_PERMISSION_REQUEST) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                launchCamera();
-            } else {
-                Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    private void shareImage(){
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_STREAM, selectedImage);
-        shareIntent.setType("image/*");
-        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(Intent.createChooser(shareIntent, "Share image using"));
-    }
-
-    private Bitmap resizeBitmap(Bitmap image, int maxDimension) {
-    int width = image.getWidth();
-    int height = image.getHeight();
-
-    if (width > maxDimension || height > maxDimension) {
-        float bitmapRatio = (float) width / (float) height;
-        if (bitmapRatio > 1) {
-            width = maxDimension;
-            height = (int) (width / bitmapRatio);
-        } else {
-            height = maxDimension;
-            width = (int) (height * bitmapRatio);
-        }
-        return Bitmap.createScaledBitmap(image, width, height, true);
-    }
-    return image;
-}
-
+    @Override public void onLoaderReset(@NonNull Loader<Cursor> loader) {}
 }

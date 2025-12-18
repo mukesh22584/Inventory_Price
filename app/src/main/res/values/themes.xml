@@ -1,18 +1,45 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Inventory" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/dodger_blue</item>
         <item name="colorPrimaryDark">@color/dodger_blue_dark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
+        <item name="android:alertDialogTheme">@style/CustomDialogTheme</item>
+        <item name="materialAlertDialogTheme">@style/CustomDialogTheme</item>
+
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@color/dodger_blue</item>
+        
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
-    <style name="Theme.PersonalInventory" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowTranslucentNavigation">true</item>
+
+    <style name="noTitle" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/dodger_blue</item>
         <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
-    <style name="Theme.Inventory" parent="Base.Theme.Inventory" />
+
+    <style name="CustomDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/rounded_dialog</item>
+        
+        <item name="android:windowTitleStyle">@style/DialogTitleText</item>
+        <item name="android:textColorPrimary">@color/dodger_blue</item> 
+        <item name="colorAccent">@color/dodger_blue</item>
+    </style>
+
+    <style name="DialogTitleText" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textColor">@color/dodger_blue</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="OverflowMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <item name="android:overlapAnchor">false</item>
+        <item name="android:dropDownVerticalOffset">5.0dp</item>
+        <item name="android:popupBackground">@drawable/popup_background</item>
+    </style>
+
 </resources>

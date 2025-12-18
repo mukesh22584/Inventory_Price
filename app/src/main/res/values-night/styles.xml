@@ -1,17 +1,25 @@
 <resources>
-    <style name="AppTheme" parent="Theme.Inventory">
-        <item name="android:textColor">@color/primary_text_color</item>
+<style name="AppTheme" parent="Theme.Inventory">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:alertDialogTheme">@style/CustomAlertDialogStyle</item>
+        <item name="materialAlertDialogTheme">@style/CustomAlertDialogStyle</item>
+    </style>
+
+    <style name="CustomAlertDialogStyle" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
     <style name="PopupMenuTextStyle" parent="@style/Widget.AppCompat.PopupMenu.Overflow">
-        <item name="android:textColor">@color/white</item>
-        <item name="android:popupBackground">@color/black</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:popupBackground">?attr/colorSurface</item>
     </style>
 
-    <style name="RadioDialogTheme" parent="Theme.AppCompat.Dialog.Alert">
+    <style name="RadioDialogTheme" parent="Theme.AppCompat.DayNight.Dialog.Alert">
         <item name="colorControlNormal">@color/colorAccent</item>
         <item name="colorControlActivated">@color/colorAccent</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
     </style>
 
     <style name="SearchBarTheme" parent="MaterialSearchBarDark">
@@ -21,10 +29,6 @@
         <item name="mt_placeholderColor">@color/dodger_blue</item>
         <item name="mt_textCursorTint">@color/dodger_blue</item>
         <item name="mt_navIconEnabled">false</item>
-    </style>
-
-    <style name="RoundedDialog" parent="Theme.AppCompat.Dialog.Alert">
-        <item name="android:windowBackground">@drawable/rounded_dialog_background</item>
     </style>
 
 </resources>

@@ -11,11 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import com.example.gerin.inventory.data.ItemContract.ItemEntry;
 
 public class ItemProvider extends ContentProvider{
 
+    public static final String LOG_TAG = ItemProvider.class.getSimpleName();
 
     /** URI matcher code for the content URI for the items table */
     private static final int ITEMS = 100;
@@ -29,7 +29,6 @@ public class ItemProvider extends ContentProvider{
      * It's common to use NO_MATCH as the input for this case.
      */
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-
     // Static initializer. This is run the first time anything is called from this class.
     static {
         // The calls to addURI() go here, for all of the content URI patterns that the provider
@@ -65,27 +64,13 @@ public class ItemProvider extends ContentProvider{
         int match = sUriMatcher.match(uri);
         switch (match) {
             case ITEMS:
-
-            if (projection != null) {
-                    ArrayList<String> projectionWithoutImage = new ArrayList<>(Arrays.asList(projection));
-                    projectionWithoutImage.remove(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE);
-                    projection = projectionWithoutImage.toArray(new String[0]);
-                }
-                //cursor containing all rows of the table
-                cursor = database.query(ItemContract.ItemEntry.TABLE_NAME, projection, selection, selectionArgs,
+                cursor = database.query(ItemEntry.TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
                 break;
             case ITEM_ID:
-
-                // For every "?" in the selection, we need to have an element in the selection
-                // arguments that will fill in the "?". Since we have 1 question mark in the
-                // selection, we have 1 String in the selection arguments' String array.
-                selection = ItemContract.ItemEntry._ID + "=?";
-                //parseId follows convention where id is at the end of the uri
-                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
-
-                //cursor contains a single row specified by row ID
-                cursor = database.query(ItemContract.ItemEntry.TABLE_NAME, projection, selection, selectionArgs,
+                selection = ItemEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                cursor = database.query(ItemEntry.TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
                 break;
             default:
@@ -95,7 +80,9 @@ public class ItemProvider extends ContentProvider{
 //        // Set notification URI on the Cursor,
 //        // so we know what content URI the Cursor was created for.
 //        // If the data at this URI changes, then we know we need to update the Cursor.
+        if (getContext() != null) {
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
 
         // Return the cursor
         return cursor;
@@ -107,9 +94,9 @@ public class ItemProvider extends ContentProvider{
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case ITEMS:
-                return ItemContract.ItemEntry.CONTENT_LIST_TYPE;
+                return ItemEntry.CONTENT_LIST_TYPE;
             case ITEM_ID:
-                return ItemContract.ItemEntry.CONTENT_ITEM_TYPE;
+                return ItemEntry.CONTENT_ITEM_TYPE;
             default:
                 throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
         }
@@ -119,34 +106,33 @@ public class ItemProvider extends ContentProvider{
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         final int match = sUriMatcher.match(uri);
-        switch (match) {
-            case ITEMS:
-                return insertItem(uri, values);
-            default:
-                throw new IllegalArgumentException("Insertion is not supported for " + uri);
+        if (match == ITEMS) {
+            return insertItem(uri, values);
         }
+        throw new IllegalArgumentException("Insertion is not supported for " + uri);
     }
 
     private Uri insertItem(Uri uri, ContentValues values) {
-        // Check that the name is not null
-        String name = values.getAsString(ItemContract.ItemEntry.COLUMN_ITEM_NAME);
+        if (values == null) return null;
+
+        String name = values.getAsString(ItemEntry.COLUMN_ITEM_NAME);
         if (name == null) {
             throw new IllegalArgumentException("Item requires a name");
         }
 
         // Get writable database
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        long id = database.insert(ItemEntry.TABLE_NAME, null, values);
 
-        // Insert the new pet with the given values
-        long id = database.insert(ItemContract.ItemEntry.TABLE_NAME, null, values);
         // If the ID is -1, then the insertion failed. Log an error and return null.
         if (id == -1) {
-            Log.e("ItemProvider", "Failed to insert row for " + uri);
+            Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
         }
 
-//        // Notify all listeners that the data has changed for the item content URI
+        if (getContext() != null) {
         getContext().getContentResolver().notifyChange(uri, null);
+        }
 
         // Return the new URI with the ID (of the newly inserted row) appended at the end
         return ContentUris.withAppendedId(uri, id);
@@ -154,8 +140,8 @@ public class ItemProvider extends ContentProvider{
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        // Get writable database
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        // Get writable database
 
         // Track the number of rows that were deleted
         int rowsDeleted;
@@ -164,13 +150,13 @@ public class ItemProvider extends ContentProvider{
         switch (match) {
             case ITEMS:
                 // Delete all rows that match the selection and selection args
-                rowsDeleted = database.delete(ItemContract.ItemEntry.TABLE_NAME, selection, selectionArgs);
+                rowsDeleted = database.delete(ItemEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             case ITEM_ID:
                 // Delete a single row given by the ID in the URI
-                selection = ItemContract.ItemEntry._ID + "=?";
+                selection = ItemEntry._ID + "=?";
                 selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
-                rowsDeleted = database.delete(ItemContract.ItemEntry.TABLE_NAME, selection, selectionArgs);
+                rowsDeleted = database.delete(ItemEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
@@ -178,7 +164,7 @@ public class ItemProvider extends ContentProvider{
 
 //        // If 1 or more rows were deleted, then notify all listeners that the data at the
 //        // given URI has changed
-        if (rowsDeleted != 0) {
+        if (rowsDeleted != 0 && getContext() != null) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
 
@@ -191,40 +177,32 @@ public class ItemProvider extends ContentProvider{
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case ITEMS:
-                return updatePet(uri, values, selection, selectionArgs);
+                return updateItem(uri, values, selection, selectionArgs);
             case ITEM_ID:
-                selection = ItemContract.ItemEntry._ID + "=?";
-                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
-                return updatePet(uri, values, selection, selectionArgs);
+                selection = ItemEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                return updateItem(uri, values, selection, selectionArgs);
             default:
                 throw new IllegalArgumentException("Update is not supported for " + uri);
         }
     }
 
-    private int updatePet(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-
-        // If there are no values to update, then don't try to update the database
-        if (values.size() == 0) {
+    private int updateItem(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        if (values == null || values.size() == 0) {
             return 0;
         }
 
-        // TODO: 2018-07-07 handle this exception (check pets database for more info) 
-        if (values.containsKey(ItemContract.ItemEntry.COLUMN_ITEM_NAME)) {
-            String name = values.getAsString(ItemContract.ItemEntry.COLUMN_ITEM_NAME);
+        if (values.containsKey(ItemEntry.COLUMN_ITEM_NAME)) {
+            String name = values.getAsString(ItemEntry.COLUMN_ITEM_NAME);
             if (name == null) {
-                throw new IllegalArgumentException("Pet requires a name");
+                throw new IllegalArgumentException("Item requires a name");
             }
         }
 
-        // Otherwise, get writeable database to update the data
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        int rowsUpdated = database.update(ItemEntry.TABLE_NAME, values, selection, selectionArgs);
 
-        // Perform the update on the database and get the number of rows affected
-        int rowsUpdated = database.update(ItemContract.ItemEntry.TABLE_NAME, values, selection, selectionArgs);
-
-        // If 1 or more rows were updated, then notify all listeners that the data at the
-        // given URI has changed
-        if (rowsUpdated != 0) {
+        if (rowsUpdated != 0 && getContext() != null) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
 

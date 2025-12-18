@@ -4,17 +4,16 @@ import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-public class ItemContract {
+public final class ItemContract {
 
     // to prevent from accidently using this class
     // give it a private constructor
     private ItemContract() {}
 
-
     /**
      * The "Content authority" is a name for the entire content provider, similar to the
      * relationship between a domain name and its website.  A convenient string to use for the
-     * content authority is the package name for the app, which is guaranteed to be unique on the
+     * content authority is the package name for the app, which is guaranteed to be unique on the          
      * device.
      */
     public static final String CONTENT_AUTHORITY = "com.example.gerin.inventory";
@@ -29,10 +28,9 @@ public class ItemContract {
      * Possible path (appended to base content URI for possible URI's)
      * For instance, content://com.example.android.pets/pets/ is a valid path for
      * looking at pet data. content://com.example.android.pets/staff/ will fail,
-     * as the ContentProvider hasn't been given any information on what to do with "staff".
+     * as the ContentProvider hasn't been given any information on what to do with "staff".          
      */
     public static final String PATH_INVENTORY = "inventory";
-
 
     /**
      * Inner class that defines constant values for the pets database table.
@@ -59,21 +57,18 @@ public class ItemContract {
 
         /**
          * Unique ID number for the item (only for use in the database table).
-         *
          * Type: INTEGER
          */
         public final static String _ID = BaseColumns._ID;
 
         /**
          * Name of the item.
-         *
          * Type: TEXT (String)
          */
         public final static String COLUMN_ITEM_NAME ="name";
 
         /**
          * Quantity of the item.
-         *
          * Type: TEXT (Integer)
          */
         public final static String COLUMN_ITEM_QUANTITY = "quantity";
@@ -82,26 +77,24 @@ public class ItemContract {
          * Unit for the quantity of the item.
          *
          * Type: TEXT (String)
+         * Type: TEXT
          */
         public final static String COLUMN_ITEM_UNIT = "unit";
 
         /**
          * Price of the item.
-         *
          * Type: TEXT (Float)
          */
         public final static String COLUMN_ITEM_PRICE = "price";
 
         /**
          * Currency of the item.
-         *
          * Type: TEXT (String)
          */
         public final static String COLUMN_ITEM_CURRENCY = "currency";
 
         /**
          * Description of the product
-         *
          * Type: TEXT (String)
          */
         public final static String COLUMN_ITEM_DESCRIPTION = "description";

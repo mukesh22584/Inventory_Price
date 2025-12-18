@@ -1,29 +1,5 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.Inventory">
-        <!-- Customize your theme here. -->
-        <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
-    </style>
-
-    <!-- Theme for Overflow menu -->
-    <style name="OverflowMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
-        <item name="overlapAnchor">false</item>
-        <item name="android:dropDownVerticalOffset">5.0dp</item>
-        <item name="android:popupBackground">@drawable/popup_background</item>
-    </style>
-
-    <style name="PopupMenuTextStyle" parent="@style/Widget.AppCompat.PopupMenu.Overflow">
-        <item name="android:textColor">@color/popup_text_color</item>
-        <item name="android:popupBackground">@color/popup_background_color</item>
-    </style>
-
-    <!-- Theme without toolbar for the splash screen -->
-    <style name="noTitle" parent="Theme.Inventory">
-        <item name="android:windowNoTitle">true</item>
-    </style>
-
-    <!-- Style for a category in the editor -->
     <style name="CategoryStyle">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">0dp</item>
@@ -33,7 +9,6 @@
         <item name="android:textAppearance">?android:textAppearanceSmall</item>
     </style>
 
-    <!-- Style for an EditText field in the editor -->
     <style name="EditorFieldStyle">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
@@ -42,7 +17,6 @@
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
-    <!-- Style for an EditText field in the editor -->
     <style name="EditorFieldStylePrice">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">0dp</item>
@@ -51,7 +25,6 @@
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
-    <!-- Style for an EditText field in the editor -->
     <style name="ItemFieldStyle">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
@@ -60,7 +33,6 @@
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
     </style>
 
-    <!-- Style for an EditText field in the editor -->
     <style name="ItemCategoryStyle">
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
@@ -68,15 +40,6 @@
         <item name="android:paddingTop">16dp</item>
         <item name="android:textColor">@color/colorAccent</item>
         <item name="android:textAppearance">?android:textAppearanceMedium</item>
-    </style>
-
-    <!-- Style for "Sort By" alert dialog-->
-    <style name="RadioDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <!--item RadioButton or CheckBox color-->
-        <item name="colorControlNormal">@color/colorAccent</item>
-        <item name="colorControlActivated">@color/colorAccent</item>
-        <!--buttons color-->
-        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
     <style name="TagStyle">
@@ -97,8 +60,21 @@
         <item name="mt_textCursorTint">@color/dodger_blue</item>
     </style>
 
-    <style name="RoundedDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:windowBackground">@drawable/rounded_dialog_background</item>
+    <style name="PopupMenuTextStyle" parent="@style/Widget.AppCompat.PopupMenu.Overflow">
+        <item name="android:textColor">@color/popup_text_color</item>
+        <item name="android:popupBackground">@color/popup_background_color</item>
+    </style>
+
+<style name="CustomAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColorPrimary">@color/dodger_blue</item>
+        <item name="android:textColor">@color/dodger_blue</item>
+    </style>
+
+    <style name="RadioDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorControlNormal">@color/colorAccent</item>
+        <item name="colorControlActivated">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@color/dodger_blue</item>
     </style>
 
 </resources>
