@@ -82,10 +82,15 @@ public class ItemDbHelper extends SQLiteOpenHelper{
         );
 
         List<SearchResult> result = new ArrayList<>();
+        int idColumnIndex = cursor.getColumnIndex(ItemEntry._ID);
+        int nameColumnIndex = cursor.getColumnIndex(ItemEntry.COLUMN_ITEM_NAME);
+
         if (cursor.moveToFirst()){
             while (!cursor.isAfterLast()){
-                SearchResult searchResult = new SearchResult(cursor.getInt(cursor.getColumnIndex(ItemEntry._ID)), cursor.getString(cursor.getColumnIndex(ItemEntry.COLUMN_ITEM_NAME)));
-                result.add(searchResult);
+                if (idColumnIndex != -1 && nameColumnIndex != -1) {
+                    SearchResult searchResult = new SearchResult(cursor.getInt(idColumnIndex), cursor.getString(nameColumnIndex));
+                    result.add(searchResult);
+                }
                 cursor.moveToNext();
             }
         }
@@ -113,10 +118,15 @@ public class ItemDbHelper extends SQLiteOpenHelper{
                 null);
 
         List<SearchResult> result = new ArrayList<>();
+        int idColumnIndex = cursor.getColumnIndex(ItemEntry._ID);
+        int nameColumnIndex = cursor.getColumnIndex(ItemEntry.COLUMN_ITEM_NAME);
+
         if (cursor.moveToFirst()){
             while (!cursor.isAfterLast()){
-                SearchResult searchResult = new SearchResult(cursor.getInt(cursor.getColumnIndex(ItemEntry._ID)), cursor.getString(cursor.getColumnIndex(ItemEntry.COLUMN_ITEM_NAME)));
-                result.add(searchResult);
+                 if (idColumnIndex != -1 && nameColumnIndex != -1) {
+                    SearchResult searchResult = new SearchResult(cursor.getInt(idColumnIndex), cursor.getString(nameColumnIndex));
+                    result.add(searchResult);
+                }
                 cursor.moveToNext();
             }
         }

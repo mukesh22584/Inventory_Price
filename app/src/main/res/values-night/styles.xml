@@ -1,8 +1,6 @@
 <resources>
     <style name="AppTheme" parent="Theme.Inventory">
         <item name="android:textColor">@color/primary_text_color</item>
-        <item name="android:enforceNavigationBarContrast">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
     </style>
 
     <style name="PopupMenuTextStyle" parent="@style/Widget.AppCompat.PopupMenu.Overflow">

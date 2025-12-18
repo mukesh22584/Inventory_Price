@@ -5,6 +5,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
 import androidx.loader.app.LoaderManager;
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -112,6 +113,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
 
@@ -338,9 +340,9 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     private void deleteAllItems() {
         int rowsDeleted = getContentResolver().delete(ItemContract.ItemEntry.CONTENT_URI, null, null);
         if (rowsDeleted > 0) {
-            Toast.makeText(this, R.string.editor_delete_all_items_successful, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.editor_delete_all_items_successful), Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, R.string.editor_delete_all_items_failed, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.editor_delete_all_items_failed), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -363,22 +365,56 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         }
 
         JSONArray jsonArray = new JSONArray();
+        int nameColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_NAME);
+        int quantityColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY);
+        int unitColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_UNIT);
+        int priceColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_PRICE);
+        int currencyColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY);
+        int descriptionColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION);
+        int tag1ColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG1);
+        int tag2ColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG2);
+        int tag3ColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG3);
+        int imageColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE);
+        int uriColumnIndex = cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_URI);
+
         while (cursor.moveToNext()) {
             JSONObject jsonObject = new JSONObject();
             try {
-                jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_NAME, cursor.getString(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_NAME)));
-                jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY, cursor.getInt(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY)));
-                jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_UNIT, cursor.getString(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_UNIT)));
-                jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_PRICE, cursor.getDouble(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_PRICE)));
-                jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY, cursor.getString(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY)));
-                jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION, cursor.getString(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION)));
-                jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG1, cursor.getString(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG1)));
-                jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG2, cursor.getString(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG2)));
-                jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG3, cursor.getString(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG3)));
-                byte[] imageBytes = cursor.getBlob(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE));
-                String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
-                jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE, imageString);
-                jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_URI, cursor.getString(cursor.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_URI)));
+                if (nameColumnIndex != -1) {
+                    jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_NAME, cursor.getString(nameColumnIndex));
+                }
+                if (quantityColumnIndex != -1) {
+                    jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY, cursor.getInt(quantityColumnIndex));
+                }
+                if (unitColumnIndex != -1) {
+                    jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_UNIT, cursor.getString(unitColumnIndex));
+                }
+                if (priceColumnIndex != -1) {
+                    jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_PRICE, cursor.getDouble(priceColumnIndex));
+                }
+                if (currencyColumnIndex != -1) {
+                    jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY, cursor.getString(currencyColumnIndex));
+                }
+                if (descriptionColumnIndex != -1) {
+                    jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION, cursor.getString(descriptionColumnIndex));
+                }
+                if (tag1ColumnIndex != -1) {
+                    jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG1, cursor.getString(tag1ColumnIndex));
+                }
+                if (tag2ColumnIndex != -1) {
+                    jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG2, cursor.getString(tag2ColumnIndex));
+                }
+                if (tag3ColumnIndex != -1) {
+                    jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG3, cursor.getString(tag3ColumnIndex));
+                }
+                if (imageColumnIndex != -1) {
+                    byte[] imageBytes = cursor.getBlob(imageColumnIndex);
+                    String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+                    jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE, imageString);
+                }
+                if (uriColumnIndex != -1) {
+                    jsonObject.put(ItemContract.ItemEntry.COLUMN_ITEM_URI, cursor.getString(uriColumnIndex));
+                }
                 jsonArray.put(jsonObject);
             } catch (JSONException e) {
                 e.printStackTrace();

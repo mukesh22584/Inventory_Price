@@ -4,8 +4,6 @@
     <style name="AppTheme" parent="Theme.Inventory">
         <!-- Customize your theme here. -->
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
-        <item name="android:enforceNavigationBarContrast">false</item>
-        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
     <!-- Theme for Overflow menu -->
