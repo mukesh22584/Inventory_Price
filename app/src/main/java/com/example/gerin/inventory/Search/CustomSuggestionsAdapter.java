@@ -3,12 +3,14 @@ package com.example.gerin.inventory.Search;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gerin.inventory.R;
+import com.example.gerin.inventory.data.ItemDbHelper;
 import com.mancj.materialsearchbar.adapter.SuggestionsAdapter;
 
 import java.util.ArrayList;
@@ -16,8 +18,36 @@ import java.util.List;
 
 public class CustomSuggestionsAdapter extends SuggestionsAdapter<SearchResult, CustomSuggestionsAdapter.SuggestionHolder> {
 
-    public CustomSuggestionsAdapter(LayoutInflater inflater) {
+    private final ItemDbHelper dbHelper;
+
+    public CustomSuggestionsAdapter(LayoutInflater inflater, ItemDbHelper dbHelper) {
         super(inflater);
+        this.dbHelper = dbHelper;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+                List<SearchResult> suggestions;
+                if (constraint == null || constraint.length() == 0) {
+                    suggestions = dbHelper.getResults();
+                } else {
+                    suggestions = dbHelper.getNewResult(constraint.toString());
+                }
+                results.values = suggestions;
+                results.count = suggestions.size();
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                setSuggestions((List<SearchResult>) results.values);
+                notifyDataSetChanged();
+            }
+        };
     }
 
     @Override

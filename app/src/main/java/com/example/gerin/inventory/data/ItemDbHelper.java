@@ -22,7 +22,7 @@ public class ItemDbHelper extends SQLiteOpenHelper{
     /**
      * Database version. If you change the database schema, you must increment the database version.
      */
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     public ItemDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -47,6 +47,9 @@ public class ItemDbHelper extends SQLiteOpenHelper{
 
         Log.e("test", SQL_CREATE_INVENTORY_TABLE);
         db.execSQL(SQL_CREATE_INVENTORY_TABLE);
+
+        String SQL_CREATE_INDEX = "CREATE INDEX idx_item_name ON " + ItemEntry.TABLE_NAME + "(" + ItemEntry.COLUMN_ITEM_NAME + ");";
+        db.execSQL(SQL_CREATE_INDEX);
     }
 
     @Override
@@ -57,6 +60,10 @@ public class ItemDbHelper extends SQLiteOpenHelper{
         if (oldVersion < 3) {
             db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_CURRENCY + " TEXT;");
         }
+        if (oldVersion < 4) {
+            String SQL_CREATE_INDEX = "CREATE INDEX idx_item_name ON " + ItemEntry.TABLE_NAME + "(" + ItemEntry.COLUMN_ITEM_NAME + ");";
+            db.execSQL(SQL_CREATE_INDEX);
+        }
     }
 
 
@@ -66,12 +73,15 @@ public class ItemDbHelper extends SQLiteOpenHelper{
     public List<SearchResult> getResults(){
 
         SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = null;
+        List<SearchResult> result = new ArrayList<>();
+        try {
         String[] projection = {
                 ItemEntry._ID,
                 ItemEntry.COLUMN_ITEM_NAME,
         };
 
-        Cursor cursor = db.query(
+        cursor = db.query(
                 ItemEntry.TABLE_NAME,
                 projection,
                 null,
@@ -81,7 +91,6 @@ public class ItemDbHelper extends SQLiteOpenHelper{
                 null
         );
 
-        List<SearchResult> result = new ArrayList<>();
         int idColumnIndex = cursor.getColumnIndex(ItemEntry._ID);
         int nameColumnIndex = cursor.getColumnIndex(ItemEntry.COLUMN_ITEM_NAME);
 
@@ -92,6 +101,11 @@ public class ItemDbHelper extends SQLiteOpenHelper{
                     result.add(searchResult);
                 }
                 cursor.moveToNext();
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
             }
         }
         return result;
@@ -100,6 +114,9 @@ public class ItemDbHelper extends SQLiteOpenHelper{
     public List<SearchResult> getNewResult(String s){
 
         SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = null;
+        List<SearchResult> result = new ArrayList<>();
+        try {
         String[] projection = {
                 ItemEntry._ID,
                 ItemEntry.COLUMN_ITEM_NAME,
@@ -108,7 +125,7 @@ public class ItemDbHelper extends SQLiteOpenHelper{
         String selection = ItemEntry.COLUMN_ITEM_NAME + " LIKE ?";
         String[] selectionArgs = new String[]{"%"+s+"%"};
 
-        Cursor cursor = db.query(
+        cursor = db.query(
                 ItemEntry.TABLE_NAME,   	// The table to query
                 projection,            		// The columns to return
                 selection,                  	// The columns for the WHERE clause
@@ -116,8 +133,8 @@ public class ItemDbHelper extends SQLiteOpenHelper{
                 null,                   	// Don't group the rows
                 null,                  		// Don't filter by row groups
                 null);
+                "10");
 
-        List<SearchResult> result = new ArrayList<>();
         int idColumnIndex = cursor.getColumnIndex(ItemEntry._ID);
         int nameColumnIndex = cursor.getColumnIndex(ItemEntry.COLUMN_ITEM_NAME);
 
@@ -128,6 +145,11 @@ public class ItemDbHelper extends SQLiteOpenHelper{
                     result.add(searchResult);
                 }
                 cursor.moveToNext();
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
             }
         }
         return result;

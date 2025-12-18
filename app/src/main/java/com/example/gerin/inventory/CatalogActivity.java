@@ -20,6 +20,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AlertDialog;
@@ -73,7 +75,9 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     MaterialSearchBar materialSearchBar;
     CustomSuggestionsAdapter customSuggestionsAdapter;
     ItemDbHelper database;
-    List<SearchResult> searchResultList = new ArrayList<>();
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable searchRunnable;
 
     private final ActivityResultLauncher<Intent> restoreDataLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -92,16 +96,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                     }
                 }
             });
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (materialSearchBar.isSuggestionsVisible()) {
-            loadSearchResultList();
-            customSuggestionsAdapter.setSuggestions(searchResultList);
-            customSuggestionsAdapter.notifyDataSetChanged();
-        }
-    }
 
     @Override
     protected void onPause() {
@@ -125,10 +119,8 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         // Create the search bar
         materialSearchBar = findViewById(R.id.search_bar1);
-        loadSearchResultList();
 
-        customSuggestionsAdapter = new CustomSuggestionsAdapter(LayoutInflater.from(this));
-        customSuggestionsAdapter.setSuggestions(searchResultList);
+        customSuggestionsAdapter = new CustomSuggestionsAdapter(LayoutInflater.from(this), database);
         materialSearchBar.setCustomSuggestionAdapter(customSuggestionsAdapter);
 
         // Add flags to determine when to stop loading search results
@@ -140,9 +132,9 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                List<SearchResult> newSuggestions = loadNewSearchResultList();
-                customSuggestionsAdapter.setSuggestions(newSuggestions);
-                customSuggestionsAdapter.notifyDataSetChanged();
+                handler.removeCallbacks(searchRunnable);
+                searchRunnable = () -> customSuggestionsAdapter.getFilter().filter(s.toString());
+                handler.postDelayed(searchRunnable, 300);
             }
 
             @Override
@@ -154,12 +146,14 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         materialSearchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {
             @Override
             public void onSearchStateChanged(boolean enabled) {
-
+                if (enabled) {
+                    customSuggestionsAdapter.getFilter().filter("");
+                }
             }
 
             @Override
             public void onSearchConfirmed(CharSequence text) {
-                List<SearchResult> newSuggestions = loadNewSearchResultList();
+                List<SearchResult> newSuggestions = database.getNewResult(text.toString());
                 if (!newSuggestions.isEmpty()) {
                     SearchResult result = newSuggestions.get(0);
                     int testResult3 = result.getId();
@@ -211,23 +205,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
         // Kick off the loader
         getSupportLoaderManager().initLoader(ITEM_LOADER, null, this);
-
-    }
-
-    private void loadSearchResultList() {
-        searchResultList = database.getResults();
-    }
-
-    private List<SearchResult> loadNewSearchResultList() {
-        List<SearchResult> newSuggestions = new ArrayList<>();
-        loadSearchResultList();
-        for (SearchResult searchResult : searchResultList) {
-            if (searchResult.getName().toLowerCase().contains(materialSearchBar.getText().toLowerCase())) {
-                newSuggestions.add(searchResult);
-            }
-        }
-
-        return newSuggestions;
 
     }
 
