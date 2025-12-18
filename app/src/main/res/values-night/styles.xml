@@ -20,7 +20,7 @@
         <item name="mt_searchIconTint">@color/dodger_blue</item>
         <item name="mt_placeholderColor">@color/dodger_blue</item>
         <item name="mt_textCursorTint">@color/dodger_blue</item>
-        <item name="mt_navIconEnabled">true</item>
+        <item name="mt_navIconEnabled">false</item>
     </style>
 
     <style name="RoundedDialog" parent="Theme.AppCompat.Dialog.Alert">
