@@ -8,6 +8,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.core.view.WindowCompat;
 
 /* This file is used to create a splash screen */
 public class MainActivity extends AppCompatActivity {
@@ -16,8 +17,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
 
         ImageView logo = (ImageView) findViewById(R.id.splash_screen_logo);
         TextView name = (TextView) findViewById(R.id.splash_screen_name);
