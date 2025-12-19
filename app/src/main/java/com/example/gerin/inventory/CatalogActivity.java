@@ -288,7 +288,14 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             
             values.put(ItemEntry.COLUMN_ITEM_NAME, name);
             values.put(ItemEntry.COLUMN_ITEM_QUANTITY, obj.optInt(ItemEntry.COLUMN_ITEM_QUANTITY));
+            values.put(ItemEntry.COLUMN_ITEM_UNIT, obj.optString(ItemEntry.COLUMN_ITEM_UNIT));
             values.put(ItemEntry.COLUMN_ITEM_PRICE, obj.optDouble(ItemEntry.COLUMN_ITEM_PRICE));
+            values.put(ItemEntry.COLUMN_ITEM_CURRENCY, obj.optString(ItemEntry.COLUMN_ITEM_CURRENCY));
+            values.put(ItemEntry.COLUMN_ITEM_DESCRIPTION, obj.optString(ItemEntry.COLUMN_ITEM_DESCRIPTION));
+            values.put(ItemEntry.COLUMN_ITEM_TAG1, obj.optString(ItemEntry.COLUMN_ITEM_TAG1));
+            values.put(ItemEntry.COLUMN_ITEM_TAG2, obj.optString(ItemEntry.COLUMN_ITEM_TAG2));
+            values.put(ItemEntry.COLUMN_ITEM_TAG3, obj.optString(ItemEntry.COLUMN_ITEM_TAG3));
+
             if (obj.has(ItemEntry.COLUMN_ITEM_IMAGE)) {
                 values.put(ItemEntry.COLUMN_ITEM_IMAGE, Base64.decode(obj.getString(ItemEntry.COLUMN_ITEM_IMAGE), Base64.DEFAULT));
             }
