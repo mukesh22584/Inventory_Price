@@ -44,6 +44,7 @@
                     android:clickable="true"
                     android:onClick="insertImage"
                     app:backgroundTint="@color/dodger_blue"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
                     android:tint="@color/white"
                     app:srcCompat="@drawable/camera_icon" />
 
