@@ -18,9 +18,8 @@
 
     <style name="noTitle" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/dodger_blue</item>
-        <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@color/dodger_blue</item>
     </style>
 
     <style name="CustomDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
