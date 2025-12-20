@@ -54,6 +54,7 @@
     </style>
 
     <style name="SearchBarTheme" parent="MaterialSearchBarLight">
+        <item name="mt_searchBarColor">#EEEEEE</item>
         <item name="mt_dividerColor">@android:color/transparent</item>
         <item name="mt_searchIconTint">@color/dodger_blue</item>
         <item name="mt_placeholderColor">@color/dodger_blue</item>
