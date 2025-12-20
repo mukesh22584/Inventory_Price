@@ -11,11 +11,9 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_sort_all_entries"
-        android:icon="@drawable/ic_sort_black_24dp"
-        android:iconTint="@color/white"
+        android:id="@+id/action_sort_by"
         android:title="Sort items"
-        app:showAsAction="always" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_theme_switcher"

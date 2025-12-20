@@ -102,8 +102,6 @@
             android:clickable="true"
             app:backgroundTint="@color/dodger_blue"
             app:tint="@color/white"
-            app:layout_anchor="@id/app_bar_layout"
-            app:layout_anchorGravity="bottom|right|end"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.App.Circle"
             app:srcCompat="@android:drawable/ic_input_add" />
 
