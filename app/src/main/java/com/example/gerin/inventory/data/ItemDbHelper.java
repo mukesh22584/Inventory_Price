@@ -68,8 +68,18 @@ public class ItemDbHelper extends SQLiteOpenHelper{
     }
 
     public List<SearchResult> getNewResult(String query) {
-        String selection = ItemEntry.COLUMN_ITEM_NAME + " LIKE ?";
-        String[] selectionArgs = new String[]{"%" + query + "%"};
+        String selection = ItemEntry.COLUMN_ITEM_NAME + " LIKE ? OR "
+                + ItemEntry.COLUMN_ITEM_DESCRIPTION + " LIKE ? OR "
+                + ItemEntry.COLUMN_ITEM_TAG1 + " LIKE ? OR "
+                + ItemEntry.COLUMN_ITEM_TAG2 + " LIKE ? OR "
+                + ItemEntry.COLUMN_ITEM_TAG3 + " LIKE ?";
+        String[] selectionArgs = new String[]{
+                "%" + query + "%",
+                "%" + query + "%",
+                "%" + query + "%",
+                "%" + query + "%",
+                "%" + query + "%"
+        };
         
         return fetchSearchResults(selection, selectionArgs, "10", ItemEntry.COLUMN_ITEM_NAME + " ASC");
     }
