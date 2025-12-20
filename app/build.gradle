@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace "com.example.gerin.inventory"
     compileSdkVersion 34
     defaultConfig {
         applicationId "com.example.gerin.inventory"
