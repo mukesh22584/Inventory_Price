@@ -53,40 +53,28 @@ public class ItemDbHelper extends SQLiteOpenHelper{
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.d("ItemDbHelper", "Upgrading database from version " + oldVersion + " to " + newVersion);
-        
-        if (oldVersion < 2) {
-            db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_UNIT + " TEXT;");
-        }
-        if (oldVersion < 3) {
-            db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_CURRENCY + " TEXT;");
-        }
-        if (oldVersion < 4) {
-            db.execSQL("CREATE INDEX IF NOT EXISTS idx_item_name ON " + ItemEntry.TABLE_NAME + 
-                    "(" + ItemEntry.COLUMN_ITEM_NAME + ");");
-        }
-        
         if (oldVersion < 5) {
             try {
                 db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_IMAGE + " BLOB;");
                 db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_URI + " TEXT;");
             } catch (Exception e) {
-                Log.e("ItemDbHelper", "Columns might already exist: " + e.getMessage());
+                Log.e("ItemDbHelper", "Update error: " + e.getMessage());
             }
         }
     }
 
     public List<SearchResult> getResults() {
-        return fetchSearchResults(null, null, null);
+        return fetchSearchResults(null, null, "10", ItemEntry._ID + " DESC");
     }
 
     public List<SearchResult> getNewResult(String query) {
         String selection = ItemEntry.COLUMN_ITEM_NAME + " LIKE ?";
-        String[] selectionArgs = new String[]{query + "%"};
-        return fetchSearchResults(selection, selectionArgs, "10");
+        String[] selectionArgs = new String[]{"%" + query + "%"};
+        
+        return fetchSearchResults(selection, selectionArgs, "10", ItemEntry.COLUMN_ITEM_NAME + " ASC");
     }
 
-    private List<SearchResult> fetchSearchResults(String selection, String[] selectionArgs, String limit) {
+    private List<SearchResult> fetchSearchResults(String selection, String[] selectionArgs, String limit, String sortOrder) {
         List<SearchResult> resultList = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
         String[] projection = { ItemEntry._ID, ItemEntry.COLUMN_ITEM_NAME };
@@ -98,22 +86,22 @@ public class ItemDbHelper extends SQLiteOpenHelper{
                 selectionArgs,
                 null,
                 null,
-                ItemEntry.COLUMN_ITEM_NAME + " ASC",
+                sortOrder,
                 limit)) {
 
-            if (cursor != null) {
+            if (cursor != null && cursor.moveToFirst()) {
                 int idIdx = cursor.getColumnIndexOrThrow(ItemEntry._ID);
                 int nameIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_NAME);
 
-                while (cursor.moveToNext()) {
+                do {
                     resultList.add(new SearchResult(
                             cursor.getInt(idIdx),
                             cursor.getString(nameIdx)
                     ));
-                }
+                } while (cursor.moveToNext());
             }
         } catch (Exception e) {
-            Log.e("ItemDbHelper", "Search error", e);
+            Log.e("ItemDbHelper", "Search failed", e);
         }
         return resultList;
     }

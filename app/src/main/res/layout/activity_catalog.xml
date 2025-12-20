@@ -40,7 +40,9 @@
                 app:mt_hint="Type to search"
                 app:mt_placeholder="Search"
                 app:mt_roundedSearchBarEnabled="true"
-                app:mt_speechMode="false"/>
+                app:mt_speechMode="false"
+                app:mt_navIconEnabled="false"
+                app:mt_maxSuggestionsCount="5" />
 
         <ListView
             android:id="@+id/catalog_list"

@@ -39,6 +39,7 @@ import com.example.gerin.inventory.data.ItemContract.ItemEntry;
 import com.example.gerin.inventory.data.ItemCursorAdapter;
 import com.example.gerin.inventory.data.ItemDbHelper;
 import com.mancj.materialsearchbar.MaterialSearchBar;
+import com.mancj.materialsearchbar.adapter.SuggestionsAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,6 +47,7 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -109,6 +111,9 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             customSuggestionsAdapter = new CustomSuggestionsAdapter(LayoutInflater.from(this), database);
             materialSearchBar.setCustomSuggestionAdapter(customSuggestionsAdapter);
 
+            materialSearchBar.setLastSuggestions(new ArrayList<>());
+            materialSearchBar.setCardViewElevation(2); 
+
             materialSearchBar.addTextChangeListener(new SimpleTextWatcher() {
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -122,17 +127,35 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 }
             });
 
+            materialSearchBar.setSuggestionsClickListener(new SuggestionsAdapter.OnItemViewClickListener() {
+                @Override
+                public void OnItemClickListener(int position, View v) {
+                    SearchResult result = (SearchResult) customSuggestionsAdapter.getSuggestions().get(position);
+                    materialSearchBar.clearSuggestions();
+                    materialSearchBar.closeSearch();
+                    launchItemActivity(result.getId());
+                }
+
+                @Override public void OnItemDeleteListener(int position, View v) {}
+            });
+
             materialSearchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {
                 @Override
                 public void onSearchStateChanged(boolean enabled) {
-                    if (enabled && customSuggestionsAdapter != null) 
+                    if (enabled && customSuggestionsAdapter != null) {
+                        materialSearchBar.setLastSuggestions(new ArrayList<>());
                         customSuggestionsAdapter.getFilter().filter("");
+                    }
                 }
 
                 @Override
                 public void onSearchConfirmed(CharSequence text) {
                     List<SearchResult> results = database.getNewResult(text.toString());
-                    if (!results.isEmpty()) launchItemActivity(results.get(0).getId());
+                    if (!results.isEmpty()) {
+                        launchItemActivity(results.get(0).getId());
+                        materialSearchBar.closeSearch();
+                    }
+                    materialSearchBar.setLastSuggestions(new ArrayList<>());
                 }
 
                 @Override public void onButtonClicked(int buttonCode) {}

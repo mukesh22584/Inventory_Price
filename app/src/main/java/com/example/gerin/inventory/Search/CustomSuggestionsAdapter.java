@@ -33,7 +33,7 @@ public class CustomSuggestionsAdapter extends SuggestionsAdapter<SearchResult, C
                 FilterResults results = new FilterResults();
                 List<SearchResult> suggestions;
                 if (constraint == null || constraint.length() == 0) {
-                    suggestions = dbHelper.getResults();
+                    suggestions = new ArrayList<>();
                 } else {
                     suggestions = dbHelper.getNewResult(constraint.toString());
                 }
@@ -44,8 +44,10 @@ public class CustomSuggestionsAdapter extends SuggestionsAdapter<SearchResult, C
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                setSuggestions((List<SearchResult>) results.values);
-                notifyDataSetChanged();
+                if (results != null && results.values != null) {
+                    setSuggestions((List<SearchResult>) results.values);
+                    notifyDataSetChanged();
+                }
             }
         };
     }
@@ -57,7 +59,7 @@ public class CustomSuggestionsAdapter extends SuggestionsAdapter<SearchResult, C
 
     @Override
     public int getSingleViewHeight() {
-        return 60;
+        return 50;
     }
 
     @NonNull
