@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -56,6 +57,8 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
     private static final int ITEM_LOADER = 0;
     private static final int STORAGE_PERMISSION_CODE = 100;
+    private static final String PREFS_NAME = "theme_prefs";
+    private static final String KEY_THEME_MODE = "theme_mode";
 
     private ItemCursorAdapter mCursorAdapter;
     private MaterialSearchBar materialSearchBar;
@@ -82,6 +85,8 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        applySavedTheme();
+        
         setTheme(R.style.AppTheme);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         super.onCreate(savedInstanceState);
@@ -95,6 +100,48 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 startActivity(new Intent(this, EditorActivity.class)));
 
         LoaderManager.getInstance(this).initLoader(ITEM_LOADER, null, this);
+    }
+
+    private void applySavedTheme() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        int savedMode = prefs.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        AppCompatDelegate.setDefaultNightMode(savedMode);
+    }
+
+    private void showThemeDialog() {
+        String[] themeOptions = {"Light", "Dark", "System Default"};
+        int[] modeValues = {
+                AppCompatDelegate.MODE_NIGHT_NO, 
+                AppCompatDelegate.MODE_NIGHT_YES, 
+                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        };
+
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        int currentSavedMode = prefs.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+
+        int checkedItem = 2;
+        for (int i = 0; i < modeValues.length; i++) {
+            if (modeValues[i] == currentSavedMode) {
+                checkedItem = i;
+                break;
+            }
+        }
+
+        new AlertDialog.Builder(this, R.style.CustomDialogTheme)
+                .setTitle("Choose Theme")
+                .setSingleChoiceItems(themeOptions, checkedItem, (dialog, which) -> {
+                    int selectedMode = modeValues[which];
+                    
+                    prefs.edit().putInt(KEY_THEME_MODE, selectedMode).apply();
+
+                    AppCompatDelegate.setDefaultNightMode(selectedMode);
+                    
+                    dialog.dismiss();
+                    
+                    recreate();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void setupToolbar() {
@@ -196,7 +243,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             showSortByDialog();
             return true;
         } else if (id == R.id.action_theme_switcher) {
-            toggleTheme();
+            showThemeDialog();
             return true;
         } else if (id == R.id.action_backup) {
             checkPermissionAndRun(this::backupData);
@@ -206,12 +253,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void toggleTheme() {
-        int nightMode = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) 
-                ? AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_YES;
-        AppCompatDelegate.setDefaultNightMode(nightMode);
     }
 
     @NonNull
