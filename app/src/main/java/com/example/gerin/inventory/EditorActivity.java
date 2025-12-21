@@ -47,6 +47,8 @@ import java.util.Date;
 import androidx.activity.EdgeToEdge;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -115,6 +117,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         setupListeners();
         setupPopupMenus();
+
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(getResources().getColor(R.color.dodger_blue));
     }
 
     private void setupListeners() {
