@@ -81,6 +81,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         mPriceTextInputLayout = findViewById(R.id.price_input_layout);
         mQuantityTextInputLayout = findViewById(R.id.quantity_input_layout);
 
