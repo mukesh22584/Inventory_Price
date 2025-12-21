@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import androidx.activity.EdgeToEdge;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -77,6 +79,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_editor);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.nestedScrollView), (v, insets) -> {
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom);
+            return insets;
+        });
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -293,8 +299,39 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             saveItem();
             finish();
             return true;
+        } else if (item.getItemId() == android.R.id.home) {
+            if (!mItemHasChanged) {
+                finish();
+                return true;
+            }
+
+            showUnsavedChangesDialog();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!mItemHasChanged) {
+            super.onBackPressed();
+            return;
+        }
+
+        showUnsavedChangesDialog();
+    }
+
+    private void showUnsavedChangesDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
+        builder.setMessage(R.string.return_dialog_msg);
+        builder.setPositiveButton(R.string.discard, (dialog, id) -> finish());
+        builder.setNegativeButton(R.string.edit, (dialog, id) -> {
+            if (dialog != null) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     public void insertImage(View view) {
