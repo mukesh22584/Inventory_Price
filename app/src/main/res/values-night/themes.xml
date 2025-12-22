@@ -19,5 +19,11 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
+	<style name="DialogTitleText" parent="TextAppearance.MaterialComponents.Subtitle1">
+		<item name="android:textColor">@color/dodger_blue</item>
+		<item name="android:textStyle">bold</item>
+	</style>
+
     <style name="Theme.Inventory" parent="Base.Theme.Inventory" />
 </resources>

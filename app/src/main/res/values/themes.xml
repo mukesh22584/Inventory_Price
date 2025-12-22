@@ -26,8 +26,10 @@
         <item name="android:windowBackground">@drawable/rounded_dialog</item>
         
         <item name="android:windowTitleStyle">@style/DialogTitleText</item>
-        <item name="android:textColorPrimary">@color/dodger_blue</item> 
+        <item name="android:textColorPrimary">#666666</item> 
+		<item name="colorPrimary">@color/dodger_blue</item>
         <item name="colorAccent">@color/dodger_blue</item>
+		<item name="colorControlActivated">@color/dodger_blue</item>
     </style>
 
     <style name="DialogTitleText" parent="TextAppearance.MaterialComponents.Subtitle1">
