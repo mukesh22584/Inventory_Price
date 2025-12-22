@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.*;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -297,28 +298,34 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         }
     }
 
-    private void saveBackupFile(String data) throws IOException {
+    private void saveBackupFile(String data) {
         String timeStr = new SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(new Date());
         String fileName = "inventory_" + timeStr + ".json";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ContentValues values = new ContentValues();
             values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
             values.put(MediaStore.MediaColumns.MIME_TYPE, "application/json");
-            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/" + getString(R.string.app_name));
             Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
             if (uri != null) {
                 try (OutputStream out = getContentResolver().openOutputStream(uri)) {
                     if (out != null) {
                         out.write(data.getBytes());
-                        showToast("Saved to Downloads");
+                        showToast("Saved to Download/" + getString(R.string.app_name));
                     }
+                } catch (IOException e) {
+                    showToast("Save failed");
                 }
             }
         } else {
-            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
+            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), getString(R.string.app_name));
+            if (!dir.exists()) dir.mkdirs();
+            File file = new File(dir, fileName);
             try (FileWriter fw = new FileWriter(file)) {
                 fw.write(data);
                 showToast("Backup successful");
+            } catch (IOException e) {
+                showToast("Save failed");
             }
         }
     }
@@ -326,6 +333,14 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     private void restoreData() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("application/json");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String folderPath = "primary:Download%2F" + Uri.encode(getString(R.string.app_name));
+            Uri initialUri = Uri.parse("content://com.android.externalstorage.documents/document/" + folderPath);
+            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialUri);
+        }
+
         restoreDataLauncher.launch(intent);
     }
 
