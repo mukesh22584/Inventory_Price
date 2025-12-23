@@ -40,6 +40,7 @@
     <string name="action_backup">Backup</string>
     <string name="action_restore">Restore</string>
     <string name="action_share">Share</string>
+    <string name="action_about">About</string>    
     <string-array name="unit_options">
         <item>Pcs.</item>
         <item>Kgs.</item>

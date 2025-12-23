@@ -6,6 +6,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -18,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -252,8 +254,49 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         } else if (id == R.id.action_restore) {
             checkPermissionAndRun(this::restoreData);
             return true;
+        } else if (id == R.id.action_about) {
+            showAboutDialog();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showAboutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
+        
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.about_content, null);
+        builder.setView(dialogView);
+
+        TextView versionText = dialogView.findViewById(R.id.app_version);
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            versionText.setText("Version " + pInfo.versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            versionText.setText("Version 1.0");
+        }
+
+        final String repoUrl = "https://github.com/mukesh22584/Inventory_Price";
+
+        dialogView.findViewById(R.id.btn_view_source).setOnClickListener(v -> 
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(repoUrl))));
+
+        dialogView.findViewById(R.id.btn_view_changelog).setOnClickListener(v -> 
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(repoUrl + "/releases"))));
+
+        dialogView.findViewById(R.id.btn_share_app).setOnClickListener(v -> {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Check out Inventory Price App");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey! Check out this open-source Inventory price management app: " + repoUrl);
+            startActivity(Intent.createChooser(shareIntent, "Share via"));
+        });
+
+        builder.setPositiveButton("Close", null);
+        
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
     }
 
     @NonNull
