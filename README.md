@@ -43,8 +43,9 @@ Check the latest release to download the APK file:
 ---
 
 ### 🙏 Credits
-
 **This app is a proud fork of the [Inventory app](https://github.com/gerin98/Inventory) by gerin98. We thank them for their excellent open-source work.**
 
 ---
-**Developed to help small businesses grow without the hassle of paperwork.**
+
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE.txt) file for details.
