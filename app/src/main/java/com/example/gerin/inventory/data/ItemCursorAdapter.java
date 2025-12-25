@@ -23,19 +23,22 @@ public class ItemCursorAdapter extends CursorAdapter {
         final TextView nameView;
         final TextView quantityView;
         final TextView priceView;
+        final TextView summaryView;
 
-        int nameIdx, qtyIdx, unitIdx, priceIdx, currIdx;
+        int nameIdx, qtyIdx, unitIdx, priceIdx, currIdx, descIdx;
 
         ViewHolder(View view, Cursor cursor) {
             nameView = view.findViewById(R.id.name);
             quantityView = view.findViewById(R.id.quantity);
             priceView = view.findViewById(R.id.price);
+            summaryView = view.findViewById(R.id.summary); 
 
             nameIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_NAME);
             qtyIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_QUANTITY);
             unitIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_UNIT);
             priceIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_PRICE);
             currIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_CURRENCY);
+            descIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_DESCRIPTION);
         }
     }
 
@@ -56,11 +59,21 @@ public class ItemCursorAdapter extends CursorAdapter {
         String unit = cursor.getString(holder.unitIdx);
         double price = cursor.getDouble(holder.priceIdx);
         String currency = cursor.getString(holder.currIdx);
+        String description = cursor.getString(holder.descIdx);
 
         if (unit == null) unit = "";
         if (currency == null || currency.isEmpty()) currency = "₹";
 
         holder.nameView.setText(name);
+        
+        if (holder.summaryView != null) {
+            if (description != null && !description.isEmpty()) {
+                holder.summaryView.setText(description);
+                holder.summaryView.setVisibility(View.VISIBLE);
+            } else {
+                holder.summaryView.setVisibility(View.GONE);
+            }
+        }
         
         holder.quantityView.setText(String.format(Locale.getDefault(), "%d %s", quantity, unit).trim());
         holder.priceView.setText(String.format(Locale.getDefault(), "%s %.2f", currency, price));
