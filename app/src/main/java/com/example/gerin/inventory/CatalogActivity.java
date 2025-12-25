@@ -305,7 +305,8 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         String[] projection = {
                 ItemEntry._ID, ItemEntry.COLUMN_ITEM_NAME, ItemEntry.COLUMN_ITEM_QUANTITY,
                 ItemEntry.COLUMN_ITEM_PRICE, ItemEntry.COLUMN_ITEM_UNIT,
-                ItemEntry.COLUMN_ITEM_CURRENCY, ItemEntry.COLUMN_ITEM_IMAGE
+                ItemEntry.COLUMN_ITEM_CURRENCY, ItemEntry.COLUMN_ITEM_IMAGE,
+	            ItemEntry.COLUMN_ITEM_DESCRIPTION
         };
         String sortOrder = (bundle != null) ? bundle.getString("sortOrder") : null;
         return new CursorLoader(this, ItemEntry.CONTENT_URI, projection, null, null, sortOrder);
@@ -407,23 +408,34 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             JSONObject obj = array.getJSONObject(i);
             ContentValues values = new ContentValues();
             String name = obj.getString(ItemEntry.COLUMN_ITEM_NAME);
+            String desc = obj.optString(ItemEntry.COLUMN_ITEM_DESCRIPTION);
+            String t1 = obj.optString(ItemEntry.COLUMN_ITEM_TAG1);
+            String t2 = obj.optString(ItemEntry.COLUMN_ITEM_TAG2);
+            String t3 = obj.optString(ItemEntry.COLUMN_ITEM_TAG3);
             
             values.put(ItemEntry.COLUMN_ITEM_NAME, name);
             values.put(ItemEntry.COLUMN_ITEM_QUANTITY, obj.optInt(ItemEntry.COLUMN_ITEM_QUANTITY));
             values.put(ItemEntry.COLUMN_ITEM_UNIT, obj.optString(ItemEntry.COLUMN_ITEM_UNIT));
             values.put(ItemEntry.COLUMN_ITEM_PRICE, obj.optDouble(ItemEntry.COLUMN_ITEM_PRICE));
             values.put(ItemEntry.COLUMN_ITEM_CURRENCY, obj.optString(ItemEntry.COLUMN_ITEM_CURRENCY));
-            values.put(ItemEntry.COLUMN_ITEM_DESCRIPTION, obj.optString(ItemEntry.COLUMN_ITEM_DESCRIPTION));
-            values.put(ItemEntry.COLUMN_ITEM_TAG1, obj.optString(ItemEntry.COLUMN_ITEM_TAG1));
-            values.put(ItemEntry.COLUMN_ITEM_TAG2, obj.optString(ItemEntry.COLUMN_ITEM_TAG2));
-            values.put(ItemEntry.COLUMN_ITEM_TAG3, obj.optString(ItemEntry.COLUMN_ITEM_TAG3));
+            values.put(ItemEntry.COLUMN_ITEM_DESCRIPTION, desc);
+            values.put(ItemEntry.COLUMN_ITEM_TAG1, t1);
+            values.put(ItemEntry.COLUMN_ITEM_TAG2, t2);
+            values.put(ItemEntry.COLUMN_ITEM_TAG3, t3);
 
             if (obj.has(ItemEntry.COLUMN_ITEM_IMAGE)) {
                 values.put(ItemEntry.COLUMN_ITEM_IMAGE, Base64.decode(obj.getString(ItemEntry.COLUMN_ITEM_IMAGE), Base64.DEFAULT));
             }
 
+            String selection = ItemEntry.COLUMN_ITEM_NAME + "=? AND " +
+                               ItemEntry.COLUMN_ITEM_DESCRIPTION + "=? AND " +
+                               ItemEntry.COLUMN_ITEM_TAG1 + "=? AND " +
+                               ItemEntry.COLUMN_ITEM_TAG2 + "=? AND " +
+                               ItemEntry.COLUMN_ITEM_TAG3 + "=?";
+            String[] args = new String[]{name, desc, t1, t2, t3};
+
             try (Cursor c = getContentResolver().query(ItemEntry.CONTENT_URI, new String[]{ItemEntry._ID}, 
-                    ItemEntry.COLUMN_ITEM_NAME + "=?", new String[]{name}, null)) {
+                    selection, args, null)) {
                 if (c != null && c.moveToFirst()) {
                     Uri itemUri = ContentUris.withAppendedId(ItemEntry.CONTENT_URI, c.getLong(0));
                     getContentResolver().update(itemUri, values, null, null);
