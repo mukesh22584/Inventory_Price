@@ -2,20 +2,23 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="24dp"
+        >
 
         <ImageView
             android:id="@+id/about_logo"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@drawable/inventory_logo" />
+            android:src="@drawable/inventory_logo"
+            />
 
         <TextView
             android:id="@+id/app_version"
@@ -24,7 +27,8 @@
             android:layout_marginTop="12dp"
             android:textStyle="bold"
             android:textSize="18sp"
-            android:textColor="?android:attr/textColorPrimary" />
+            android:textColor="?android:attr/textColorPrimary"
+            />
 
         <Button
             android:id="@+id/btn_view_changelog"
@@ -34,7 +38,8 @@
             android:layout_marginTop="20dp"
             android:text="Release &amp; Changelog"
             android:textAllCaps="false"
-            android:textColor="?attr/colorAccent" />
+            android:textColor="?attr/colorAccent"
+            />
 
         <Button
             android:id="@+id/btn_view_source"
@@ -43,7 +48,8 @@
             android:layout_height="wrap_content"
             android:text="View Source Code"
             android:textAllCaps="false"
-            android:textColor="?attr/colorAccent" />
+            android:textColor="?attr/colorAccent"
+            />
 
         <Button
             android:id="@+id/btn_share_app"
@@ -52,7 +58,8 @@
             android:layout_height="wrap_content"
             android:text="Share App"
             android:textAllCaps="false"
-            android:textColor="?attr/colorAccent" />
+            android:textColor="?attr/colorAccent"
+            />
 
     </LinearLayout>
 </ScrollView>

@@ -15,7 +15,8 @@
         android:id="@+id/splash_screen_logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/inventory_logo" />
+        android:src="@drawable/inventory_logo"
+        />
 
     <TextView
         android:id="@+id/splash_screen_name"
@@ -23,7 +24,8 @@
         android:layout_height="wrap_content"
         android:text="@string/app_name"
         android:textColor="?attr/colorOnPrimary"
-        android:textSize="50sp" />
+        android:textSize="50sp"
+        />
 
 
 </LinearLayout>

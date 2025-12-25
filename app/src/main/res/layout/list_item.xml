@@ -13,7 +13,8 @@
         android:layout_height="wrap_content"
         card_view:cardCornerRadius="28dp"
         app:cardUseCompatPadding="true"
-        android:foreground="@drawable/ripple_effect">
+        android:foreground="@drawable/ripple_effect"
+        >
 
         <!-- this linear layout contains all info -->
         <LinearLayout
@@ -21,14 +22,16 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="@dimen/activity_margin"
-            android:weightSum="100">
+            android:weightSum="100"
+            >
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="55"
             android:orientation="vertical"
-            android:layout_gravity="center_vertical">
+            android:layout_gravity="center_vertical"
+            >
 
             <!-- first child is the product name -->
             <TextView
@@ -37,7 +40,8 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
                 android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="?android:attr/textColorPrimary" />
+                android:textColor="?android:attr/textColorPrimary"
+                />
 
             <TextView
                 android:id="@+id/summary"
@@ -49,7 +53,8 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:layout_marginTop="2dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                />
 
         </LinearLayout>
             <!-- second child contains the product info -->
@@ -57,14 +62,16 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="45"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                >
 
                 <!-- quantity text -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    >
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -74,7 +81,8 @@
                         android:adjustViewBounds="true"
                         android:maxWidth="24dp"
                         android:maxHeight="24dp"
-                        android:paddingRight="8dp"/>
+                        android:paddingRight="8dp"
+                        />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -105,7 +113,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    >
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -115,7 +124,8 @@
                         android:adjustViewBounds="true"
                         android:maxWidth="24dp"
                         android:maxHeight="24dp"
-                        android:paddingRight="8dp"/>
+                        android:paddingRight="8dp"
+                        />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -124,7 +134,8 @@
                         android:fontFamily="sans-serif"
                         android:textAppearance="?android:textAppearanceSmall"
                         android:textSize="11sp"
-                        android:textColor="?android:attr/textColorSecondary"/>
+                        android:textColor="?android:attr/textColorSecondary"
+                        />
 
                     <TextView
                         android:id="@+id/price"
@@ -134,7 +145,8 @@
                         android:paddingLeft="4dp"
                         android:textAppearance="?android:textAppearanceSmall"
                         android:textSize="11sp"
-                        android:textColor="?android:attr/textColorSecondary" />
+                        android:textColor="?android:attr/textColorSecondary"
+                        />
 
                 </LinearLayout>
 
