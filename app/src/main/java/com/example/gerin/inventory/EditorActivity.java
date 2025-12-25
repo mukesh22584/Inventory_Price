@@ -200,6 +200,38 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     }
 
     private void saveItem() {
+        String nameString = mNameEditText.getText().toString().trim();
+        String descriptionString = mDescriptionEditText.getText().toString().trim();
+        String tag1String = mTag1EditText.getText().toString().trim();
+        String tag2String = mTag2EditText.getText().toString().trim();
+        String tag3String = mTag3EditText.getText().toString().trim();
+
+        if (mCurrentItemUri == null) {
+            String selection = ItemContract.ItemEntry.COLUMN_ITEM_NAME + "=? AND " +
+                               ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION + "=? AND " +
+                               ItemContract.ItemEntry.COLUMN_ITEM_TAG1 + "=? AND " +
+                               ItemContract.ItemEntry.COLUMN_ITEM_TAG2 + "=? AND " +
+                               ItemContract.ItemEntry.COLUMN_ITEM_TAG3 + "=?";
+
+            String[] selectionArgs = new String[]{nameString, descriptionString, tag1String, tag2String, tag3String};
+
+            Cursor cursor = getContentResolver().query(
+                    ItemContract.ItemEntry.CONTENT_URI,
+                    new String[]{ItemContract.ItemEntry._ID},
+                    selection,
+                    selectionArgs,
+                    null);
+
+            if (cursor != null) {
+                if (cursor.getCount() > 0) {
+                    Toast.makeText(this, "Item with these exact details already exists.", Toast.LENGTH_SHORT).show();
+                    cursor.close();
+                    return;
+                }
+                cursor.close();
+            }
+        }
+
         Bitmap bitmapToSave;
         if (mItemImageView.getDrawable() instanceof BitmapDrawable) {
             bitmapToSave = ((BitmapDrawable) mItemImageView.getDrawable()).getBitmap();
@@ -214,13 +246,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         byte[] photoBlob = baos.toByteArray();
 
         ContentValues values = new ContentValues();
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_NAME, mNameEditText.getText().toString().trim());
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_NAME, nameString);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY, getIntFromEditText(mQuantityEditText));
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_PRICE, getDoubleFromEditText(mPriceEditText));
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION, mDescriptionEditText.getText().toString().trim());
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG1, mTag1EditText.getText().toString().trim());
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG2, mTag2EditText.getText().toString().trim());
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG3, mTag3EditText.getText().toString().trim());
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION, descriptionString);
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG1, tag1String);
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG2, tag2String);
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG3, tag3String);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE, photoBlob);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_URI, (selectedImage != null) ? selectedImage.toString() : "null");
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_UNIT, mUnit);
