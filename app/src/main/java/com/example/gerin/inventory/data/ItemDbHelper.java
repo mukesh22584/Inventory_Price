@@ -14,14 +14,7 @@ import java.util.List;
 
 public class ItemDbHelper extends SQLiteOpenHelper{
 
-    /**
-     * Name of the database file.
-     */
     private static final String DATABASE_NAME = "Inventory.db";
-    
-    /**
-     * Database version. If you change the database schema, you must increment the database version.
-     */
     private static final int DATABASE_VERSION = 5;
 
     public ItemDbHelper(Context context) {
@@ -30,7 +23,6 @@ public class ItemDbHelper extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // SQL statement to create the inventory table
         String SQL_CREATE_INVENTORY_TABLE = "CREATE TABLE " + ItemEntry.TABLE_NAME + " ("
                 + ItemEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + ItemEntry.COLUMN_ITEM_NAME + " TEXT NOT NULL, "
