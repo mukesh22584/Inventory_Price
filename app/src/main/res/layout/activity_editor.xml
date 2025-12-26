@@ -170,7 +170,7 @@
                                 android:id="@+id/edit_item_price"
                                 style="@style/EditorFieldStyle"
                                 android:hint="@string/hint_item_price"
-                                android:inputType="numberDecimal"
+                                android:inputType="text"
                                 />
 
                         </com.google.android.material.textfield.TextInputLayout>
