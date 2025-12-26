@@ -175,6 +175,28 @@
 
                         </com.google.android.material.textfield.TextInputLayout>
 
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/size_input_layout"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:boxCornerRadiusBottomEnd="16dp"
+                            app:boxCornerRadiusBottomStart="16dp"
+                            app:boxCornerRadiusTopEnd="16dp"
+                            app:boxCornerRadiusTopStart="16dp"
+                            app:endIconMode="custom"
+                            app:endIconDrawable="@android:drawable/ic_menu_sort_by_size"
+                            >
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/edit_item_size"
+                                style="@style/EditorFieldStyle"
+                                android:hint="Size"
+                                android:inputType="text"
+                                />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
                     </LinearLayout>
 
                 </LinearLayout>

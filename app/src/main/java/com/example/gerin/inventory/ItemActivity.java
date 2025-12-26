@@ -46,6 +46,8 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
     TextView tag1View;
     TextView tag2View;
     TextView tag3View;
+    TextView sizeView;
+    View sizeLayout;
     ImageView imageView;
     private Bitmap mItemBitmap;
 
@@ -64,6 +66,8 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         tag1View = (TextView) findViewById(R.id.item_tag1_field);
         tag2View = (TextView) findViewById(R.id.item_tag2_field);
         tag3View = (TextView) findViewById(R.id.item_tag3_field);
+        sizeView = (TextView) findViewById(R.id.item_size_field);
+        sizeLayout = findViewById(R.id.item_size_layout);
         imageView = (ImageView) findViewById(R.id.item_image_field);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.item_fab);
@@ -153,6 +157,8 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
                 ItemContract.ItemEntry.COLUMN_ITEM_TAG2,
                 ItemContract.ItemEntry.COLUMN_ITEM_TAG3,
                 ItemContract.ItemEntry.COLUMN_ITEM_URI,
+                ItemContract.ItemEntry.COLUMN_ITEM_SIZE,
+                ItemContract.ItemEntry.COLUMN_ITEM_SIZE_UNIT,
                 ItemContract.ItemEntry.COLUMN_ITEM_IMAGE};
 
         return new CursorLoader(this, mCurrentItemUri, projection, null, null, null);
@@ -174,6 +180,8 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             int tag1ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG1);
             int tag2ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG2);
             int tag3ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG3);
+            int sizeColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_SIZE);
+            int sizeUnitColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_SIZE_UNIT);
             int imageColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE);
             int uriColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_URI);
 
@@ -186,6 +194,8 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             String tag1 = data.getString(tag1ColumnIndex);
             String tag2 = data.getString(tag2ColumnIndex);
             String tag3 = data.getString(tag3ColumnIndex);
+            String size = data.getString(sizeColumnIndex);
+            String sizeUnit = data.getString(sizeUnitColumnIndex);
             String imageUriString = data.getString(uriColumnIndex);
             byte[] photo = data.getBlob(imageColumnIndex);
 
@@ -215,6 +225,15 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             quantityView.setText(String.format("%d %s", quantity, (unit == null ? "" : unit)));
             priceView.setText((currency == null || currency.isEmpty() ? "₹" : currency) + (price == null ? "" : price));
             descriptionView.setText(description);
+
+            if (sizeLayout != null) {
+                if (size != null && !size.isEmpty()) {
+                    sizeLayout.setVisibility(View.VISIBLE);
+                    sizeView.setText(String.format("%s %s", size, (sizeUnit == null ? "" : sizeUnit)));
+                } else {
+                    sizeLayout.setVisibility(View.GONE);
+                }
+            }
 
             tag1View.setVisibility(View.GONE);
             tag2View.setVisibility(View.GONE);
@@ -255,6 +274,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         tag1View.setText("");
         tag2View.setText("");
         tag3View.setText("");
+        sizeView.setText("");
 
         Bitmap tempItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
         imageView.setImageBitmap(tempItemBitmap);

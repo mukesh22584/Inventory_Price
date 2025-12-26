@@ -157,6 +157,50 @@
 
                 </LinearLayout>
 
+				<LinearLayout
+					android:id="@+id/size_layout"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="4dp"
+					android:orientation="horizontal"
+					android:gravity="center_vertical"
+					android:visibility="gone"
+					>
+
+					<ImageView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:src="@drawable/size_icon"
+						app:tint="@color/colorAccent"
+						android:adjustViewBounds="true"
+						android:maxWidth="24dp"
+						android:maxHeight="24dp"
+						android:paddingRight="8dp"
+						/>
+
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/cardview_size_label"
+						android:fontFamily="sans-serif"
+						android:textAppearance="?android:textAppearanceSmall"
+						android:textSize="11sp"
+						android:textColor="?android:attr/textColorSecondary"
+						/>
+
+					<TextView
+						android:id="@+id/size"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:fontFamily="sans-serif"
+						android:paddingLeft="4dp"
+						android:textAppearance="?android:textAppearanceSmall"
+						android:textSize="11sp"
+						android:textColor="?android:attr/textColorSecondary"
+						/>
+
+                </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>

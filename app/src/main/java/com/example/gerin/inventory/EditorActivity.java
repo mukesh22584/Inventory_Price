@@ -58,11 +58,14 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText mNameEditText, mQuantityEditText, mPriceEditText, mDescriptionEditText;
     private EditText mTag1EditText, mTag2EditText, mTag3EditText;
     private TextInputLayout mQuantityTextInputLayout, mPriceTextInputLayout;
+    private EditText mSizeEditText;
+	private TextInputLayout mSizeTextInputLayout;    
     private ImageView mItemImageView;
     private boolean mItemHasChanged = false;
 
     private String mUnit = "Pcs.";
     private String mCurrency = "₹";
+    private String mSizeUnit = "";
 
     private static final int GALLERY_REQUEST = 1;
     private static final int CAMERA_REQUEST = 2;
@@ -98,6 +101,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         mPriceTextInputLayout = findViewById(R.id.price_input_layout);
         mQuantityTextInputLayout = findViewById(R.id.quantity_input_layout);
+        mSizeTextInputLayout = findViewById(R.id.size_input_layout);
 
         mCurrentItemUri = getIntent().getData();
 
@@ -109,11 +113,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mTag1EditText = findViewById(R.id.edit_item_tag1);
         mTag2EditText = findViewById(R.id.edit_item_tag2);
         mTag3EditText = findViewById(R.id.edit_item_tag3);
+        mSizeEditText = findViewById(R.id.edit_item_size);
 
         if (mCurrentItemUri == null) {
             setTitle("Add Item");
             mQuantityTextInputLayout.setSuffixText(mUnit);
             mPriceTextInputLayout.setSuffixText(mCurrency);
+            mSizeTextInputLayout.setSuffixText(null);
         } else {
             setTitle("Edit Item");
             LoaderManager.getInstance(this).initLoader(EXISTING_ITEM_LOADER, null, this);
@@ -135,6 +141,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mTag1EditText.setOnTouchListener(mTouchListener);
         mTag2EditText.setOnTouchListener(mTouchListener);
         mTag3EditText.setOnTouchListener(mTouchListener);
+        mSizeEditText.setOnTouchListener(mTouchListener);
 
         mItemImageView.setOnClickListener(v -> {
             Dialog d = new Dialog(EditorActivity.this);
@@ -169,6 +176,22 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             });
             popup.show();
         });
+
+        mSizeTextInputLayout.setEndIconOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(this, v);
+            popup.getMenu().add("mm");
+            popup.getMenu().add("cm");
+            popup.getMenu().add("in");
+            popup.getMenu().add("Ft");
+            popup.getMenu().add("Mtr");
+            popup.setOnMenuItemClickListener(item -> {
+                mSizeUnit = item.getTitle().toString();
+                mSizeTextInputLayout.setSuffixText(mSizeUnit);
+                mItemHasChanged = true;
+                return true;
+            });
+            popup.show();
+        });
     }
 
     @NonNull
@@ -189,11 +212,19 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mTag2EditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_TAG2)));
         mTag3EditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_TAG3)));
 
+        mSizeEditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_SIZE)));
+        mSizeUnit = data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_SIZE_UNIT));
+
         mUnit = data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_UNIT));
         mCurrency = data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY));
         
         mQuantityTextInputLayout.setSuffixText(mUnit);
         mPriceTextInputLayout.setSuffixText(mCurrency);
+        if (TextUtils.isEmpty(mSizeUnit)) {
+            mSizeTextInputLayout.setSuffixText(null);
+        } else {
+            mSizeTextInputLayout.setSuffixText(mSizeUnit);
+        }
 
         String imageUriString = data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_URI));
         boolean imageSet = false;
@@ -223,15 +254,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String tag1String = mTag1EditText.getText().toString().trim();
         String tag2String = mTag2EditText.getText().toString().trim();
         String tag3String = mTag3EditText.getText().toString().trim();
+        String sizeString = mSizeEditText.getText().toString().trim();
 
         if (mCurrentItemUri == null) {
             String selection = ItemContract.ItemEntry.COLUMN_ITEM_NAME + "=? AND " +
                                ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION + "=? AND " +
                                ItemContract.ItemEntry.COLUMN_ITEM_TAG1 + "=? AND " +
                                ItemContract.ItemEntry.COLUMN_ITEM_TAG2 + "=? AND " +
-                               ItemContract.ItemEntry.COLUMN_ITEM_TAG3 + "=?";
+                               ItemContract.ItemEntry.COLUMN_ITEM_TAG3 + "=? AND " +
+                               ItemContract.ItemEntry.COLUMN_ITEM_SIZE + "=?";
 
-            String[] selectionArgs = new String[]{nameString, descriptionString, tag1String, tag2String, tag3String};
+            String[] selectionArgs = new String[]{nameString, descriptionString, tag1String, tag2String, tag3String, sizeString};
 
             Cursor cursor = getContentResolver().query(
                     ItemContract.ItemEntry.CONTENT_URI,
@@ -290,6 +323,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_URI, finalImageUri);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_UNIT, mUnit);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY, mCurrency);
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_SIZE, sizeString);
+
+        if (TextUtils.isEmpty(sizeString)) {
+            values.put(ItemContract.ItemEntry.COLUMN_ITEM_SIZE_UNIT, "");
+        } else {
+            values.put(ItemContract.ItemEntry.COLUMN_ITEM_SIZE_UNIT, mSizeUnit);
+        }
 
         if (mCurrentItemUri == null) {
             getContentResolver().insert(ItemContract.ItemEntry.CONTENT_URI, values);

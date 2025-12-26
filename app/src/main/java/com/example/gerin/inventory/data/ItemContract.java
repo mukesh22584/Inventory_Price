@@ -30,6 +30,8 @@ public final class ItemContract {
         public final static String COLUMN_ITEM_UNIT = "unit";
         public final static String COLUMN_ITEM_PRICE = "price";
         public final static String COLUMN_ITEM_CURRENCY = "currency";
+        public final static String COLUMN_ITEM_SIZE = "size";
+        public final static String COLUMN_ITEM_SIZE_UNIT = "size_unit";
         public final static String COLUMN_ITEM_DESCRIPTION = "description";
         public final static String COLUMN_ITEM_TAG1 = "tag1";
         public final static String COLUMN_ITEM_TAG2 = "tag2";

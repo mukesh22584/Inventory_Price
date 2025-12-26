@@ -30,6 +30,8 @@ public class ItemDbHelper extends SQLiteOpenHelper{
                 + ItemEntry.COLUMN_ITEM_UNIT + " TEXT, "
                 + ItemEntry.COLUMN_ITEM_PRICE + " TEXT, "
                 + ItemEntry.COLUMN_ITEM_CURRENCY + " TEXT, "
+                + ItemEntry.COLUMN_ITEM_SIZE + " TEXT, "
+                + ItemEntry.COLUMN_ITEM_SIZE_UNIT + " TEXT, "
                 + ItemEntry.COLUMN_ITEM_DESCRIPTION + " TEXT, "
                 + ItemEntry.COLUMN_ITEM_TAG1 + " TEXT, "
                 + ItemEntry.COLUMN_ITEM_TAG2 + " TEXT, "

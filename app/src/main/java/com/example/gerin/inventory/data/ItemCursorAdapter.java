@@ -25,14 +25,18 @@ public class ItemCursorAdapter extends CursorAdapter {
         final TextView quantityView;
         final TextView priceView;
         final TextView summaryView;
+        final TextView sizeView;
+        final View sizeLayout;
 
-        int nameIdx, qtyIdx, unitIdx, priceIdx, currIdx, descIdx, uriIdx;
+        int nameIdx, qtyIdx, unitIdx, priceIdx, currIdx, descIdx, uriIdx, sizeIdx, sizeUnitIdx;
 
         ViewHolder(View view, Cursor cursor) {
             nameView = view.findViewById(R.id.name);
             quantityView = view.findViewById(R.id.quantity);
             priceView = view.findViewById(R.id.price);
             summaryView = view.findViewById(R.id.summary); 
+            sizeView = view.findViewById(R.id.size);
+            sizeLayout = view.findViewById(R.id.size_layout);
 
             nameIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_NAME);
             qtyIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_QUANTITY);
@@ -41,6 +45,8 @@ public class ItemCursorAdapter extends CursorAdapter {
             currIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_CURRENCY);
             descIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_DESCRIPTION);
             uriIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_URI);
+            sizeIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_SIZE);
+            sizeUnitIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_SIZE_UNIT);
         }
     }
 
@@ -62,9 +68,12 @@ public class ItemCursorAdapter extends CursorAdapter {
         String price = cursor.getString(holder.priceIdx);
         String currency = cursor.getString(holder.currIdx);
         String description = cursor.getString(holder.descIdx);
+        String size = cursor.getString(holder.sizeIdx);
+        String sizeUnit = cursor.getString(holder.sizeUnitIdx);
 
         if (unit == null) unit = "";
         if (currency == null || currency.isEmpty()) currency = "₹";
+        if (sizeUnit == null) sizeUnit = "";
 
         holder.nameView.setText(name);
         
@@ -84,5 +93,14 @@ public class ItemCursorAdapter extends CursorAdapter {
 		} else {
         holder.priceView.setText(String.format(Locale.getDefault(), "%s %s", currency, price).trim());
 		}
+
+        if (holder.sizeLayout != null) {
+            if (!TextUtils.isEmpty(size)) {
+                holder.sizeLayout.setVisibility(View.VISIBLE);
+                holder.sizeView.setText(String.format(Locale.getDefault(), "%s %s", size, sizeUnit).trim());
+            } else {
+                holder.sizeLayout.setVisibility(View.GONE);
+            }
+        }
     }
 }

@@ -282,6 +282,7 @@ public class SettingsActivity extends AppCompatActivity {
         String[] columns = {
                 ItemEntry.COLUMN_ITEM_QUANTITY, ItemEntry.COLUMN_ITEM_UNIT,
                 ItemEntry.COLUMN_ITEM_PRICE, ItemEntry.COLUMN_ITEM_CURRENCY,
+                ItemEntry.COLUMN_ITEM_SIZE, ItemEntry.COLUMN_ITEM_SIZE_UNIT,
                 ItemEntry.COLUMN_ITEM_DESCRIPTION, ItemEntry.COLUMN_ITEM_TAG1,
                 ItemEntry.COLUMN_ITEM_TAG2, ItemEntry.COLUMN_ITEM_TAG3,
                 ItemEntry.COLUMN_ITEM_URI

@@ -8,6 +8,7 @@
     <string name="category_overview">Overview</string>
     <string name="hint_item_name">Name</string>
     <string name="hint_item_quantity">Quantity</string>
+	<string name="cardview_size_label">Size: </string>
     <string name="action_save">Save</string>
     <string name="hint_item_price">Price</string>
     <string name="category_description">Description</string>

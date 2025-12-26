@@ -188,7 +188,9 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 ItemEntry.COLUMN_ITEM_CURRENCY, 
                 ItemEntry.COLUMN_ITEM_IMAGE,
                 ItemEntry.COLUMN_ITEM_DESCRIPTION, 
-                ItemEntry.COLUMN_ITEM_URI
+                ItemEntry.COLUMN_ITEM_URI,
+                ItemEntry.COLUMN_ITEM_SIZE, 
+                ItemEntry.COLUMN_ITEM_SIZE_UNIT                
         };
 
         String selection = null;
