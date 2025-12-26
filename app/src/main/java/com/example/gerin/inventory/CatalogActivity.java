@@ -172,6 +172,10 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                         if (customSuggestionsAdapter != null) {
                             customSuggestionsAdapter.getFilter().filter(s.toString());
                         }
+
+                        Bundle bundle = new Bundle();
+                        bundle.putString("filterName", s.toString().trim());
+                        LoaderManager.getInstance(CatalogActivity.this).restartLoader(ITEM_LOADER, bundle, CatalogActivity.this);
                     };
                     handler.postDelayed(searchRunnable, 300);
                 }
@@ -192,7 +196,9 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             materialSearchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {
                 @Override
                 public void onSearchStateChanged(boolean enabled) {
-                    if (enabled && customSuggestionsAdapter != null) {
+                    if (!enabled) {
+                        LoaderManager.getInstance(CatalogActivity.this).restartLoader(ITEM_LOADER, null, CatalogActivity.this);
+                    } else if (customSuggestionsAdapter != null) {
                         materialSearchBar.setLastSuggestions(new ArrayList<>());
                         customSuggestionsAdapter.getFilter().filter("");
                     }
@@ -200,12 +206,11 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
                 @Override
                 public void onSearchConfirmed(CharSequence text) {
-                    List<SearchResult> results = database.getNewResult(text.toString());
-                    if (!results.isEmpty()) {
-                        launchItemActivity(results.get(0).getId());
-                        materialSearchBar.closeSearch();
-                    }
-                    materialSearchBar.setLastSuggestions(new ArrayList<>());
+                    Bundle bundle = new Bundle();
+                    bundle.putString("filterName", text.toString().trim());
+                    LoaderManager.getInstance(CatalogActivity.this).restartLoader(ITEM_LOADER, bundle, CatalogActivity.this);
+                    
+                    materialSearchBar.hideSuggestionsList(); 
                 }
 
                 @Override public void onButtonClicked(int buttonCode) {}
@@ -308,12 +313,35 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 ItemEntry.COLUMN_ITEM_CURRENCY, ItemEntry.COLUMN_ITEM_IMAGE,
 	            ItemEntry.COLUMN_ITEM_DESCRIPTION
         };
-        String sortOrder = (bundle != null) ? bundle.getString("sortOrder") : null;
-        return new CursorLoader(this, ItemEntry.CONTENT_URI, projection, null, null, sortOrder);
+
+        String selection = null;
+        String[] selectionArgs = null;
+        String sortOrder = null;
+
+        if (bundle != null) {
+            if (bundle.containsKey("sortOrder")) {
+                sortOrder = bundle.getString("sortOrder");
+            }
+            if (bundle.containsKey("filterName")) {
+                String name = bundle.getString("filterName");
+                if (name != null && !name.trim().isEmpty()) {
+                    selection = ItemEntry.COLUMN_ITEM_NAME + " LIKE ?";
+                    selectionArgs = new String[]{"%" + name.trim() + "%"};
+                }
+            }
+        }
+
+        return new CursorLoader(this, ItemEntry.CONTENT_URI, projection, selection, selectionArgs, sortOrder);
     }
 
     @Override public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) { 
-        if (mCursorAdapter != null) mCursorAdapter.swapCursor(data); 
+        if (mCursorAdapter != null) {
+            mCursorAdapter.swapCursor(data);
+            
+            if (data != null && data.getCount() == 0 && materialSearchBar != null && materialSearchBar.isSearchOpened() && !materialSearchBar.getText().isEmpty()) {
+                showToast("No items found matching: " + materialSearchBar.getText());
+            }
+        }
     }
     
     @Override public void onLoaderReset(@NonNull Loader<Cursor> loader) { 

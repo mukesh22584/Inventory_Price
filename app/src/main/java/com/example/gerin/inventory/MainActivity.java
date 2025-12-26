@@ -2,6 +2,7 @@ package com.example.gerin.inventory;
 
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.animation.Animation;
@@ -12,7 +13,7 @@ import androidx.activity.EdgeToEdge;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static int SPLASH_TIME_OUT = 4000;
+    private static final int SPLASH_TIME_OUT = 4000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,19 +23,18 @@ public class MainActivity extends AppCompatActivity {
 
         getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
 
-        ImageView logo = (ImageView) findViewById(R.id.splash_screen_logo);
-        TextView name = (TextView) findViewById(R.id.splash_screen_name);
+        ImageView logo = findViewById(R.id.splash_screen_logo);
+        TextView name = findViewById(R.id.splash_screen_name);
 
+        Animation fromBottom = AnimationUtils.loadAnimation(this, R.anim.from_bottom);
+        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
 
-        Animation fromBottom = AnimationUtils.loadAnimation(this,R.anim.from_bottom);
-        Animation fadeIn = AnimationUtils.loadAnimation(this,R.anim.fade_in);
-
-        logo.setAnimation(fromBottom);
-        name.setAnimation(fadeIn);
+        logo.startAnimation(fromBottom);
+        name.startAnimation(fadeIn);
 
         fadeIn.setStartOffset(2000);
 
-        new Handler().postDelayed(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 Intent catalogIntent = new Intent(MainActivity.this, CatalogActivity.class);
@@ -42,6 +42,5 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         }, SPLASH_TIME_OUT);
-
     }
 }
