@@ -201,8 +201,9 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             byte[] photo = data.getBlob(imageColumnIndex);
 
             if (photo != null && photo.length > 0) {
-                ByteArrayInputStream imageStream = new ByteArrayInputStream(photo);
-                mItemBitmap = BitmapFactory.decodeStream(imageStream);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 2;
+                mItemBitmap = BitmapFactory.decodeByteArray(photo, 0, photo.length, options);
                 imageView.setImageBitmap(mItemBitmap);
                 }
             }

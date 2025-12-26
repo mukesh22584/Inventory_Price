@@ -362,10 +362,8 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 int imgIdx = cursor.getColumnIndex(ItemEntry.COLUMN_ITEM_IMAGE);
                 if (imgIdx != -1 && !cursor.isNull(imgIdx)) {
                     byte[] blob = cursor.getBlob(imgIdx);
-                    if (blob.length < 1000000) {
-                    json.put(ItemEntry.COLUMN_ITEM_IMAGE, Base64.encodeToString(blob, Base64.DEFAULT));
+                    json.put(ItemEntry.COLUMN_ITEM_IMAGE, Base64.encodeToString(blob, Base64.NO_WRAP));
                     }
-                }
                 jsonArray.put(json);
             }
             saveBackupFile(jsonArray.toString());
@@ -447,7 +445,10 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             }
 
             if (obj.has(ItemEntry.COLUMN_ITEM_IMAGE)) {
-                values.put(ItemEntry.COLUMN_ITEM_IMAGE, Base64.decode(obj.getString(ItemEntry.COLUMN_ITEM_IMAGE), Base64.DEFAULT));
+                String encodedImage = obj.getString(ItemEntry.COLUMN_ITEM_IMAGE);
+                if (!TextUtils.isEmpty(encodedImage)) {
+                    values.put(ItemEntry.COLUMN_ITEM_IMAGE, Base64.decode(encodedImage, Base64.DEFAULT));
+                }
             }
 
             String name = obj.getString(ItemEntry.COLUMN_ITEM_NAME);

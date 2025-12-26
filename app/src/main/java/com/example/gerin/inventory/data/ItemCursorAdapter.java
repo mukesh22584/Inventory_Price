@@ -41,7 +41,6 @@ public class ItemCursorAdapter extends CursorAdapter {
             priceIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_PRICE);
             currIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_CURRENCY);
             descIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_DESCRIPTION);
-            uriIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_URI);
         }
     }
 

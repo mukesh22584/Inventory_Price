@@ -68,7 +68,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private static final int CAMERA_REQUEST = 2;
     private static final int CAMERA_PERMISSION_REQUEST = 3;
 
-    private static final int MAX_IMAGE_DIMENSION = 1024; 
+    private static final int MAX_IMAGE_DIMENSION = 2048;
     private Uri selectedImage = null;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -208,6 +208,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     }
 
     private void saveItem() {
+        ContentValues values = new ContentValues();
         String nameString = mNameEditText.getText().toString().trim();
         String descriptionString = mDescriptionEditText.getText().toString().trim();
         String tag1String = mTag1EditText.getText().toString().trim();
@@ -258,14 +259,18 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 		try (FileOutputStream fos = new FileOutputStream(imageFile)) {
         Bitmap resized = resizeBitmap(bitmapToSave, MAX_IMAGE_DIMENSION);
 
-        resized.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+        resized.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                 finalImageUri = Uri.fromFile(imageFile).toString();
+
+                java.io.ByteArrayOutputStream stream = new java.io.ByteArrayOutputStream();
+                resized.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+                values.put(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE, byteArray);
             } catch (IOException e) {
                 Log.e("EditorActivity", "Error saving image", e);
             }
         }
 
-        ContentValues values = new ContentValues();
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_NAME, nameString);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY, getIntFromEditText(mQuantityEditText));
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_PRICE, mPriceEditText.getText().toString().trim());
@@ -273,7 +278,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG1, tag1String);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG2, tag2String);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG3, tag3String);
-        values.putNull(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_URI, finalImageUri);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_UNIT, mUnit);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY, mCurrency);
