@@ -40,6 +40,8 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
     private Uri mCurrentItemUri;
     private static final int EXISTING_ITEM_LOADER = 0;
     private Toolbar toolbar;
+
+    TextView itemNameView;
     TextView quantityView;
     TextView priceView;
     TextView descriptionView;
@@ -57,6 +59,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         Intent intent = getIntent();
         mCurrentItemUri = intent.getData();
 
+        itemNameView = (TextView) findViewById(R.id.item_name_field);
         quantityView = (TextView) findViewById(R.id.item_quantity_field);
         priceView = (TextView) findViewById(R.id.item_price_field);
         descriptionView = (TextView) findViewById(R.id.item_description_field);
@@ -79,8 +82,10 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if (getSupportActionBar() != null) {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
+        }
 
         LoaderManager.getInstance(this).initLoader(EXISTING_ITEM_LOADER, null, this);
 
@@ -187,7 +192,8 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
                 imageView.setImageBitmap(mItemBitmap);
             }
 
-            getSupportActionBar().setTitle(name);
+            itemNameView.setText(name);
+
             quantityView.setText(String.format("%d %s", quantity, (unit == null ? "" : unit)));
             DecimalFormat formatter = new DecimalFormat("#0.00");
             priceView.setText((currency == null ? "" : currency) + formatter.format(price));
@@ -225,14 +231,15 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        getSupportActionBar().setTitle("");
-        Bitmap tempItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
+        itemNameView.setText("");
         quantityView.setText("");
         priceView.setText("");
         descriptionView.setText("");
         tag1View.setText("");
         tag2View.setText("");
         tag3View.setText("");
+
+        Bitmap tempItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
         imageView.setImageBitmap(tempItemBitmap);
     }
 

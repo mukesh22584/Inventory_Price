@@ -69,6 +69,17 @@
             android:padding="@dimen/activity_margin"
             >
 
+            <TextView
+                android:id="@+id/item_name_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@color/dodger_blue"
+                android:paddingBottom="16dp"
+                android:paddingLeft="8dp"
+                tools:text="Item Name Preview" />
+
             <!-- Quantity field -->
             <LinearLayout
                 android:layout_width="match_parent"
