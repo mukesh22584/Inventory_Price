@@ -2,6 +2,27 @@
 
 **Inventory Price** is a lightweight, intuitive mobile application designed specifically for small shopkeepers. In the fast-paced environment of retail, searching through physical ledgers to find the purchase price of an item can lead to delays and lost profits. This app eliminates that hassle by providing instant access to product data so you can sell with confidence.
 
+# 🖼️ Screenshots
+
+<details>
+<summary><b>Click to view Screenshots:</b></summary>
+<br>
+
+<div align="center">
+  <img src="onboarding_images/ss01.webp" width="250" height="540" />
+  <img src="onboarding_images/ss02.webp" width="250" height="540" />
+  <br>
+  <img src="onboarding_images/ss03.webp" width="250" height="540" />
+  <img src="onboarding_images/ss04.webp" width="250" height="540" />
+  <br>
+  <img src="onboarding_images/ss05.webp" width="250" height="540" />
+  <img src="onboarding_images/ss06.webp" width="250" height="540" />
+  <br>
+  <img src="onboarding_images/ss07.webp" width="250" height="540" />
+  <img src="onboarding_images/ss08.webp" width="250" height="540" />
+</div>
+</details>
+
 ---
 
 ## ✨ Key Features
