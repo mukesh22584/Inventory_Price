@@ -438,32 +438,20 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         for (int i = 0; i < array.length(); i++) {
             JSONObject obj = array.getJSONObject(i);
             ContentValues values = new ContentValues();
-            String name = obj.getString(ItemEntry.COLUMN_ITEM_NAME);
-            String desc = obj.optString(ItemEntry.COLUMN_ITEM_DESCRIPTION);
-            String t1 = obj.optString(ItemEntry.COLUMN_ITEM_TAG1);
-            String t2 = obj.optString(ItemEntry.COLUMN_ITEM_TAG2);
-            String t3 = obj.optString(ItemEntry.COLUMN_ITEM_TAG3);
             
-            values.put(ItemEntry.COLUMN_ITEM_NAME, name);
-            values.put(ItemEntry.COLUMN_ITEM_QUANTITY, obj.optInt(ItemEntry.COLUMN_ITEM_QUANTITY));
-            values.put(ItemEntry.COLUMN_ITEM_UNIT, obj.optString(ItemEntry.COLUMN_ITEM_UNIT));
-            values.put(ItemEntry.COLUMN_ITEM_PRICE, obj.optDouble(ItemEntry.COLUMN_ITEM_PRICE));
-            values.put(ItemEntry.COLUMN_ITEM_CURRENCY, obj.optString(ItemEntry.COLUMN_ITEM_CURRENCY));
-            values.put(ItemEntry.COLUMN_ITEM_DESCRIPTION, desc);
-            values.put(ItemEntry.COLUMN_ITEM_TAG1, t1);
-            values.put(ItemEntry.COLUMN_ITEM_TAG2, t2);
-            values.put(ItemEntry.COLUMN_ITEM_TAG3, t3);
+            for (String col : BACKUP_COLUMNS) {
+                if (obj.has(col)) {
+                    values.put(col, obj.getString(col));
+                }
+            }
 
             if (obj.has(ItemEntry.COLUMN_ITEM_IMAGE)) {
                 values.put(ItemEntry.COLUMN_ITEM_IMAGE, Base64.decode(obj.getString(ItemEntry.COLUMN_ITEM_IMAGE), Base64.DEFAULT));
             }
 
-            String selection = ItemEntry.COLUMN_ITEM_NAME + "=? AND " +
-                               ItemEntry.COLUMN_ITEM_DESCRIPTION + "=? AND " +
-                               ItemEntry.COLUMN_ITEM_TAG1 + "=? AND " +
-                               ItemEntry.COLUMN_ITEM_TAG2 + "=? AND " +
-                               ItemEntry.COLUMN_ITEM_TAG3 + "=?";
-            String[] args = new String[]{name, desc, t1, t2, t3};
+            String name = obj.getString(ItemEntry.COLUMN_ITEM_NAME);
+            String selection = ItemEntry.COLUMN_ITEM_NAME + "=?";
+            String[] args = new String[]{name};
 
             try (Cursor c = getContentResolver().query(ItemEntry.CONTENT_URI, new String[]{ItemEntry._ID}, 
                     selection, args, null)) {
