@@ -2,6 +2,7 @@ package com.example.gerin.inventory.data;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +60,7 @@ public class ItemCursorAdapter extends CursorAdapter {
         String name = cursor.getString(holder.nameIdx);
         int quantity = cursor.getInt(holder.qtyIdx);
         String unit = cursor.getString(holder.unitIdx);
-        double price = cursor.getDouble(holder.priceIdx);
+        String price = cursor.getString(holder.priceIdx);
         String currency = cursor.getString(holder.currIdx);
         String description = cursor.getString(holder.descIdx);
 
@@ -78,6 +79,11 @@ public class ItemCursorAdapter extends CursorAdapter {
         }
         
         holder.quantityView.setText(String.format(Locale.getDefault(), "%d %s", quantity, unit).trim());
-        holder.priceView.setText(String.format(Locale.getDefault(), "%s %.2f", currency, price));
+      if (TextUtils.isEmpty(price)) {
+          holder.priceView.setText("N/A");              
+		} else {
+        holder.priceView.setText(String.format(Locale.getDefault(), "%s %s", currency, price).trim());
+
+		}
     }
 }

@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.*;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.Menu;

@@ -19,6 +19,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,7 +33,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,12 +91,14 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         LoaderManager.getInstance(this).initLoader(EXISTING_ITEM_LOADER, null, this);
 
         imageView.setOnClickListener(v -> {
+		if (mItemBitmap != null) {
             Intent intent_im = new Intent();
             intent_im.setAction(Intent.ACTION_VIEW);
             Uri imageUri = getImageUri(mItemBitmap);
             intent_im.setDataAndType(imageUri, "image/*");
             intent_im.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivity(intent_im);
+            }
         });
     }
 
@@ -181,7 +183,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             String name = data.getString(nameColumnIndex);
             int quantity = data.getInt(quantityColumnIndex);
             String unit = data.getString(unitColumnIndex);
-            double price = data.getDouble(priceColumnIndex);
+            String price = data.getString(priceColumnIndex); 
             String currency = data.getString(currencyColumnIndex);
             String description = data.getString(descriptionColumnIndex);
             String tag1 = data.getString(tag1ColumnIndex);
@@ -208,8 +210,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             itemNameView.setText(name);
 
             quantityView.setText(String.format("%d %s", quantity, (unit == null ? "" : unit)));
-            DecimalFormat formatter = new DecimalFormat("#0.00");
-            priceView.setText((currency == null ? "" : currency) + formatter.format(price));
+            priceView.setText((currency == null || currency.isEmpty() ? "₹" : currency) + (price == null ? "" : price));
             descriptionView.setText(description);
 
             tag1View.setVisibility(View.GONE);

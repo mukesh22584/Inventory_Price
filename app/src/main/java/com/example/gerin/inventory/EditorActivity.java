@@ -183,7 +183,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         mNameEditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_NAME)));
         mQuantityEditText.setText(String.valueOf(data.getInt(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY))));
-        mPriceEditText.setText(String.valueOf(data.getDouble(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_PRICE))));
+        mPriceEditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_PRICE)));
         mDescriptionEditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION)));
         mTag1EditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_TAG1)));
         mTag2EditText.setText(data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_TAG2)));
@@ -268,7 +268,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         ContentValues values = new ContentValues();
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_NAME, nameString);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_QUANTITY, getIntFromEditText(mQuantityEditText));
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_PRICE, getDoubleFromEditText(mPriceEditText));
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_PRICE, mPriceEditText.getText().toString().trim());
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_DESCRIPTION, descriptionString);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG1, tag1String);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG2, tag2String);
@@ -288,11 +288,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private int getIntFromEditText(EditText et) {
         String s = et.getText().toString().trim();
         return TextUtils.isEmpty(s) ? 0 : Integer.parseInt(s);
-    }
-
-    private double getDoubleFromEditText(EditText et) {
-        String s = et.getText().toString().trim();
-        return TextUtils.isEmpty(s) ? 0.0 : Double.parseDouble(s);
     }
 
     @Override
