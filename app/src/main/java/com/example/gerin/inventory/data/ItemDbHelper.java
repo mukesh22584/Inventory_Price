@@ -15,7 +15,7 @@ import java.util.List;
 public class ItemDbHelper extends SQLiteOpenHelper{
 
     private static final String DATABASE_NAME = "Inventory.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 9;
 
     public ItemDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -39,7 +39,7 @@ public class ItemDbHelper extends SQLiteOpenHelper{
 
         db.execSQL(SQL_CREATE_INVENTORY_TABLE);
 
-        db.execSQL("CREATE INDEX idx_item_name ON " + ItemEntry.TABLE_NAME + 
+        db.execSQL("CREATE INDEX idx_item_name ON " + ItemEntry.TABLE_NAME +
                 "(" + ItemEntry.COLUMN_ITEM_NAME + ");");
     }
 
@@ -53,6 +53,11 @@ public class ItemDbHelper extends SQLiteOpenHelper{
                 Log.e("ItemDbHelper", "Update error: " + e.getMessage());
             }
         }
+    }
+
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        onUpgrade(db, oldVersion, newVersion);
     }
 
     public List<SearchResult> getResults() {
