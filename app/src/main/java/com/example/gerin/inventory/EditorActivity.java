@@ -40,10 +40,11 @@ import android.widget.Toast;
 import com.example.gerin.inventory.data.ItemContract;
 
 import java.io.File;
-import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import androidx.activity.EdgeToEdge;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -90,8 +91,10 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+	if (getSupportActionBar() != null) {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
 
         mPriceTextInputLayout = findViewById(R.id.price_input_layout);
         mQuantityTextInputLayout = findViewById(R.id.quantity_input_layout);
@@ -192,10 +195,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mQuantityTextInputLayout.setSuffixText(mUnit);
         mPriceTextInputLayout.setSuffixText(mCurrency);
 
+        String imageUriString = data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_URI));
+        if (imageUriString != null && !imageUriString.equals("null")) {
+            mItemImageView.setImageURI(Uri.parse(imageUriString));
+        } else {
         byte[] photo = data.getBlob(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE));
         if (photo != null && photo.length > 0) {
             Bitmap bitmap = BitmapFactory.decodeByteArray(photo, 0, photo.length);
             mItemImageView.setImageBitmap(bitmap);
+            }
         }
     }
 
@@ -232,6 +240,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             }
         }
 
+        String finalImageUri = "null";
+        if (mItemHasChanged) {
         Bitmap bitmapToSave;
         if (mItemImageView.getDrawable() instanceof BitmapDrawable) {
             bitmapToSave = ((BitmapDrawable) mItemImageView.getDrawable()).getBitmap();
@@ -239,11 +249,21 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             bitmapToSave = BitmapFactory.decodeResource(getResources(), R.drawable.image_prompt);
         }
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		File folder = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "InventoryPrice");
+		if (!folder.exists()) folder.mkdirs();
+
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+		File imageFile = new File(folder, "IMG_" + timeStamp + ".jpg");
+
+		try (FileOutputStream fos = new FileOutputStream(imageFile)) {
         Bitmap resized = resizeBitmap(bitmapToSave, MAX_IMAGE_DIMENSION);
-        
-        resized.compress(Bitmap.CompressFormat.JPEG, 90, baos);
-        byte[] photoBlob = baos.toByteArray();
+
+        resized.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+                finalImageUri = Uri.fromFile(imageFile).toString();
+            } catch (IOException e) {
+                Log.e("EditorActivity", "Error saving image", e);
+            }
+        }
 
         ContentValues values = new ContentValues();
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_NAME, nameString);
@@ -253,8 +273,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG1, tag1String);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG2, tag2String);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_TAG3, tag3String);
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE, photoBlob);
-        values.put(ItemContract.ItemEntry.COLUMN_ITEM_URI, (selectedImage != null) ? selectedImage.toString() : "null");
+        values.putNull(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE);
+        values.put(ItemContract.ItemEntry.COLUMN_ITEM_URI, finalImageUri);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_UNIT, mUnit);
         values.put(ItemContract.ItemEntry.COLUMN_ITEM_CURRENCY, mCurrency);
 
@@ -290,7 +310,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
                     mItemImageView.setImageBitmap(resizeBitmap(bitmap, MAX_IMAGE_DIMENSION));
                 } catch (IOException e) {
-                    Log.e("EditorActivity", "Error setting image", e);
+                    Log.e("EditorActivity", "Error loading image", e);
                 }
             }
         }
@@ -299,8 +319,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private void launchCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         try {
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            File storageDir = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "InventoryPrice");
+            if (!storageDir.exists()) storageDir.mkdirs();
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
             File photoFile = File.createTempFile("IMG_" + timeStamp, ".jpg", storageDir);
             
             selectedImage = FileProvider.getUriForFile(this, "com.example.gerin.inventory.fileprovider", photoFile);

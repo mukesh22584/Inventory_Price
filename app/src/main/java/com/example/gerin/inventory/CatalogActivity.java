@@ -311,7 +311,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 ItemEntry._ID, ItemEntry.COLUMN_ITEM_NAME, ItemEntry.COLUMN_ITEM_QUANTITY,
                 ItemEntry.COLUMN_ITEM_PRICE, ItemEntry.COLUMN_ITEM_UNIT,
                 ItemEntry.COLUMN_ITEM_CURRENCY, ItemEntry.COLUMN_ITEM_IMAGE,
-	            ItemEntry.COLUMN_ITEM_DESCRIPTION
+	            ItemEntry.COLUMN_ITEM_DESCRIPTION, ItemEntry.COLUMN_ITEM_URI
         };
 
         String selection = null;
@@ -360,7 +360,10 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 }
                 int imgIdx = cursor.getColumnIndex(ItemEntry.COLUMN_ITEM_IMAGE);
                 if (imgIdx != -1 && !cursor.isNull(imgIdx)) {
-                    json.put(ItemEntry.COLUMN_ITEM_IMAGE, Base64.encodeToString(cursor.getBlob(imgIdx), Base64.DEFAULT));
+                    byte[] blob = cursor.getBlob(imgIdx);
+                    if (blob.length < 1000000) {
+                    json.put(ItemEntry.COLUMN_ITEM_IMAGE, Base64.encodeToString(blob, Base64.DEFAULT));
+                    }
                 }
                 jsonArray.put(json);
             }

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
+import android.widget.ImageView;
 
 import com.example.gerin.inventory.R;
 import com.example.gerin.inventory.data.ItemContract.ItemEntry;
@@ -25,7 +26,7 @@ public class ItemCursorAdapter extends CursorAdapter {
         final TextView priceView;
         final TextView summaryView;
 
-        int nameIdx, qtyIdx, unitIdx, priceIdx, currIdx, descIdx;
+        int nameIdx, qtyIdx, unitIdx, priceIdx, currIdx, descIdx, uriIdx;
 
         ViewHolder(View view, Cursor cursor) {
             nameView = view.findViewById(R.id.name);
@@ -39,6 +40,7 @@ public class ItemCursorAdapter extends CursorAdapter {
             priceIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_PRICE);
             currIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_CURRENCY);
             descIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_DESCRIPTION);
+            uriIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_URI);
         }
     }
 

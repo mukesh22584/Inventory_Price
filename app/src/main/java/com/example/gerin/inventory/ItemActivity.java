@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.provider.MediaStore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -152,6 +153,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
                 ItemContract.ItemEntry.COLUMN_ITEM_TAG1,
                 ItemContract.ItemEntry.COLUMN_ITEM_TAG2,
                 ItemContract.ItemEntry.COLUMN_ITEM_TAG3,
+                ItemContract.ItemEntry.COLUMN_ITEM_URI,
                 ItemContract.ItemEntry.COLUMN_ITEM_IMAGE};
 
         return new CursorLoader(this, mCurrentItemUri, projection, null, null, null);
@@ -174,6 +176,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             int tag2ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG2);
             int tag3ColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_TAG3);
             int imageColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE);
+            int uriColumnIndex = data.getColumnIndex(ItemContract.ItemEntry.COLUMN_ITEM_URI);
 
             String name = data.getString(nameColumnIndex);
             int quantity = data.getInt(quantityColumnIndex);
@@ -184,12 +187,22 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             String tag1 = data.getString(tag1ColumnIndex);
             String tag2 = data.getString(tag2ColumnIndex);
             String tag3 = data.getString(tag3ColumnIndex);
+            String imageUriString = data.getString(uriColumnIndex);
+
+            if (imageUriString != null && !imageUriString.equals("null")) {
+                try {
+                Uri imageUri = Uri.parse(imageUriString);
+                imageView.setImageURI(imageUri);
+                mItemBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                } catch (IOException e) { e.printStackTrace(); }
+            } else {
             byte[] photo = data.getBlob(imageColumnIndex);
 
             if (photo != null && photo.length > 0) {
                 ByteArrayInputStream imageStream = new ByteArrayInputStream(photo);
                 mItemBitmap = BitmapFactory.decodeStream(imageStream);
                 imageView.setImageBitmap(mItemBitmap);
+                }
             }
 
             itemNameView.setText(name);
