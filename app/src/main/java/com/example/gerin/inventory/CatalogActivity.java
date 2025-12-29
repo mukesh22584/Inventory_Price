@@ -350,25 +350,28 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     }
 
     private void backupData() {
-        try (Cursor cursor = getContentResolver().query(ItemEntry.CONTENT_URI, null, null, null, null)) {
-            if (cursor == null) return;
-            JSONArray jsonArray = new JSONArray();
-            while (cursor.moveToNext()) {
-                JSONObject json = new JSONObject();
-                for (String col : BACKUP_COLUMNS) {
-                    int idx = cursor.getColumnIndex(col);
-                    if (idx != -1) json.put(col, cursor.getString(idx));
+        File dbFile = getDatabasePath("Inventory.db");
+        String timeStr = new SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(new Date());
+        String fileName = "inventory_backup_" + timeStr + ".db";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "application/x-sqlite3");
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/InventoryBackups");
+
+            Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+            if (uri != null) {
+                try (InputStream in = new FileInputStream(dbFile);
+                     OutputStream out = getContentResolver().openOutputStream(uri)) {
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
+                    showToast("Database backed up to Downloads/InventoryBackups");
+                } catch (IOException e) {
+                    showToast("Backup failed: " + e.getMessage());
                 }
-                int imgIdx = cursor.getColumnIndex(ItemEntry.COLUMN_ITEM_IMAGE);
-                if (imgIdx != -1 && !cursor.isNull(imgIdx)) {
-                    byte[] blob = cursor.getBlob(imgIdx);
-                    json.put(ItemEntry.COLUMN_ITEM_IMAGE, Base64.encodeToString(blob, Base64.NO_WRAP));
-                    }
-                jsonArray.put(json);
             }
-            saveBackupFile(jsonArray.toString());
-        } catch (Exception e) {
-            showToast("Backup failed: " + e.getMessage());
         }
     }
 
@@ -406,11 +409,11 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
 
     private void restoreData() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("application/json");
+        intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String folderPath = "primary:Download%2F" + Uri.encode(getString(R.string.app_name));
+            String folderPath = "primary:Download%2FInventoryBackups";
             Uri initialUri = Uri.parse("content://com.android.externalstorage.documents/document/" + folderPath);
             intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialUri);
         }
@@ -419,16 +422,17 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     }
 
     private void processRestoreUri(Uri uri) {
-        try {
-            StringBuilder sb = new StringBuilder();
-            try (InputStream in = getContentResolver().openInputStream(uri);
-                 BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-                String line;
-                while ((line = reader.readLine()) != null) sb.append(line);
-            }
-            restoreFromJson(sb.toString());
-        } catch (Exception e) {
-            showToast("Restore failed");
+        File dbFile = getDatabasePath("Inventory.db");
+        try (InputStream in = getContentResolver().openInputStream(uri);
+             OutputStream out = new FileOutputStream(dbFile)) {
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
+            
+            showToast("Restore complete. Refreshing list...");
+            LoaderManager.getInstance(this).restartLoader(ITEM_LOADER, null, this);
+        } catch (IOException e) {
+            showToast("Restore failed: " + e.getMessage());
         }
     }
 
