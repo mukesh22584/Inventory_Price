@@ -16,7 +16,7 @@
     <string name="hint_item_tag2">Tag 2</string>
     <string name="hint_item_tag3">Tag 3</string>
     <string name="category_tag">Tags</string>
-    <string name="cardview_price_label">Price: </string>
+    <string name="cardview_price_label">Price:&#160;</string>
     <string name="cardview_quantity_label">Quantity:&#160;</string>
     <string name="editor_insert_item_successful">Item saved successfully</string>
     <string name="editor_insert_item_failed">An error occurred: Item could not be saved</string>
