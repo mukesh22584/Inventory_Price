@@ -70,6 +70,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     private ItemDbHelper database;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
+    private AlertDialog progressDialog;
 
     private static final String[] BACKUP_COLUMNS = {
             ItemEntry.COLUMN_ITEM_NAME, ItemEntry.COLUMN_ITEM_QUANTITY,
@@ -349,7 +350,26 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         if (mCursorAdapter != null) mCursorAdapter.swapCursor(null); 
     }
 
+    private void showLoading(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_progress, null);
+        TextView messageText = dialogView.findViewById(R.id.progress_message);
+        messageText.setText(message);
+        builder.setView(dialogView);
+        builder.setCancelable(false);
+        progressDialog = builder.create();
+        progressDialog.show();
+    }
+
+    private void hideLoading() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
     private void backupData() {
+        showLoading("Creating Backup...");
+        handler.postDelayed(() -> {
         File dbFile = getDatabasePath("Inventory.db");
         String timeStr = new SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(new Date());
         String fileName = "inventory_backup_" + timeStr + ".db";
@@ -367,12 +387,19 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                     byte[] buf = new byte[1024];
                     int len;
                     while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
+					hideLoading();
                     showToast("Database backed up to Downloads/InventoryBackups");
                 } catch (IOException e) {
+					hideLoading();
                     showToast("Backup failed: " + e.getMessage());
+                    }
+                } else {
+                    hideLoading();
                 }
+            } else {
+                hideLoading();
             }
-        }
+        }, 500);
     }
 
     private void saveBackupFile(String data) {
@@ -422,6 +449,8 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     }
 
     private void processRestoreUri(Uri uri) {
+        showLoading("Restoring Database...");
+        handler.postDelayed(() -> {
         File dbFile = getDatabasePath("Inventory.db");
         try (InputStream in = getContentResolver().openInputStream(uri);
              OutputStream out = new FileOutputStream(dbFile)) {
@@ -429,11 +458,14 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             int len;
             while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
             
+			hideLoading();
             showToast("Restore complete. Refreshing list...");
             LoaderManager.getInstance(this).restartLoader(ITEM_LOADER, null, this);
         } catch (IOException e) {
+			hideLoading();
             showToast("Restore failed: " + e.getMessage());
         }
+	  }, 500);
     }
 
     private void restoreFromJson(String json) throws JSONException {
