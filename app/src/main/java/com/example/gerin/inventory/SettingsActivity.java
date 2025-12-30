@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,9 +71,32 @@ public class SettingsActivity extends AppCompatActivity {
         findViewById(R.id.btn_theme_settings).setOnClickListener(v -> showThemeDialog());
         findViewById(R.id.btn_backup_settings).setOnClickListener(v -> checkPermissionAndRun(this::backupData));
         findViewById(R.id.btn_restore_settings).setOnClickListener(v -> checkPermissionAndRun(this::restoreData));
-        findViewById(R.id.btn_about_settings).setOnClickListener(v -> showAboutDialog());
 
-	}
+        LinearLayout aboutContainer = findViewById(R.id.about_options_container);
+        findViewById(R.id.btn_about_header).setOnClickListener(v -> {
+            if (aboutContainer.getVisibility() == View.VISIBLE) {
+                aboutContainer.setVisibility(View.GONE);
+            } else {
+                aboutContainer.setVisibility(View.VISIBLE);
+            }
+        });
+
+        final String repoUrl = "https://github.com/mukesh22584/Inventory_Price";
+
+        findViewById(R.id.btn_changelog).setOnClickListener(v -> 
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(repoUrl + "/releases"))));
+
+        findViewById(R.id.btn_view_source).setOnClickListener(v -> 
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(repoUrl))));
+
+        findViewById(R.id.btn_share_app).setOnClickListener(v -> {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this app: " + repoUrl);
+            startActivity(Intent.createChooser(shareIntent, "Share via"));
+        });
+
+    }
 
     private void showThemeDialog() {
         String[] themeOptions = {"Light", "Dark", "System Default"};
@@ -95,7 +119,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         new AlertDialog.Builder(this, R.style.CustomDialogTheme)
                 .setTitle("Choose Theme")
-                .setSingleChoiceItems(themeOptions, 2, (dialog, which) -> {
+                .setSingleChoiceItems(themeOptions, checkedItem, (dialog, which) -> {
                     prefs.edit().putInt("theme_mode", modeValues[which]).apply();
                     AppCompatDelegate.setDefaultNightMode(modeValues[which]);
                     dialog.dismiss();
@@ -144,19 +168,6 @@ public class SettingsActivity extends AppCompatActivity {
                 Toast.makeText(this, "Restore complete", Toast.LENGTH_SHORT).show();
             } catch (IOException e) { hideLoading(); }
         }, 500);
-    }
-
-    private void showAboutDialog() {
-        View dialogView = getLayoutInflater().inflate(R.layout.about_content, null);
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            ((TextView) dialogView.findViewById(R.id.app_version)).setText("Version " + pInfo.versionName);
-        } catch (Exception e) { }
-        
-        new AlertDialog.Builder(this, R.style.CustomDialogTheme)
-                .setView(dialogView)
-                .setPositiveButton("Close", null)
-                .show();
     }
 
     private void showLoading(String message) {
