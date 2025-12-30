@@ -215,6 +215,32 @@
         </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.card.MaterialCardView
+				android:layout_width="match_parent"
+    			android:layout_height="wrap_content"
+    			android:layout_margin="16dp"
+    			app:cardCornerRadius="16dp"
+    			app:strokeColor="#FF0000"
+    			app:strokeWidth="1dp">
+
+        <LinearLayout
+			android:id="@+id/btn_reset_data"
+			style="@style/SettingsRowStyle"
+			android:background="@android:color/transparent">
+
+			<LinearLayout
+				style="@style/SettingsTextStyle">
+            <TextView
+                style="@style/SettingsTitleStyle"
+                android:text="Delete All Data"
+                android:textColor="#FF0000" />
+            <TextView
+                style="@style/SettingsSubtitleStyle"
+                android:text="Permanently remove all products and details." />
+			</LinearLayout>
+        </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

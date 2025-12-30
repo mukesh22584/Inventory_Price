@@ -190,10 +190,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_delete_all_entries) {
-            showDeleteAllConfirmationDialog();
-            return true;
-        } else if (id == R.id.action_sort_by) {
+        if (id == R.id.action_sort_by) {
             showSortByDialog();
             return true;
         } else if (id == R.id.action_settings) {
@@ -259,17 +256,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                     LoaderManager.getInstance(this).restartLoader(ITEM_LOADER, b, this);
                     d.dismiss();
                 }).show();
-    }
-
-    private void showDeleteAllConfirmationDialog() {
-        new AlertDialog.Builder(this, R.style.CustomDialogTheme)
-                .setMessage(R.string.delete_all_dialog_msg)
-                .setPositiveButton(R.string.delete, (d, id) -> {
-                    getContentResolver().delete(ItemEntry.CONTENT_URI, null, null);
-                    showToast(getString(R.string.editor_delete_all_items_successful));
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .show();
     }
 
     private void showToast(String msg) {

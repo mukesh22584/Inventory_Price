@@ -75,6 +75,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         updateItemCount();
 
+        findViewById(R.id.btn_reset_data).setOnClickListener(v -> confirmReset());
+
         SharedPreferences prefs = getSharedPreferences("theme_prefs", MODE_PRIVATE);
 
         LinearLayout themeContainer = findViewById(R.id.theme_options_container);
@@ -144,6 +146,24 @@ public class SettingsActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
         String lastBackup = prefs.getString("last_backup", "Never");
         backupText.setText("Last Backup: " + lastBackup);
+    }
+
+    private void confirmReset() {
+        new AlertDialog.Builder(this, R.style.CustomDialogTheme)
+            .setTitle("Delete All Items?")
+            .setMessage("This will permanently delete all your products and details. This action cannot be undone.")
+            .setPositiveButton("Delete", (dialog, id) -> {
+                ItemDbHelper dbHelper = new ItemDbHelper(this);
+                try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
+                    db.delete(ItemEntry.TABLE_NAME, null, null);
+                    updateItemCount();
+                    Toast.makeText(this, "All data deleted successfully", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(this, "Error deleting data", Toast.LENGTH_SHORT).show();
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
     }
 
     private void updateTheme(SharedPreferences prefs, int mode) {
