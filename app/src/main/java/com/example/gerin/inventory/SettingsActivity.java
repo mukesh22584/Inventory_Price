@@ -151,12 +151,11 @@ public class SettingsActivity extends AppCompatActivity {
             .setTitle("Delete All Items?")
             .setMessage("This will permanently delete all your products and details. This action cannot be undone.")
             .setPositiveButton("Delete", (dialog, id) -> {
-                ItemDbHelper dbHelper = new ItemDbHelper(this);
-                try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
-                    db.delete(ItemEntry.TABLE_NAME, null, null);
+                int rowsDeleted = getContentResolver().delete(ItemEntry.CONTENT_URI, null, null);
+                if (rowsDeleted >= 0) {
                     updateItemCount();
                     Toast.makeText(this, "All data deleted successfully", Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
+                } else {
                     Toast.makeText(this, "Error deleting data", Toast.LENGTH_SHORT).show();
                 }
             })
@@ -213,6 +212,9 @@ public class SettingsActivity extends AppCompatActivity {
             try (InputStream in = getContentResolver().openInputStream(uri); OutputStream out = new FileOutputStream(getDatabasePath("Inventory.db"))) {
                 byte[] buf = new byte[1024]; int len;
                 while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
+                
+                getContentResolver().notifyChange(ItemEntry.CONTENT_URI, null);
+                
                 hideLoading();
                 updateItemCount();
                 Toast.makeText(this, "Restore complete", Toast.LENGTH_SHORT).show();
