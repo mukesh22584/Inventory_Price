@@ -13,8 +13,11 @@ import android.net.Uri;
 import android.os.*;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,6 +82,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         LinearLayout themeContainer = findViewById(R.id.theme_options_container);
         findViewById(R.id.btn_theme_header).setOnClickListener(v -> {
+            TransitionManager.beginDelayedTransition((ViewGroup) themeContainer.getParent(), new AutoTransition());
             if (themeContainer.getVisibility() == View.VISIBLE) {
                 themeContainer.setVisibility(View.GONE);
             } else {
@@ -100,6 +104,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         LinearLayout aboutContainer = findViewById(R.id.about_options_container);
         findViewById(R.id.btn_about_header).setOnClickListener(v -> {
+            TransitionManager.beginDelayedTransition((ViewGroup) aboutContainer.getParent(), new AutoTransition());
             if (aboutContainer.getVisibility() == View.VISIBLE) {
                 aboutContainer.setVisibility(View.GONE);
             } else {
