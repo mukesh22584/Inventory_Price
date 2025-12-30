@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
@@ -12,133 +13,175 @@
         android:background="@color/dodger_blue"
         app:titleTextColor="@android:color/white" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingTop="32dp"
-        android:paddingBottom="24dp">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@mipmap/ic_launcher"
-            android:contentDescription="App Icon" />
-            
-        <TextView
-            android:id="@+id/settings_app_info"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_margin="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:strokeWidth="0dp">
 
-    <LinearLayout
-        android:id="@+id/btn_theme_settings"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:orientation="vertical"
-        android:padding="16dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+              <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@mipmap/ic_launcher"
+                android:contentDescription="App Icon" />
+
+            <TextView
+                android:id="@+id/settings_app_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="?android:attr/textColorPrimary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Know Your Cost, Secure Your Profit"
+                android:textSize="14sp"
+                android:alpha="0.8"
+                android:textColor="?android:attr/textColorSecondary"
+                android:fontFamily="sans-serif-medium" />
+        </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Theme"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/btn_theme_header"
+            style="@style/SettingsRowStyle">
+          <LinearLayout
+            style="@style/SettingsTextStyle">
+            <TextView style="@style/SettingsTitleStyle" android:text="Theme" />
+            <TextView style="@style/SettingsSubtitleStyle" android:text="Light, dark, system default" />
+          </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/theme_options_container"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Choose between Light, Dark, or System Default"
-            android:textSize="14sp"
-            android:alpha="0.7" />
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="#10ffffff"
+            android:paddingStart="16dp">
+            <TextView android:id="@+id/btn_theme_light" style="@style/SettingsRowStyle" android:text="Light" android:textSize="14sp" />
+            <TextView android:id="@+id/btn_theme_dark" style="@style/SettingsRowStyle" android:text="Dark" android:textSize="14sp" />
+            <TextView android:id="@+id/btn_theme_system" style="@style/SettingsRowStyle" android:text="System Default" android:textSize="14sp" />
+        </LinearLayout>
 
-    </LinearLayout>
+        <LinearLayout
+            android:id="@+id/btn_backup_settings"
+            style="@style/SettingsRowStyle">
+          <LinearLayout
+            style="@style/SettingsTextStyle">
+            <TextView style="@style/SettingsTitleStyle" android:text="Backup" />
+            <TextView style="@style/SettingsSubtitleStyle" android:text="Create a local database backup" />
+          </LinearLayout>
+        </LinearLayout>
 
-    <LinearLayout
-    	android:id="@+id/btn_backup_settings"
-    	android:layout_width="match_parent"
-    	android:layout_height="wrap_content"
-    	android:background="?attr/selectableItemBackground"
-    	android:clickable="true"
-    	android:focusable="true"
-    	android:orientation="vertical"
-    	android:padding="16dp">
+        <LinearLayout
+            android:id="@+id/btn_restore_settings"
+            style="@style/SettingsRowStyle">
+          <LinearLayout style="@style/SettingsTextStyle">
+            <TextView style="@style/SettingsTitleStyle" android:text="Restore" />
+            <TextView style="@style/SettingsSubtitleStyle" android:text="Restore data from a backup file" />
+          </LinearLayout>
+        </LinearLayout>
 
-    	<TextView
-        	android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:text="Backup Data"
-        	android:textSize="16sp"
-        	android:textStyle="bold" />
+        <LinearLayout
+            android:id="@+id/btn_about_header"
+            style="@style/SettingsRowStyle">
+          <LinearLayout style="@style/SettingsTextStyle">
+            <TextView style="@style/SettingsTitleStyle" android:text="About the app" />
+            <TextView style="@style/SettingsSubtitleStyle" android:text="Links and app details" />
+          </LinearLayout>
+        </LinearLayout>
 
-    	<TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="Create a local backup of your database"
-	        android:textSize="14sp"
-	        android:alpha="0.7" />
-	</LinearLayout>
+        <LinearLayout
+            android:id="@+id/about_options_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="#10ffffff"
+            android:paddingStart="16dp">
 
-	<LinearLayout
-    	android:id="@+id/btn_restore_settings"
-    	android:layout_width="match_parent"
-    	android:layout_height="wrap_content"
-    	android:background="?attr/selectableItemBackground"
-    	android:clickable="true"
-    	android:focusable="true"
-    	android:orientation="vertical"
-    	android:padding="16dp">
+            <TextView
+                android:id="@+id/btn_changelog"
+                style="@style/SettingsRowStyle"
+                android:text="Release and changelog"
+                android:textSize="14sp" />
+                
+            <TextView
+                android:id="@+id/btn_view_source"
+                style="@style/SettingsRowStyle"
+                android:text="View source code"
+                android:textSize="14sp" />
 
-	    <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="Restore Data"
-	        android:textSize="16sp"
-	        android:textStyle="bold" />
+			<TextView
+				android:id="@+id/btn_share_app"
+				style="@style/SettingsRowStyle"
+				android:text="Share app"
+				android:textSize="14sp" />
 
-	    <TextView
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="Restore database from a backup file"
-	        android:textSize="14sp"
-	        android:alpha="0.7" />
-	</LinearLayout>
+		</LinearLayout>
 
-	<LinearLayout
-		android:id="@+id/btn_about_header" />
-    </LinearLayout>
+		</LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-	<LinearLayout
-        android:id="@+id/about_options_container"
-    	android:layout_width="match_parent"
-    	android:layout_height="wrap_content"
-		android:orientation="vertical"
-		android:visibility="gone"
-		android:background="#12000000"
-    	android:paddingStart="16dp">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
-	    <TextView
-	        android:id="@+id/btn_changelog"
-	        android:text="Release and changelog"
-	        android:textSize="15sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="24dp"
+                android:text="Handcrafted for Performance by Mukesh Singh"
+                android:textSize="12sp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:fontFamily="sans-serif-light"
+                android:alpha="0.7" />
 
-	    <TextView
-	        android:id="@+id/btn_view_source"
-	        android:text="View source code"
-	        android:textSize="15sp" />
-
-	    <TextView
-	        android:id="@+id/btn_share_app"
-	        android:text="Share app"
-	        android:textSize="15sp" />
-	</LinearLayout>
-
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
