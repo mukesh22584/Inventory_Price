@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.*;
 import android.provider.DocumentsContract;
@@ -27,6 +29,9 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.example.gerin.inventory.data.ItemContract.ItemEntry;
+import com.example.gerin.inventory.data.ItemDbHelper;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -67,6 +72,8 @@ public class SettingsActivity extends AppCompatActivity {
         } catch (PackageManager.NameNotFoundException e) {
             appInfoText.setText(getString(R.string.app_name));
         }
+
+        updateItemCount();
 
         SharedPreferences prefs = getSharedPreferences("theme_prefs", MODE_PRIVATE);
 
@@ -114,7 +121,29 @@ public class SettingsActivity extends AppCompatActivity {
             shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this app: " + repoUrl);
             startActivity(Intent.createChooser(shareIntent, "Share via"));
         });
+    }
 
+    private void updateItemCount() {
+        TextView countText = findViewById(R.id.app_total_items_count);
+        TextView sizeText = findViewById(R.id.app_database_size);
+        TextView backupText = findViewById(R.id.app_backup_status);
+
+        ItemDbHelper dbHelper = new ItemDbHelper(this);
+        File dbFile = getDatabasePath("Inventory.db");
+
+        try (SQLiteDatabase db = dbHelper.getReadableDatabase()) {
+            long count = DatabaseUtils.queryNumEntries(db, ItemEntry.TABLE_NAME);
+            countText.setText("Total Products: " + count);
+        } catch (Exception e) { countText.setText("Total Products: 0"); }
+
+        if (dbFile.exists()) {
+            double sizeInKB = dbFile.length() / 1024.0;
+            sizeText.setText(String.format(Locale.getDefault(), "Database Size: %.2f KB", sizeInKB));
+        }
+
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        String lastBackup = prefs.getString("last_backup", "Never");
+        backupText.setText("Last Backup: " + lastBackup);
     }
 
     private void updateTheme(SharedPreferences prefs, int mode) {
@@ -127,7 +156,8 @@ public class SettingsActivity extends AppCompatActivity {
         showLoading("Please wait....");
         handler.postDelayed(() -> {
             File dbFile = getDatabasePath("Inventory.db");
-            String fileName = "inventory_backup_" + new SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(new Date()) + ".db";
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(new Date());
+            String fileName = "inventory_backup_" + timeStamp + ".db";
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 ContentValues values = new ContentValues();
@@ -138,7 +168,12 @@ public class SettingsActivity extends AppCompatActivity {
                 try (InputStream in = new FileInputStream(dbFile); OutputStream out = getContentResolver().openOutputStream(uri)) {
                     byte[] buf = new byte[1024]; int len;
                     while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
+
+                    String displayTime = new SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(new Date());
+                    getSharedPreferences("app_prefs", MODE_PRIVATE).edit().putString("last_backup", displayTime).apply();
+
                     hideLoading();
+                    updateItemCount();
                     Toast.makeText(this, "Backup saved to Downloads/InventoryBackups", Toast.LENGTH_SHORT).show();
                 } catch (IOException e) { hideLoading(); }
             }
@@ -161,6 +196,7 @@ public class SettingsActivity extends AppCompatActivity {
                 byte[] buf = new byte[1024]; int len;
                 while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
                 hideLoading();
+                updateItemCount();
                 Toast.makeText(this, "Restore complete", Toast.LENGTH_SHORT).show();
             } catch (IOException e) { hideLoading(); }
         }, 500);
