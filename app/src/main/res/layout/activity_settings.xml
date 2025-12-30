@@ -36,4 +36,30 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/btn_theme_settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Theme"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose between Light, Dark, or System Default"
+            android:textSize="14sp"
+            android:alpha="0.7" />
+
+    </LinearLayout>
+
 </LinearLayout>

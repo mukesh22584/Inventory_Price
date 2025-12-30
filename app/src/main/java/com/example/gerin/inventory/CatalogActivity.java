@@ -109,45 +109,9 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     }
 
     private void applySavedTheme() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        int savedMode = prefs.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        SharedPreferences prefs = getSharedPreferences("theme_prefs", MODE_PRIVATE);
+        int savedMode = prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         AppCompatDelegate.setDefaultNightMode(savedMode);
-    }
-
-    private void showThemeDialog() {
-        String[] themeOptions = {"Light", "Dark", "System Default"};
-        int[] modeValues = {
-                AppCompatDelegate.MODE_NIGHT_NO, 
-                AppCompatDelegate.MODE_NIGHT_YES, 
-                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        };
-
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        int currentSavedMode = prefs.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-
-        int checkedItem = 2;
-        for (int i = 0; i < modeValues.length; i++) {
-            if (modeValues[i] == currentSavedMode) {
-                checkedItem = i;
-                break;
-            }
-        }
-
-        new AlertDialog.Builder(this, R.style.CustomDialogTheme)
-                .setTitle("Choose Theme")
-                .setSingleChoiceItems(themeOptions, checkedItem, (dialog, which) -> {
-                    int selectedMode = modeValues[which];
-                    
-                    prefs.edit().putInt(KEY_THEME_MODE, selectedMode).apply();
-
-                    AppCompatDelegate.setDefaultNightMode(selectedMode);
-                    
-                    dialog.dismiss();
-                    
-                    recreate();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
     }
 
     private void setupToolbar() {
@@ -252,9 +216,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             return true;
         } else if (id == R.id.action_sort_by) {
             showSortByDialog();
-            return true;
-        } else if (id == R.id.action_theme_switcher) {
-            showThemeDialog();
             return true;
         } else if (id == R.id.action_backup) {
             checkPermissionAndRun(this::backupData);
