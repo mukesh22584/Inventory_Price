@@ -60,9 +60,6 @@ import java.util.Locale;
 public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int ITEM_LOADER = 0;
-    private static final int STORAGE_PERMISSION_CODE = 100;
-    private static final String PREFS_NAME = "theme_prefs";
-    private static final String KEY_THEME_MODE = "theme_mode";
 
     private ItemCursorAdapter mCursorAdapter;
     private MaterialSearchBar materialSearchBar;
@@ -70,24 +67,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     private ItemDbHelper database;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
-    private AlertDialog progressDialog;
-
-    private static final String[] BACKUP_COLUMNS = {
-            ItemEntry.COLUMN_ITEM_NAME, ItemEntry.COLUMN_ITEM_QUANTITY,
-            ItemEntry.COLUMN_ITEM_UNIT, ItemEntry.COLUMN_ITEM_PRICE,
-            ItemEntry.COLUMN_ITEM_CURRENCY, ItemEntry.COLUMN_ITEM_DESCRIPTION,
-            ItemEntry.COLUMN_ITEM_TAG1, ItemEntry.COLUMN_ITEM_TAG2,
-            ItemEntry.COLUMN_ITEM_TAG3, ItemEntry.COLUMN_ITEM_URI,
-            ItemEntry.COLUMN_ITEM_IMAGE
-    };
-
-    private final ActivityResultLauncher<Intent> restoreDataLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    processRestoreUri(result.getData().getData());
-                }
-            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,58 +196,11 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         } else if (id == R.id.action_sort_by) {
             showSortByDialog();
             return true;
-        } else if (id == R.id.action_backup) {
-            checkPermissionAndRun(this::backupData);
-            return true;
-        } else if (id == R.id.action_restore) {
-            checkPermissionAndRun(this::restoreData);
-            return true;
-        } else if (id == R.id.action_about) {
-            showAboutDialog();
-            return true;
         } else if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void showAboutDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
-        
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.about_content, null);
-        builder.setView(dialogView);
-
-        TextView versionText = dialogView.findViewById(R.id.app_version);
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            versionText.setText("Version " + pInfo.versionName);
-        } catch (PackageManager.NameNotFoundException e) {
-            versionText.setText("Version 1.0");
-        }
-
-        final String repoUrl = "https://github.com/mukesh22584/Inventory_Price";
-
-        dialogView.findViewById(R.id.btn_view_source).setOnClickListener(v -> 
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(repoUrl))));
-
-        dialogView.findViewById(R.id.btn_view_changelog).setOnClickListener(v -> 
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(repoUrl + "/releases"))));
-
-        dialogView.findViewById(R.id.btn_share_app).setOnClickListener(v -> {
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Check out Inventory Price App");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey! Check out this open-source Inventory price management app: " + repoUrl);
-            startActivity(Intent.createChooser(shareIntent, "Share via"));
-        });
-
-        builder.setPositiveButton("Close", null);
-        
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
     }
 
     @NonNull
@@ -315,166 +247,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         if (mCursorAdapter != null) mCursorAdapter.swapCursor(null); 
     }
 
-    private void showLoading(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_progress, null);
-        TextView messageText = dialogView.findViewById(R.id.progress_message);
-        messageText.setText(message);
-        builder.setView(dialogView);
-        builder.setCancelable(false);
-        progressDialog = builder.create();
-
-        if (progressDialog.getWindow() != null) {
-            progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        }
-
-        progressDialog.show();
-    }
-
-    private void hideLoading() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
-    }
-
-    private void backupData() {
-        showLoading("Please wait....");
-        handler.postDelayed(() -> {
-        File dbFile = getDatabasePath("Inventory.db");
-        String timeStr = new SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(new Date());
-        String fileName = "inventory_backup_" + timeStr + ".db";
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-            values.put(MediaStore.MediaColumns.MIME_TYPE, "application/x-sqlite3");
-            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/InventoryBackups");
-
-            Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-            if (uri != null) {
-                try (InputStream in = new FileInputStream(dbFile);
-                     OutputStream out = getContentResolver().openOutputStream(uri)) {
-                    byte[] buf = new byte[1024];
-                    int len;
-                    while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
-					hideLoading();
-                    showToast("Database backed up to Downloads/InventoryBackups");
-                } catch (IOException e) {
-					hideLoading();
-                    showToast("Backup failed: " + e.getMessage());
-                    }
-                } else {
-                    hideLoading();
-                }
-            } else {
-                hideLoading();
-            }
-        }, 500);
-    }
-
-    private void saveBackupFile(String data) {
-        String timeStr = new SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(new Date());
-        String fileName = "inventory_" + timeStr + ".json";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-            values.put(MediaStore.MediaColumns.MIME_TYPE, "application/json");
-            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/" + getString(R.string.app_name));
-            Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-            if (uri != null) {
-                try (OutputStream out = getContentResolver().openOutputStream(uri)) {
-                    if (out != null) {
-                        out.write(data.getBytes());
-                        showToast("Saved to Download/" + getString(R.string.app_name));
-                    }
-                } catch (IOException e) {
-                    showToast("Save failed");
-                }
-            }
-        } else {
-            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), getString(R.string.app_name));
-            if (!dir.exists()) dir.mkdirs();
-            File file = new File(dir, fileName);
-            try (FileWriter fw = new FileWriter(file)) {
-                fw.write(data);
-                showToast("Backup successful");
-            } catch (IOException e) {
-                showToast("Save failed");
-            }
-        }
-    }
-
-    private void restoreData() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String folderPath = "primary:Download%2FInventoryBackups";
-            Uri initialUri = Uri.parse("content://com.android.externalstorage.documents/document/" + folderPath);
-            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialUri);
-        }
-
-        restoreDataLauncher.launch(intent);
-    }
-
-    private void processRestoreUri(Uri uri) {
-        showLoading("Please wait....");
-        handler.postDelayed(() -> {
-        File dbFile = getDatabasePath("Inventory.db");
-        try (InputStream in = getContentResolver().openInputStream(uri);
-             OutputStream out = new FileOutputStream(dbFile)) {
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
-            
-			hideLoading();
-            showToast("Restore complete. Refreshing list...");
-            LoaderManager.getInstance(this).restartLoader(ITEM_LOADER, null, this);
-        } catch (IOException e) {
-			hideLoading();
-            showToast("Restore failed: " + e.getMessage());
-        }
-	  }, 500);
-    }
-
-    private void restoreFromJson(String json) throws JSONException {
-        JSONArray array = new JSONArray(json);
-        for (int i = 0; i < array.length(); i++) {
-            JSONObject obj = array.getJSONObject(i);
-            ContentValues values = new ContentValues();
-            
-            for (String col : BACKUP_COLUMNS) {
-                if (obj.has(col)) {
-                    values.put(col, obj.getString(col));
-                }
-            }
-
-            if (obj.has(ItemEntry.COLUMN_ITEM_IMAGE)) {
-                String encodedImage = obj.getString(ItemEntry.COLUMN_ITEM_IMAGE);
-                if (!TextUtils.isEmpty(encodedImage)) {
-                    values.put(ItemEntry.COLUMN_ITEM_IMAGE, Base64.decode(encodedImage, Base64.DEFAULT));
-                }
-            }
-
-            String name = obj.getString(ItemEntry.COLUMN_ITEM_NAME);
-            String selection = ItemEntry.COLUMN_ITEM_NAME + "=?";
-            String[] args = new String[]{name};
-
-            try (Cursor c = getContentResolver().query(ItemEntry.CONTENT_URI, new String[]{ItemEntry._ID}, 
-                    selection, args, null)) {
-                if (c != null && c.moveToFirst()) {
-                    Uri itemUri = ContentUris.withAppendedId(ItemEntry.CONTENT_URI, c.getLong(0));
-                    getContentResolver().update(itemUri, values, null, null);
-                } else {
-                    getContentResolver().insert(ItemEntry.CONTENT_URI, values);
-                }
-            }
-        }
-        LoaderManager.getInstance(this).restartLoader(ITEM_LOADER, null, this);
-        showToast("Restore Complete");
-    }
-
     private void showSortByDialog() {
         String[] options = {"Default", "Name (A-Z)", "Price (Low-High)"};
         String[] orders = {null, ItemEntry.COLUMN_ITEM_NAME + " ASC", ItemEntry.COLUMN_ITEM_PRICE + " ASC"};
@@ -498,15 +270,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
-    }
-
-    private void checkPermissionAndRun(Runnable action) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && 
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
-        } else {
-            action.run();
-        }
     }
 
     private void showToast(String msg) {
