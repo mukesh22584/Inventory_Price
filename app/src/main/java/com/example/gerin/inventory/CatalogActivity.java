@@ -1,38 +1,23 @@
 package com.example.gerin.inventory;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.*;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.text.TextUtils;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowCompat;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
@@ -46,16 +31,7 @@ import com.example.gerin.inventory.data.ItemDbHelper;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 import com.mancj.materialsearchbar.adapter.SuggestionsAdapter;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -204,10 +180,15 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public Loader<Cursor> onCreateLoader(int i, @Nullable Bundle bundle) {
         String[] projection = {
-                ItemEntry._ID, ItemEntry.COLUMN_ITEM_NAME, ItemEntry.COLUMN_ITEM_QUANTITY,
-                ItemEntry.COLUMN_ITEM_PRICE, ItemEntry.COLUMN_ITEM_UNIT,
-                ItemEntry.COLUMN_ITEM_CURRENCY, ItemEntry.COLUMN_ITEM_IMAGE,
-	            ItemEntry.COLUMN_ITEM_DESCRIPTION, ItemEntry.COLUMN_ITEM_URI
+                ItemEntry._ID, 
+                ItemEntry.COLUMN_ITEM_NAME, 
+                ItemEntry.COLUMN_ITEM_QUANTITY,
+                ItemEntry.COLUMN_ITEM_PRICE, 
+                ItemEntry.COLUMN_ITEM_UNIT,
+                ItemEntry.COLUMN_ITEM_CURRENCY, 
+                ItemEntry.COLUMN_ITEM_IMAGE,
+                ItemEntry.COLUMN_ITEM_DESCRIPTION, 
+                ItemEntry.COLUMN_ITEM_URI
         };
 
         String selection = null;

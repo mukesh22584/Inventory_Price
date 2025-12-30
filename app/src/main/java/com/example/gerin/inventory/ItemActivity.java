@@ -19,7 +19,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,7 +28,6 @@ import android.widget.Toast;
 
 import com.example.gerin.inventory.data.ItemContract;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,7 +38,6 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private Uri mCurrentItemUri;
     private static final int EXISTING_ITEM_LOADER = 0;
-    private Toolbar toolbar;
 
     TextView itemNameView;
     TextView quantityView;
@@ -80,7 +77,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null) {

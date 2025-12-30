@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
-import android.widget.ImageView;
 
 import com.example.gerin.inventory.R;
 import com.example.gerin.inventory.data.ItemContract.ItemEntry;
@@ -41,6 +40,7 @@ public class ItemCursorAdapter extends CursorAdapter {
             priceIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_PRICE);
             currIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_CURRENCY);
             descIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_DESCRIPTION);
+            uriIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_URI);
         }
     }
 
@@ -69,7 +69,7 @@ public class ItemCursorAdapter extends CursorAdapter {
         holder.nameView.setText(name);
         
         if (holder.summaryView != null) {
-            if (description != null && !description.isEmpty()) {
+            if (!TextUtils.isEmpty(description)) {
                 holder.summaryView.setText(description);
                 holder.summaryView.setVisibility(View.VISIBLE);
             } else {
@@ -78,11 +78,11 @@ public class ItemCursorAdapter extends CursorAdapter {
         }
         
         holder.quantityView.setText(String.format(Locale.getDefault(), "%d %s", quantity, unit).trim());
+        
       if (TextUtils.isEmpty(price)) {
           holder.priceView.setText("N/A");              
 		} else {
         holder.priceView.setText(String.format(Locale.getDefault(), "%s %s", currency, price).trim());
-
 		}
     }
 }
