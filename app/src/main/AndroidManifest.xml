@@ -62,6 +62,12 @@
             android:authorities="com.example.gerin.inventory"
             android:exported="false" />
 
+        <activity 
+            android:name=".SettingsActivity"
+            android:theme="@style/AppTheme"
+            android:label="Settings"
+            android:parentActivityName=".CatalogActivity" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.gerin.inventory.fileprovider"
