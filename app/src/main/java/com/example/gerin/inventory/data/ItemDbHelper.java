@@ -50,7 +50,16 @@ public class ItemDbHelper extends SQLiteOpenHelper{
                 db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_IMAGE + " BLOB;");
                 db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_URI + " TEXT;");
             } catch (Exception e) {
-                Log.e("ItemDbHelper", "Update error: " + e.getMessage());
+                Log.e("ItemDbHelper", "V5 Upgrade error: " + e.getMessage());
+            }
+        }
+
+        if (oldVersion < 9) {
+            try {
+                db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_SIZE + " TEXT;");
+                db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_SIZE_UNIT + " TEXT;");
+            } catch (Exception e) {
+                Log.e("ItemDbHelper", "V9 Upgrade error: " + e.getMessage());
             }
         }
     }
