@@ -58,6 +58,15 @@ public class SettingsActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        TextView appInfoText = findViewById(R.id.settings_app_info);
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            String version = pInfo.versionName;
+            appInfoText.setText(getString(R.string.app_name) + " - " + version);
+        } catch (PackageManager.NameNotFoundException e) {
+            appInfoText.setText(getString(R.string.app_name));
+        }
+
         findViewById(R.id.btn_theme_settings).setOnClickListener(v -> showThemeDialog());
         findViewById(R.id.btn_backup_settings).setOnClickListener(v -> checkPermissionAndRun(this::backupData));
         findViewById(R.id.btn_restore_settings).setOnClickListener(v -> checkPermissionAndRun(this::restoreData));
