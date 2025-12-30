@@ -196,13 +196,22 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mPriceTextInputLayout.setSuffixText(mCurrency);
 
         String imageUriString = data.getString(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_URI));
+        boolean imageSet = false;
+
         if (imageUriString != null && !imageUriString.equals("null")) {
-            mItemImageView.setImageURI(Uri.parse(imageUriString));
-        } else {
-        byte[] photo = data.getBlob(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE));
-        if (photo != null && photo.length > 0) {
-            Bitmap bitmap = BitmapFactory.decodeByteArray(photo, 0, photo.length);
-            mItemImageView.setImageBitmap(bitmap);
+            Uri imageUri = Uri.parse(imageUriString);
+            File imgFile = new File(imageUri.getPath());
+            if (imgFile.exists()) {
+                mItemImageView.setImageURI(imageUri);
+                imageSet = true;
+            }
+        }
+
+        if (!imageSet) {
+            byte[] photo = data.getBlob(data.getColumnIndexOrThrow(ItemContract.ItemEntry.COLUMN_ITEM_IMAGE));
+            if (photo != null && photo.length > 0) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(photo, 0, photo.length);
+                mItemImageView.setImageBitmap(bitmap);
             }
         }
     }

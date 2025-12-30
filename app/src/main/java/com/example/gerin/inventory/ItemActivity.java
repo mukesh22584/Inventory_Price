@@ -190,22 +190,27 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             String tag2 = data.getString(tag2ColumnIndex);
             String tag3 = data.getString(tag3ColumnIndex);
             String imageUriString = data.getString(uriColumnIndex);
+            byte[] photo = data.getBlob(imageColumnIndex);
 
+            boolean imageSet = false;
             if (imageUriString != null && !imageUriString.equals("null")) {
                 try {
                 Uri imageUri = Uri.parse(imageUriString);
+				File imgFile = new File(imageUri.getPath());
+			if (imgFile.exists()) {
                 imageView.setImageURI(imageUri);
                 mItemBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+				imageSet = true;
+                    }
                 } catch (IOException e) { e.printStackTrace(); }
-            } else {
-            byte[] photo = data.getBlob(imageColumnIndex);
+            }
 
-            if (photo != null && photo.length > 0) {
+            if (!imageSet && photo != null && photo.length > 0) {
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inSampleSize = 2;
                 mItemBitmap = BitmapFactory.decodeByteArray(photo, 0, photo.length, options);
                 imageView.setImageBitmap(mItemBitmap);
-                }
+                imageSet = true;
             }
 
             itemNameView.setText(name);

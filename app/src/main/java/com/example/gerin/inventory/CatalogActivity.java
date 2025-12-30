@@ -77,7 +77,8 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             ItemEntry.COLUMN_ITEM_UNIT, ItemEntry.COLUMN_ITEM_PRICE,
             ItemEntry.COLUMN_ITEM_CURRENCY, ItemEntry.COLUMN_ITEM_DESCRIPTION,
             ItemEntry.COLUMN_ITEM_TAG1, ItemEntry.COLUMN_ITEM_TAG2,
-            ItemEntry.COLUMN_ITEM_TAG3, ItemEntry.COLUMN_ITEM_URI
+            ItemEntry.COLUMN_ITEM_TAG3, ItemEntry.COLUMN_ITEM_URI,
+            ItemEntry.COLUMN_ITEM_IMAGE
     };
 
     private final ActivityResultLauncher<Intent> restoreDataLauncher = registerForActivityResult(
