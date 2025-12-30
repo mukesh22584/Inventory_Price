@@ -68,7 +68,26 @@ public class SettingsActivity extends AppCompatActivity {
             appInfoText.setText(getString(R.string.app_name));
         }
 
-        findViewById(R.id.btn_theme_settings).setOnClickListener(v -> showThemeDialog());
+        SharedPreferences prefs = getSharedPreferences("theme_prefs", MODE_PRIVATE);
+
+        LinearLayout themeContainer = findViewById(R.id.theme_options_container);
+        findViewById(R.id.btn_theme_header).setOnClickListener(v -> {
+            if (themeContainer.getVisibility() == View.VISIBLE) {
+                themeContainer.setVisibility(View.GONE);
+            } else {
+                themeContainer.setVisibility(View.VISIBLE);
+            }
+        });
+
+        findViewById(R.id.btn_theme_light).setOnClickListener(v -> 
+                updateTheme(prefs, AppCompatDelegate.MODE_NIGHT_NO));
+
+        findViewById(R.id.btn_theme_dark).setOnClickListener(v -> 
+                updateTheme(prefs, AppCompatDelegate.MODE_NIGHT_YES));
+
+        findViewById(R.id.btn_theme_system).setOnClickListener(v -> 
+                updateTheme(prefs, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM));
+
         findViewById(R.id.btn_backup_settings).setOnClickListener(v -> checkPermissionAndRun(this::backupData));
         findViewById(R.id.btn_restore_settings).setOnClickListener(v -> checkPermissionAndRun(this::restoreData));
 
@@ -98,33 +117,10 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
-    private void showThemeDialog() {
-        String[] themeOptions = {"Light", "Dark", "System Default"};
-        int[] modeValues = {
-                AppCompatDelegate.MODE_NIGHT_NO,
-                AppCompatDelegate.MODE_NIGHT_YES,
-                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        };
-
-        SharedPreferences prefs = getSharedPreferences("theme_prefs", MODE_PRIVATE);
-        int currentSavedMode = prefs.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-
-        int checkedItem = 2;
-        for (int i = 0; i < modeValues.length; i++) {
-            if (modeValues[i] == currentSavedMode) {
-                checkedItem = i;
-                break;
-            }
-        }
-
-        new AlertDialog.Builder(this, R.style.CustomDialogTheme)
-                .setTitle("Choose Theme")
-                .setSingleChoiceItems(themeOptions, checkedItem, (dialog, which) -> {
-                    prefs.edit().putInt("theme_mode", modeValues[which]).apply();
-                    AppCompatDelegate.setDefaultNightMode(modeValues[which]);
-                    dialog.dismiss();
-                    recreate();
-                }).show();
+    private void updateTheme(SharedPreferences prefs, int mode) {
+        prefs.edit().putInt("theme_mode", mode).apply();
+        AppCompatDelegate.setDefaultNightMode(mode);
+        recreate();
     }
 
     private void backupData() {
