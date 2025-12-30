@@ -359,6 +359,11 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         builder.setView(dialogView);
         builder.setCancelable(false);
         progressDialog = builder.create();
+
+        if (progressDialog.getWindow() != null) {
+            progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
         progressDialog.show();
     }
 
@@ -369,7 +374,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     }
 
     private void backupData() {
-        showLoading("Creating Backup...");
+        showLoading("Please wait....");
         handler.postDelayed(() -> {
         File dbFile = getDatabasePath("Inventory.db");
         String timeStr = new SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(new Date());
@@ -450,7 +455,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     }
 
     private void processRestoreUri(Uri uri) {
-        showLoading("Restoring Database...");
+        showLoading("Please wait....");
         handler.postDelayed(() -> {
         File dbFile = getDatabasePath("Inventory.db");
         try (InputStream in = getContentResolver().openInputStream(uri);
