@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/dodger_blue"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:titleTextColor="@android:color/white" />
 
     <ScrollView
