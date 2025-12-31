@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -212,19 +213,83 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void processRestoreUri(Uri uri) {
-        showLoading("Please wait....");
+        showLoading("Merging backup data...");
         handler.postDelayed(() -> {
-            try (InputStream in = getContentResolver().openInputStream(uri); OutputStream out = new FileOutputStream(getDatabasePath("Inventory.db"))) {
-                byte[] buf = new byte[1024]; int len;
+            File tempDbFile = new File(getCacheDir(), "temp_backup.db");
+            try (InputStream in = getContentResolver().openInputStream(uri);
+                 OutputStream out = new FileOutputStream(tempDbFile)) {
+
+                byte[] buf = new byte[1024];
+                int len;
                 while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
-                
+
+                SQLiteDatabase backupDb = SQLiteDatabase.openDatabase(tempDbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
+                Cursor cursor = backupDb.query(ItemEntry.TABLE_NAME, null, null, null, null, null, null);
+
+                int mergedCount = 0;
+                if (cursor != null) {
+                    while (cursor.moveToNext()) {
+                        ContentValues values = new ContentValues();
+                        DatabaseUtils.cursorRowToContentValues(cursor, values);
+                        values.remove(ItemEntry._ID);
+
+                        String name = values.getAsString(ItemEntry.COLUMN_ITEM_NAME);
+
+                        Cursor existing = getContentResolver().query(ItemEntry.CONTENT_URI, null,
+                                ItemEntry.COLUMN_ITEM_NAME + "=?", new String[]{name}, null);
+
+                        if (existing != null && existing.moveToFirst()) {
+                            if (isDataIdentical(existing, values)) {
+                                getContentResolver().update(ItemEntry.CONTENT_URI, values,
+                                        ItemEntry.COLUMN_ITEM_NAME + "=?", new String[]{name});
+                            } else {
+                                values.put(ItemEntry.COLUMN_ITEM_NAME, name + " (Backup)");
+                                getContentResolver().insert(ItemEntry.CONTENT_URI, values);
+                            }
+                            existing.close();
+                        } else {
+                            getContentResolver().insert(ItemEntry.CONTENT_URI, values);
+                        }
+                        mergedCount++;
+                    }
+                    cursor.close();
+                }
+                backupDb.close();
+                tempDbFile.delete();
+
                 getContentResolver().notifyChange(ItemEntry.CONTENT_URI, null);
-                
                 hideLoading();
                 updateItemCount();
-                Toast.makeText(this, "Restore complete", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) { hideLoading(); }
+                Toast.makeText(this, "Merged " + mergedCount + " items successfully", Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                hideLoading();
+                Toast.makeText(this, "Restore failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         }, 500);
+    }
+
+    private boolean isDataIdentical(Cursor existing, ContentValues backup) {
+        String[] columns = {
+                ItemEntry.COLUMN_ITEM_QUANTITY, ItemEntry.COLUMN_ITEM_UNIT,
+                ItemEntry.COLUMN_ITEM_PRICE, ItemEntry.COLUMN_ITEM_CURRENCY,
+                ItemEntry.COLUMN_ITEM_DESCRIPTION, ItemEntry.COLUMN_ITEM_TAG1,
+                ItemEntry.COLUMN_ITEM_TAG2, ItemEntry.COLUMN_ITEM_TAG3,
+                ItemEntry.COLUMN_ITEM_URI
+        };
+
+        for (String col : columns) {
+            int idx = existing.getColumnIndex(col);
+            if (idx != -1) {
+                String existingVal = existing.getString(idx);
+                String backupVal = backup.getAsString(col);
+
+                existingVal = (existingVal == null) ? "" : existingVal;
+                backupVal = (backupVal == null) ? "" : backupVal;
+
+                if (!existingVal.equals(backupVal)) return false;
+            }
+        }
+        return true;
     }
 
     private void showLoading(String message) {
