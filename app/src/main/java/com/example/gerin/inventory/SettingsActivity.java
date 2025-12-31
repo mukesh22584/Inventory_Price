@@ -226,7 +226,10 @@ public class SettingsActivity extends AppCompatActivity {
                 SQLiteDatabase backupDb = SQLiteDatabase.openDatabase(tempDbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
                 Cursor cursor = backupDb.query(ItemEntry.TABLE_NAME, null, null, null, null, null, null);
 
-                int mergedCount = 0;
+                int updatedCount = 0;
+                int conflictCount = 0;
+                int newCount = 0;
+
                 if (cursor != null) {
                     while (cursor.moveToNext()) {
                         ContentValues values = new ContentValues();
@@ -242,15 +245,17 @@ public class SettingsActivity extends AppCompatActivity {
                             if (isDataIdentical(existing, values)) {
                                 getContentResolver().update(ItemEntry.CONTENT_URI, values,
                                         ItemEntry.COLUMN_ITEM_NAME + "=?", new String[]{name});
+                                updatedCount++;
                             } else {
                                 values.put(ItemEntry.COLUMN_ITEM_NAME, name + " (Backup)");
                                 getContentResolver().insert(ItemEntry.CONTENT_URI, values);
+                                conflictCount++;
                             }
                             existing.close();
                         } else {
                             getContentResolver().insert(ItemEntry.CONTENT_URI, values);
+                            newCount++;
                         }
-                        mergedCount++;
                     }
                     cursor.close();
                 }
@@ -260,10 +265,15 @@ public class SettingsActivity extends AppCompatActivity {
                 getContentResolver().notifyChange(ItemEntry.CONTENT_URI, null);
                 hideLoading();
                 updateItemCount();
-                Toast.makeText(this, "Merged " + mergedCount + " items successfully", Toast.LENGTH_SHORT).show();
+
+                String resMsg = String.format(Locale.getDefault(),
+                    "Merge Finished: %d New, %d Updated, %d Conflicts renamed",
+                    newCount, updatedCount, conflictCount);
+                Toast.makeText(this, resMsg, Toast.LENGTH_LONG).show();
+
             } catch (Exception e) {
                 hideLoading();
-                Toast.makeText(this, "Restore failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Merge failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }, 500);
     }
