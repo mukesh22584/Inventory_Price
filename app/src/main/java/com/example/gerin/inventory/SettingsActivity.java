@@ -10,8 +10,10 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.*;
+import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.transition.AutoTransition;
@@ -34,6 +36,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.gerin.inventory.data.ItemContract.ItemEntry;
 import com.example.gerin.inventory.data.ItemDbHelper;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -80,6 +83,22 @@ public class SettingsActivity extends AppCompatActivity {
         findViewById(R.id.btn_reset_data).setOnClickListener(v -> confirmReset());
 
         SharedPreferences prefs = getSharedPreferences("theme_prefs", MODE_PRIVATE);
+        SharedPreferences globalPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        SwitchMaterial sizeSwitch = findViewById(R.id.switch_size_visibility);
+        if (sizeSwitch != null) {
+            boolean isCurrentlyChecked = globalPrefs.getBoolean("show_size_field", true);
+            sizeSwitch.setChecked(isCurrentlyChecked);
+            updateSwitchColor(sizeSwitch, isCurrentlyChecked);
+
+            sizeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                globalPrefs.edit().putBoolean("show_size_field", isChecked).apply();
+                updateSwitchColor(sizeSwitch, isChecked);
+
+                String status = isChecked ? "enabled" : "disabled";
+                Toast.makeText(this, "Size field " + status, Toast.LENGTH_SHORT).show();
+            });
+        }
 
         LinearLayout themeContainer = findViewById(R.id.theme_options_container);
         findViewById(R.id.btn_theme_header).setOnClickListener(v -> {
@@ -127,6 +146,16 @@ public class SettingsActivity extends AppCompatActivity {
             shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this app: " + repoUrl);
             startActivity(Intent.createChooser(shareIntent, "Share via"));
         });
+    }
+
+    private void updateSwitchColor(SwitchMaterial switchView, boolean isChecked) {
+        if (isChecked) {
+            switchView.setThumbTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.dodger_blue)));
+            switchView.setTrackTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#4D1E90FF")));
+        } else {
+            switchView.setThumbTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#BDBDBD")));
+            switchView.setTrackTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#42000000")));
+        }
     }
 
     private void updateItemCount() {

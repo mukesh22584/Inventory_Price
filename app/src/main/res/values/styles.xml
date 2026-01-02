@@ -114,4 +114,10 @@
         <item name="android:textSize">13sp</item>
         <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
+
+    <style name="CustomSwitchStyle" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="thumbTint">@color/switch_thumb_on</item>
+        <item name="trackTint">@color/switch_track_off</item>
+        <item name="useMaterialThemeColors">false</item>
+    </style>
 </resources>

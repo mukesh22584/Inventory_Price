@@ -176,6 +176,45 @@
 				app:cardBackgroundColor="?attr/colorSurface"
 				app:strokeWidth="0dp">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            style="@style/SettingsTitleStyle"
+                            android:text="Enable Size Field" />
+                        <TextView
+                            style="@style/SettingsSubtitleStyle"
+                            android:text="Show or Hide size details" />
+                    </LinearLayout>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switch_size_visibility"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+						app:thumbTint="@color/dodger_blue"
+						app:trackTint="#BDBDBD" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+				      android:layout_width="match_parent"
+				      android:layout_height="wrap_content"
+				      android:layout_margin="16dp"
+				      app:cardCornerRadius="16dp"
+				      app:cardElevation="2dp"
+				      app:cardBackgroundColor="?attr/colorSurface"
+				      app:strokeWidth="0dp">
+
         <LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

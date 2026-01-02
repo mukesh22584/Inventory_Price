@@ -9,6 +9,8 @@ import android.content.ContentValues;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -102,6 +104,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mPriceTextInputLayout = findViewById(R.id.price_input_layout);
         mQuantityTextInputLayout = findViewById(R.id.quantity_input_layout);
         mSizeTextInputLayout = findViewById(R.id.size_input_layout);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean showSize = sharedPreferences.getBoolean("show_size_field", true);
+        if (mSizeTextInputLayout != null) {
+            mSizeTextInputLayout.setVisibility(showSize ? View.VISIBLE : View.GONE);
+        }
 
         mCurrentItemUri = getIntent().getData();
 

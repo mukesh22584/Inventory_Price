@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.*;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -61,6 +62,21 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 startActivity(new Intent(this, EditorActivity.class)));
 
         LoaderManager.getInstance(this).initLoader(ITEM_LOADER, null, this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        refreshPreferenceDependentUI();
+    }
+
+    private void refreshPreferenceDependentUI() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean showSize = sharedPreferences.getBoolean("show_size_field", true);
+
+        if (mCursorAdapter != null) {
+            mCursorAdapter.notifyDataSetChanged();
+        }
     }
 
     private void applySavedTheme() {

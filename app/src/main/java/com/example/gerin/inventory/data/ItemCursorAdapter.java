@@ -1,7 +1,9 @@
 package com.example.gerin.inventory.data;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,6 +64,9 @@ public class ItemCursorAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder holder = (ViewHolder) view.getTag();
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean showSizePref = sharedPreferences.getBoolean("show_size_field", true);
+
         String name = cursor.getString(holder.nameIdx);
         int quantity = cursor.getInt(holder.qtyIdx);
         String unit = cursor.getString(holder.unitIdx);
@@ -95,7 +100,7 @@ public class ItemCursorAdapter extends CursorAdapter {
 		}
 
         if (holder.sizeLayout != null) {
-            if (!TextUtils.isEmpty(size)) {
+            if (showSizePref && !TextUtils.isEmpty(size)) {
                 holder.sizeLayout.setVisibility(View.VISIBLE);
                 holder.sizeView.setText(String.format(Locale.getDefault(), "%s %s", size, sizeUnit).trim());
             } else {
