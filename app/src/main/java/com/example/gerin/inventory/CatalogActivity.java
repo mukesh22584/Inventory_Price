@@ -244,6 +244,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     }
 
     private void showSortByDialog() {
+        if (isFinishing() || isDestroyed()) return;
         String[] options = {"Default", "Name (A-Z)", "Price (Low-High)"};
         String[] orders = {null, ItemEntry.COLUMN_ITEM_NAME + " ASC", ItemEntry.COLUMN_ITEM_PRICE + " ASC"};
         

@@ -209,7 +209,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
                 mItemBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
 				imageSet = true;
                     }
-                } catch (IOException e) { e.printStackTrace(); }
+                } catch (Exception e) { e.printStackTrace(); }
             }
 
             if (!imageSet && photo != null && photo.length > 0) {
@@ -281,6 +281,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void showDeleteConfirmationDialog() {
+        if (isFinishing() || isDestroyed()) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.delete_dialog_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {

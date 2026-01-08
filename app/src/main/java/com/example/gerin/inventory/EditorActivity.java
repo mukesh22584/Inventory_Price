@@ -348,7 +348,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private int getIntFromEditText(EditText et) {
         String s = et.getText().toString().trim();
+        try {
         return TextUtils.isEmpty(s) ? 0 : Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     @Override
