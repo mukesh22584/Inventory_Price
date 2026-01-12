@@ -1,6 +1,7 @@
 package com.example.gerin.inventory.Search;
 
 import android.content.Context;
+import androidx.core.view.GestureDetectorCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -8,12 +9,12 @@ import android.view.View;
 
 public class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
-    private GestureDetector gestureDetector;
+    private GestureDetectorCompat gestureDetector;
     private ClickListener clickListener;
 
     public RecyclerTouchListener(Context context, final RecyclerView recyclerView, final ClickListener clickListener) {
         this.clickListener = clickListener;
-        gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+        gestureDetector = new GestureDetectorCompat(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapUp(MotionEvent e) {
                 return true;
