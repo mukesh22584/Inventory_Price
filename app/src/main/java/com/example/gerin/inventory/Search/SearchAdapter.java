@@ -12,25 +12,21 @@ import com.example.gerin.inventory.R;
 
 import java.util.List;
 
-
 class SearchViewHolder extends RecyclerView.ViewHolder{
 
     public TextView searchName;
 
     public SearchViewHolder(View itemView) {
         super(itemView);
-
-        searchName = (TextView) itemView.findViewById(R.id.search_text);
+        searchName = itemView.findViewById(R.id.search_text);
     }
 }
 
 public class SearchAdapter extends RecyclerView.Adapter<SearchViewHolder>{
 
-    private Context context;
     private List<SearchResult> searchResults;
 
     public SearchAdapter (Context context, List<SearchResult> searchResults){
-        this.context = context;
         this.searchResults = searchResults;
     }
 
