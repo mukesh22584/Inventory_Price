@@ -10,10 +10,9 @@ import android.content.pm.ResolveInfo;
 import androidx.loader.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.provider.MediaStore;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.gerin.inventory.data.ItemContract;
 
 import java.io.File;
@@ -49,7 +49,6 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
     TextView sizeView;
     View sizeLayout;
     ImageView imageView;
-    private Bitmap mItemBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,13 +91,17 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         LoaderManager.getInstance(this).initLoader(EXISTING_ITEM_LOADER, null, this);
 
         imageView.setOnClickListener(v -> {
-		if (mItemBitmap != null) {
-            Intent intent_im = new Intent();
-            intent_im.setAction(Intent.ACTION_VIEW);
-            Uri imageUri = getImageUri(mItemBitmap);
-            intent_im.setDataAndType(imageUri, "image/*");
-            intent_im.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(intent_im);
+            Drawable drawable = imageView.getDrawable();
+            if (drawable instanceof BitmapDrawable) {
+                Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+                if (bitmap != null) {
+                    Intent intent_im = new Intent();
+                    intent_im.setAction(Intent.ACTION_VIEW);
+                    Uri imageUri = getImageUri(bitmap);
+                    intent_im.setDataAndType(imageUri, "image/*");
+                    intent_im.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent_im);
+                }
             }
         });
     }
@@ -199,25 +202,25 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             String imageUriString = data.getString(uriColumnIndex);
             byte[] photo = data.getBlob(imageColumnIndex);
 
-            boolean imageSet = false;
+            Object imageModel = null;
             if (imageUriString != null && !imageUriString.equals("null")) {
                 try {
-                Uri imageUri = Uri.parse(imageUriString);
-				File imgFile = new File(imageUri.getPath());
-			if (imgFile.exists()) {
-                imageView.setImageURI(imageUri);
-                mItemBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-				imageSet = true;
+                    Uri uri = Uri.parse(imageUriString);
+                    File file = new File(uri.getPath());
+                    if (file.exists()) {
+                        imageModel = uri;
                     }
-                } catch (Exception e) { e.printStackTrace(); }
+                } catch (Exception e) { }
             }
 
-            if (!imageSet && photo != null && photo.length > 0) {
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = 2;
-                mItemBitmap = BitmapFactory.decodeByteArray(photo, 0, photo.length, options);
-                imageView.setImageBitmap(mItemBitmap);
-                imageSet = true;
+            if (imageModel == null && photo != null && photo.length > 0) {
+                imageModel = photo;
+            }
+
+            if (imageModel != null) {
+                Glide.with(this).load(imageModel).into(imageView);
+            } else {
+                Glide.with(this).load(R.drawable.image_prompt).into(imageView);
             }
 
             itemNameView.setText(name);
@@ -276,8 +279,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         tag3View.setText("");
         sizeView.setText("");
 
-        Bitmap tempItemBitmap = ((BitmapDrawable) getResources().getDrawable(R.drawable.image_prompt)).getBitmap();
-        imageView.setImageBitmap(tempItemBitmap);
+        Glide.with(this).load(R.drawable.image_prompt).into(imageView);
     }
 
     private void showDeleteConfirmationDialog() {
@@ -301,9 +303,15 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void shareImage() {
+        Drawable drawable = imageView.getDrawable();
+        Bitmap bitmap = null;
+        if (drawable instanceof BitmapDrawable) {
+            bitmap = ((BitmapDrawable) drawable).getBitmap();
+        }
+
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("image/*");
-        Uri imageUri = getImageUri(mItemBitmap);
+        Uri imageUri = getImageUri(bitmap);
         shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
 
         List<ResolveInfo> resInfoList = getPackageManager().queryIntentActivities(shareIntent, PackageManager.MATCH_DEFAULT_ONLY);
