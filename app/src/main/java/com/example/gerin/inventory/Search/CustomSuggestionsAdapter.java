@@ -1,5 +1,7 @@
 package com.example.gerin.inventory.Search;
 
+import android.content.Context;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +21,12 @@ import java.util.List;
 public class CustomSuggestionsAdapter extends SuggestionsAdapter<SearchResult, CustomSuggestionsAdapter.SuggestionHolder> {
 
     private final ItemDbHelper dbHelper;
+    private final Context context;
 
     public CustomSuggestionsAdapter(LayoutInflater inflater, ItemDbHelper dbHelper) {
         super(inflater);
         this.dbHelper = dbHelper;
+        this.context = inflater.getContext();
     }
 
     @Override
@@ -43,6 +47,7 @@ public class CustomSuggestionsAdapter extends SuggestionsAdapter<SearchResult, C
             }
 
             @Override
+            @SuppressWarnings("unchecked")
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 if (results != null && results.values != null) {
                     setSuggestions((List<SearchResult>) results.values);
@@ -59,7 +64,11 @@ public class CustomSuggestionsAdapter extends SuggestionsAdapter<SearchResult, C
 
     @Override
     public int getSingleViewHeight() {
-        return 50;
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                50,
+                context.getResources().getDisplayMetrics()
+        );
     }
 
     @NonNull
@@ -74,7 +83,7 @@ public class CustomSuggestionsAdapter extends SuggestionsAdapter<SearchResult, C
 
         public SuggestionHolder(View itemView) {
             super(itemView);
-            name = (TextView) itemView.findViewById(R.id.search_text);
+            name = itemView.findViewById(R.id.search_text);
         }
     }
 }
