@@ -26,9 +26,18 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def appName = "InventoryPrice"
+            def version = variant.versionName
+            outputFileName = "${appName}-v${version}.apk"
+        }
+    }
+}
+
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint:deprecation"
-    }
 }
 
 dependencies {
