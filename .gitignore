@@ -12,3 +12,4 @@ build/
 .idea/modules.xml
 .idea/tasks.xml
 .idea/assetWizardSettings.xml
+app/release
