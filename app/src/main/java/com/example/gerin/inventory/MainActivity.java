@@ -21,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
+        new UpdateHelper(this).checkForUpdate();
+
         getWindow().setNavigationBarColor(android.graphics.Color.TRANSPARENT);
 
         ImageView logo = findViewById(R.id.splash_screen_logo);
