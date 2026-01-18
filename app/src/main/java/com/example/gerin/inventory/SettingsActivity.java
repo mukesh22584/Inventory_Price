@@ -42,6 +42,9 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -209,17 +212,22 @@ public class SettingsActivity extends AppCompatActivity {
         handler.postDelayed(() -> {
             File dbFile = getDatabasePath("Inventory.db");
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmm", Locale.getDefault()).format(new Date());
-            String fileName = "inventory_backup_" + timeStamp + ".db";
+            String fileName = "inventory_backup_" + timeStamp + ".zip";
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-                values.put(MediaStore.MediaColumns.MIME_TYPE, "application/x-sqlite3");
+                values.put(MediaStore.MediaColumns.MIME_TYPE, "application/zip");
                 values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/InventoryBackups");
                 Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
-                try (InputStream in = new FileInputStream(dbFile); OutputStream out = getContentResolver().openOutputStream(uri)) {
+                try (InputStream in = new FileInputStream(dbFile);
+                     OutputStream out = getContentResolver().openOutputStream(uri);
+                     ZipOutputStream zos = new ZipOutputStream(out)) {
+                    
+                    zos.putNextEntry(new ZipEntry("Inventory.db"));
                     byte[] buf = new byte[1024]; int len;
-                    while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
+                    while ((len = in.read(buf)) > 0) zos.write(buf, 0, len);
+                    zos.closeEntry();
 
                     String displayTime = new SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault()).format(new Date());
                     getSharedPreferences("app_prefs", MODE_PRIVATE).edit().putString("last_backup", displayTime).apply();
@@ -246,11 +254,18 @@ public class SettingsActivity extends AppCompatActivity {
         handler.postDelayed(() -> {
             File tempDbFile = new File(getCacheDir(), "temp_backup.db");
             try (InputStream in = getContentResolver().openInputStream(uri);
+                 ZipInputStream zis = new ZipInputStream(in);
                  OutputStream out = new FileOutputStream(tempDbFile)) {
 
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = in.read(buf)) > 0) out.write(buf, 0, len);
+                ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    if (entry.getName().equals("Inventory.db")) {
+                        byte[] buf = new byte[1024];
+                        int len;
+                        while ((len = zis.read(buf)) > 0) out.write(buf, 0, len);
+                        break;
+                    }
+                }
 
                 SQLiteDatabase backupDb = SQLiteDatabase.openDatabase(tempDbFile.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
                 Cursor cursor = backupDb.query(ItemEntry.TABLE_NAME, null, null, null, null, null, null);
