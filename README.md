@@ -1,27 +1,29 @@
-# 📦 Inventory Price
+<div align="center">
+  <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" width="160" height="160" alt="Inventory Price Logo"/>
+  <h1>Inventory Price</h1>
+  <p>
+    <strong>Know your Cost, Secure your Profit</strong>
+  </p>
+  <p>
+    <strong>Inventory Price</strong> is a lightweight, intuitive mobile application designed specifically for small shopkeepers. In the fast-paced environment of retail, searching through physical ledgers to find the purchase price of an item can lead to delays and lost profits. This app eliminates that hassle by providing instant access to product data so you can sell with confidence.
+  </p>
+</div>
 
-**Inventory Price** is a lightweight, intuitive mobile application designed specifically for small shopkeepers. In the fast-paced environment of retail, searching through physical ledgers to find the purchase price of an item can lead to delays and lost profits. This app eliminates that hassle by providing instant access to product data so you can sell with confidence.
+---
 
-# 🖼️ Screenshots
-
-<details>
-<summary><b>Click to view Screenshots:</b></summary>
-<br>
+## 🖼️ Screenshots
 
 <div align="center">
-  <img src="onboarding_images/ss01.webp" width="250" height="540" />
-  <img src="onboarding_images/ss02.webp" width="250" height="540" />
-  <br>
-  <img src="onboarding_images/ss03.webp" width="250" height="540" />
-  <img src="onboarding_images/ss04.webp" width="250" height="540" />
-  <br>
-  <img src="onboarding_images/ss05.webp" width="250" height="540" />
-  <img src="onboarding_images/ss06.webp" width="250" height="540" />
-  <br>
-  <img src="onboarding_images/ss07.webp" width="250" height="540" />
-  <img src="onboarding_images/ss08.webp" width="250" height="540" />
+  <img src="onboarding_images/Home.webp" width="22%" alt="Home Screen"/>
+  <img src="onboarding_images/Editor.webp" width="22%" alt="Editor Screen"/>
+  <img src="onboarding_images/Desc.webp" width="22%" alt="Description Screen"/>
+  <img src="onboarding_images/Desc2.webp" width="22%" alt="Description Screen"/>
+  <br/>
+  <img src="onboarding_images/Flow.webp" width="22%" alt="OverFlow Menu"/>
+  <img src="onboarding_images/Sort.webp" width="22%" alt="Sort Screen"/>
+  <img src="onboarding_images/Settings.webp" width="22%" alt="Settings Screen"/>
+  <img src="onboarding_images/Theme.webp" width="22%" alt="Theming"/>
 </div>
-</details>
 
 ---
 
@@ -57,7 +59,9 @@ Never worry about losing your data.
 * **Backup:** With one tap, export your entire product list to `Download > App_Folder`.
 * **Restore:** Easily move your data if you change phones or reinstall the app. No manual re-entry required!
 
-### 🛠 Installation
+---
+
+## 🛠 Installation
 Check the latest release to download the APK file:
 👉 [Download Inventory Price APK](https://github.com/mukesh22584/Inventory_Price/releases)
 
