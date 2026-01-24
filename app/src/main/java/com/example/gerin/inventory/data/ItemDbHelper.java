@@ -15,7 +15,7 @@ import java.util.List;
 public class ItemDbHelper extends SQLiteOpenHelper{
 
     private static final String DATABASE_NAME = "Inventory.db";
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
 
     public ItemDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -62,6 +62,16 @@ public class ItemDbHelper extends SQLiteOpenHelper{
                 db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_SIZE_UNIT + " TEXT;");
             } catch (Exception e) {
                 Log.e("ItemDbHelper", "V9 Upgrade error: " + e.getMessage());
+            }
+        }
+
+        if (oldVersion < 10) {
+            try {
+                db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_TAG1 + " TEXT;");
+                db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_TAG2 + " TEXT;");
+                db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_TAG3 + " TEXT;");
+            } catch (Exception e) {
+                Log.e("ItemDbHelper", "V10 Upgrade error: " + e.getMessage());
             }
         }
     }
