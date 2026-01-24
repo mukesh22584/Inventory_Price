@@ -87,6 +87,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
