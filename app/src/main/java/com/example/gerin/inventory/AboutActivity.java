@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -29,7 +30,12 @@ public class AboutActivity extends AppCompatActivity {
         Button btnShare = findViewById(R.id.btn_share_app);
 
         try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            PackageInfo pInfo;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                pInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.PackageInfoFlags.of(0));
+            } else {
+                pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            }
             appVersion.setText("Version " + pInfo.versionName);
         } catch (PackageManager.NameNotFoundException e) {
             appVersion.setText("Version 1.0"); 

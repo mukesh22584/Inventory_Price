@@ -10,7 +10,7 @@ import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -54,6 +54,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import android.view.Window;
 import android.view.WindowManager;
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -72,12 +75,37 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private String mCurrency = "₹";
     private String mSizeUnit = "";
 
-    private static final int GALLERY_REQUEST = 1;
-    private static final int CAMERA_REQUEST = 2;
     private static final int CAMERA_PERMISSION_REQUEST = 3;
 
     private static final int MAX_IMAGE_DIMENSION = 2048;
     private Uri selectedImage = null;
+
+    private final ActivityResultLauncher<Intent> mCameraLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    mItemHasChanged = true;
+                    mImageChanged = true;
+                    if (selectedImage != null) {
+                        Glide.with(this).load(selectedImage).into(mItemImageView);
+                    }
+                }
+            }
+    );
+
+    private final ActivityResultLauncher<Intent> mGalleryLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    mItemHasChanged = true;
+                    mImageChanged = true;
+                    selectedImage = result.getData().getData();
+                    if (selectedImage != null) {
+                        Glide.with(this).load(selectedImage).into(mItemImageView);
+                    }
+                }
+            }
+    );
 
     @SuppressLint("ClickableViewAccessibility")
     private final View.OnTouchListener mTouchListener = (view, motionEvent) -> {
@@ -142,7 +170,18 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(getResources().getColor(R.color.dodger_blue));
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.dodger_blue));
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (!mItemHasChanged) {
+                    finish();
+                } else {
+                    showUnsavedChangesDialog();
+                }
+            }
+        });
     }
 
     private void setupListeners() {
@@ -381,22 +420,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            mItemHasChanged = true;
-            mImageChanged = true;
-            if (requestCode == GALLERY_REQUEST && data != null) {
-                selectedImage = data.getData();
-            }
-            
-            if (selectedImage != null) {
-                Glide.with(this).load(selectedImage).into(mItemImageView);
-            }
-        }
-    }
-
     private void launchCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         try {
@@ -407,7 +430,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             
             selectedImage = FileProvider.getUriForFile(this, "com.example.gerin.inventory.fileprovider", photoFile);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, selectedImage);
-            startActivityForResult(intent, CAMERA_REQUEST);
+            mCameraLauncher.launch(intent);
         } catch (IOException e) {
             Toast.makeText(this, "Camera Error", Toast.LENGTH_SHORT).show();
         }
@@ -452,16 +475,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (!mItemHasChanged) {
-            super.onBackPressed();
-            return;
-        }
-
-        showUnsavedChangesDialog();
-    }
-
     private void showUnsavedChangesDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
         builder.setMessage(R.string.return_dialog_msg);
@@ -481,7 +494,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             if (i == 0) dispatchTakePictureIntent();
             else if (i == 1) {
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, GALLERY_REQUEST);
+                mGalleryLauncher.launch(intent);
             }
         }).show();
     }
