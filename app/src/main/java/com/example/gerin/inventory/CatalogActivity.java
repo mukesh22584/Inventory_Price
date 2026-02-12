@@ -44,6 +44,7 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     private ItemDbHelper database;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
+    private int currentSortIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +62,16 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         findViewById(R.id.catalog_fab).setOnClickListener(v -> 
                 startActivity(new Intent(this, EditorActivity.class)));
 
-        LoaderManager.getInstance(this).initLoader(ITEM_LOADER, null, this);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        currentSortIndex = prefs.getInt("sort_index", 0);
+        String savedSortOrder = prefs.getString("sort_order", null);
+
+        Bundle args = new Bundle();
+        if (savedSortOrder != null) {
+            args.putString("sortOrder", savedSortOrder);
+        }
+        
+        LoaderManager.getInstance(this).initLoader(ITEM_LOADER, args, this);
     }
 
     @Override
@@ -250,7 +260,14 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         
         new AlertDialog.Builder(this, R.style.CustomDialogTheme)
                 .setTitle(R.string.sort_dialog_msg)
-                .setSingleChoiceItems(options, 0, (d, which) -> {
+                .setSingleChoiceItems(options, currentSortIndex, (d, which) -> {
+                    currentSortIndex = which;
+                    
+                    PreferenceManager.getDefaultSharedPreferences(this).edit()
+                            .putInt("sort_index", which)
+                            .putString("sort_order", orders[which])
+                            .apply();
+
                     Bundle b = new Bundle();
                     b.putString("sortOrder", orders[which]);
                     LoaderManager.getInstance(this).restartLoader(ITEM_LOADER, b, this);
