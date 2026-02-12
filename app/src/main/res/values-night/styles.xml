@@ -3,11 +3,13 @@
         <item name="android:textColor">?attr/colorOnSurface</item>
         <item name="android:alertDialogTheme">@style/CustomAlertDialogStyle</item>
         <item name="materialAlertDialogTheme">@style/CustomAlertDialogStyle</item>
+        <item name="materialCardViewStyle">@style/CustomCardViewStyle</item>
     </style>
 
     <style name="CustomAlertDialogStyle" parent="Theme.AppCompat.DayNight.Dialog.Alert">
         <item name="android:textColorPrimary">?attr/colorOnSurface</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:background">?attr/colorSurface</item>
     </style>
 
     <style name="PopupMenuTextStyle" parent="@style/Widget.AppCompat.PopupMenu.Overflow">
@@ -16,19 +18,22 @@
     </style>
 
     <style name="RadioDialogTheme" parent="Theme.AppCompat.DayNight.Dialog.Alert">
-        <item name="colorControlNormal">@color/colorAccent</item>
-        <item name="colorControlActivated">@color/colorAccent</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorControlNormal">@color/dodger_blue</item>
+        <item name="colorControlActivated">@color/dodger_blue</item>
+        <item name="colorAccent">@color/dodger_blue</item>
         <item name="android:textColorPrimary">?attr/colorOnSurface</item>
     </style>
 
     <style name="SearchBarTheme" parent="MaterialSearchBarDark">
-        <item name="mt_searchBarColor">#303030</item>
+        <item name="mt_searchBarColor">@color/surface_dark</item>
         <item name="mt_dividerColor">@android:color/transparent</item>
         <item name="mt_searchIconTint">@color/dodger_blue</item>
         <item name="mt_placeholderColor">@color/dodger_blue</item>
-        <item name="mt_textCursorTint">@color/dodger_blue</item>
-        <item name="mt_navIconEnabled">false</item>
+        <item name="mt_textColor">?attr/colorOnSurface</item>
+        <item name="mt_navIconTint">@color/dodger_blue</item>
+        <item name="mt_backIconTint">@color/dodger_blue</item>
+        <item name="mt_clearIconTint">@color/dodger_blue</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
 </resources>

@@ -28,11 +28,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:strokeWidth="0dp">
+                android:layout_margin="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -73,11 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:strokeWidth="0dp">
+                android:layout_marginBottom="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -107,6 +99,13 @@
             <TextView android:id="@+id/btn_theme_system" style="@style/SettingsRowStyle" android:text="System Default" android:textSize="14sp" />
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/divider" />
+
         <LinearLayout
             android:id="@+id/btn_backup_settings"
             style="@style/SettingsRowStyle">
@@ -117,6 +116,13 @@
           </LinearLayout>
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/divider" />
+
         <LinearLayout
             android:id="@+id/btn_restore_settings"
             style="@style/SettingsRowStyle">
@@ -125,6 +131,13 @@
             <TextView style="@style/SettingsSubtitleStyle" android:text="Restore data from a backup file" />
           </LinearLayout>
         </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/divider" />
 
         <LinearLayout
             android:id="@+id/btn_about_header"
@@ -170,11 +183,7 @@
             <com.google.android.material.card.MaterialCardView
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_margin="16dp"
-				app:cardCornerRadius="16dp"
-				app:cardElevation="2dp"
-				app:cardBackgroundColor="?attr/colorSurface"
-				app:strokeWidth="0dp">
+				android:layout_margin="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -209,11 +218,7 @@
             <com.google.android.material.card.MaterialCardView
 				      android:layout_width="match_parent"
 				      android:layout_height="wrap_content"
-				      android:layout_margin="16dp"
-				      app:cardCornerRadius="16dp"
-				      app:cardElevation="2dp"
-				      app:cardBackgroundColor="?attr/colorSurface"
-				      app:strokeWidth="0dp">
+				      android:layout_margin="16dp">
 
         <LinearLayout
 			android:layout_width="match_parent"
@@ -259,7 +264,6 @@
 				android:layout_width="match_parent"
     			android:layout_height="wrap_content"
     			android:layout_margin="16dp"
-    			app:cardCornerRadius="16dp"
     			app:strokeColor="#FF0000"
     			app:strokeWidth="1dp">
 

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".CatalogActivity"
-    android:background="?attr/colorSurface">
+    android:background="@color/screen_background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"

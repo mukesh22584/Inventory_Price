@@ -54,15 +54,16 @@
     </style>
 
     <style name="SearchBarTheme" parent="MaterialSearchBarLight">
-        <item name="mt_searchBarColor">#EEEEEE</item>
+        <item name="mt_searchBarColor">#FFFFFF</item>
         <item name="mt_dividerColor">@android:color/transparent</item>
         <item name="mt_searchIconTint">@color/dodger_blue</item>
         <item name="mt_placeholderColor">@color/dodger_blue</item>
         <item name="mt_textCursorTint">@color/dodger_blue</item>
+        <item name="android:elevation">4dp</item>
     </style>
 
     <style name="PopupMenuTextStyle" parent="@style/Widget.AppCompat.PopupMenu.Overflow">
-        <item name="android:textColor">@color/popup_text_color</item>
+        <item name="android:textColor">@color/primary_text_color</item>
         <item name="android:popupBackground">@color/popup_background_color</item>
     </style>
 
@@ -119,5 +120,12 @@
         <item name="thumbTint">@color/switch_thumb_on</item>
         <item name="trackTint">@color/switch_track_off</item>
         <item name="useMaterialThemeColors">false</item>
+    </style>
+
+    <style name="CustomCardViewStyle" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="strokeWidth">0dp</item>
     </style>
 </resources>

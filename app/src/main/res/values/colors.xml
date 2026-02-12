@@ -9,4 +9,8 @@
     <color name="switch_thumb_off">#BDBDBD</color>
     <color name="switch_track_on">#4D1E90FF</color>
     <color name="switch_track_off">#42000000</color>
+    <color name="divider_color">#1F000000</color>
+    <color name="background_dark">#000000</color>
+    <color name="surface_dark">#1C1C1E</color>
+    <color name="screen_background">#F2F2F7</color>
 </resources>
