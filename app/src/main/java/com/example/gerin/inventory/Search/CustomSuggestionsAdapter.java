@@ -35,12 +35,16 @@ public class CustomSuggestionsAdapter extends SuggestionsAdapter<SearchResult, C
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
-                List<SearchResult> suggestions;
-                if (constraint == null || constraint.length() == 0) {
-                    suggestions = new ArrayList<>();
-                } else {
-                    suggestions = dbHelper.getNewResult(constraint.toString());
+                List<SearchResult> suggestions = new ArrayList<>();
+                
+                if (constraint != null && constraint.length() > 0) {
+                    try {
+                        suggestions = dbHelper.getNewResult(constraint.toString());
+                    } catch (Exception e) {
+                        suggestions = new ArrayList<>();
+                    }
                 }
+                
                 results.values = suggestions;
                 results.count = suggestions.size();
                 return results;

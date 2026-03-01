@@ -19,6 +19,7 @@ public class ItemDbHelper extends SQLiteOpenHelper{
 
     public ItemDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        setWriteAheadLoggingEnabled(true);
     }
 
     @Override
@@ -51,7 +52,7 @@ public class ItemDbHelper extends SQLiteOpenHelper{
             try {
                 db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_IMAGE + " BLOB;");
                 db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_URI + " TEXT;");
-            } catch (Exception e) {
+            } catch (android.database.SQLException e) {
                 Log.e("ItemDbHelper", "V5 Upgrade error: " + e.getMessage());
             }
         }
@@ -60,7 +61,7 @@ public class ItemDbHelper extends SQLiteOpenHelper{
             try {
                 db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_SIZE + " TEXT;");
                 db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_SIZE_UNIT + " TEXT;");
-            } catch (Exception e) {
+            } catch (android.database.SQLException e) {
                 Log.e("ItemDbHelper", "V9 Upgrade error: " + e.getMessage());
             }
         }
@@ -70,7 +71,7 @@ public class ItemDbHelper extends SQLiteOpenHelper{
                 db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_TAG1 + " TEXT;");
                 db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_TAG2 + " TEXT;");
                 db.execSQL("ALTER TABLE " + ItemEntry.TABLE_NAME + " ADD COLUMN " + ItemEntry.COLUMN_ITEM_TAG3 + " TEXT;");
-            } catch (Exception e) {
+            } catch (android.database.SQLException e) {
                 Log.e("ItemDbHelper", "V10 Upgrade error: " + e.getMessage());
             }
         }
@@ -104,30 +105,36 @@ public class ItemDbHelper extends SQLiteOpenHelper{
 
     private List<SearchResult> fetchSearchResults(String selection, String[] selectionArgs, String limit, String sortOrder) {
         List<SearchResult> resultList = new ArrayList<>();
-        SQLiteDatabase db = getReadableDatabase();
         String[] projection = { ItemEntry._ID, ItemEntry.COLUMN_ITEM_NAME };
 
-        try (Cursor cursor = db.query(
-                ItemEntry.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                sortOrder,
-                limit)) {
+        try {
+            SQLiteDatabase db = getReadableDatabase();
+            try (Cursor cursor = db.query(
+                    ItemEntry.TABLE_NAME,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    sortOrder,
+                    limit)) {
 
-            if (cursor != null && cursor.moveToFirst()) {
-                int idIdx = cursor.getColumnIndexOrThrow(ItemEntry._ID);
-                int nameIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_NAME);
+                if (cursor != null && cursor.moveToFirst()) {
+                    int idIdx = cursor.getColumnIndexOrThrow(ItemEntry._ID);
+                    int nameIdx = cursor.getColumnIndexOrThrow(ItemEntry.COLUMN_ITEM_NAME);
 
-                do {
-                    resultList.add(new SearchResult(
-                            cursor.getInt(idIdx),
-                            cursor.getString(nameIdx)
-                    ));
-                } while (cursor.moveToNext());
+                    do {
+                        resultList.add(new SearchResult(
+                                cursor.getInt(idIdx),
+                                cursor.getString(nameIdx)
+                        ));
+                    } while (cursor.moveToNext());
+                }
             }
+        } catch (android.database.sqlite.SQLiteException e) {
+            Log.e("ItemDbHelper", "Database access error during search", e);
+        } catch (IllegalArgumentException e) {
+            Log.e("ItemDbHelper", "Invalid column mapped in search", e);
         } catch (Exception e) {
             Log.e("ItemDbHelper", "Search failed", e);
         }
